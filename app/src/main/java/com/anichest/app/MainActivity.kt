@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.anichest.app
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,9 +14,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.myapplication.ui.theme.MyApplicationTheme
-import com.example.myapplication.ui.viewmodel.MainViewModel
-import com.example.myapplication.ui.viewmodel.MainViewModelFactory
+import com.anichest.app.ui.theme.MyApplicationTheme
+import com.anichest.app.ui.viewmodel.MainViewModel
+import com.anichest.app.ui.viewmodel.MainViewModelFactory
 
 /**
  * アプリケーションのメインアクティビティ
@@ -49,7 +49,7 @@ class MainActivity : ComponentActivity() {
         // Jetpack ComposeのUIを設定
         setContent {
             // アプリのテーマを適用
-            MyApplicationTheme {
+            AnichestTheme {
                 // Material3のScaffoldを使用してレイアウトの基本構造を作成
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     // メイン画面を表示（パディングを適用してシステムバーとの重複を回避）
@@ -84,7 +84,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     if (application != null) {
         // ViewModelを作成（ファクトリーを使用）
         val viewModel: MainViewModel = viewModel(
-            factory = MainViewModelFactory(application.repository)
+            factory = MainViewModelFactory(application.stringRepository)
         )
         // StateFlowから文字列を取得
         val greeting by viewModel.greeting.collectAsState()
@@ -130,7 +130,7 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
-    MyApplicationTheme {
+    AnichestTheme {
         Greeting("Android")
     }
 }

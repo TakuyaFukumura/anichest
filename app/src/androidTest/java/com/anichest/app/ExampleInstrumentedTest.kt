@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.anichest.app
 
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -61,7 +61,7 @@ class ExampleInstrumentedTest {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         
         // パッケージ名が正しく設定されていることを確認
-        assertEquals("com.example.myapplication", appContext.packageName)
+        assertEquals("com.anichest.app", appContext.packageName)
     }
     
     /**

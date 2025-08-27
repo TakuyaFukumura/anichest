@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.theme
+package com.anichest.app.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -77,7 +77,7 @@ private val LightColorScheme = lightColorScheme(
  *                通常はアプリのメインコンテンツが渡されます。
  */
 @Composable
-fun MyApplicationTheme(
+fun AnichestTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color は Android 12以降で利用可能
     dynamicColor: Boolean = true,

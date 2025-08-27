@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.anichest.app
 
 import org.junit.Test
 import org.junit.Assert.*
