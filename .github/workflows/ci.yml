@@ -1,0 +1,91 @@
+# Android CI ワークフロー
+# このワークフローは、Androidアプリのビルドとテストを自動化します。
+
+name: Android CI
+
+# トリガー条件
+on:
+  push:
+
+# 並行実行の制御
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ビルドとテストのジョブ
+  build:
+    name: ビルドとテスト
+    runs-on: ubuntu-latest
+    
+    steps:
+      # リポジトリのチェックアウト
+      - name: コードをチェックアウト
+        uses: actions/checkout@v5
+      
+      # Java環境のセットアップ
+      - name: Java 17をセットアップ
+        uses: actions/setup-java@v5
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      # Android SDKのセットアップ
+      - name: Android SDKをセットアップ
+        uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-36 build-tools;35.0.0'
+
+      # Gradleの依存関係をキャッシュ
+      - name: Gradle依存関係をキャッシュ
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      # Gradlewの実行権限を付与
+      - name: Gradlewに実行権限を付与
+        run: chmod +x gradlew
+      
+      # SDK ライセンスを受諾
+      - name: Android SDKライセンスを受諾
+        run: yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+      
+      # 依存関係のダウンロード
+      - name: 依存関係をダウンロード
+        run: ./gradlew dependencies --no-daemon
+      
+      # Lintチェック
+      - name: Lintチェックを実行
+        run: ./gradlew lintDebug --no-daemon
+      
+      # 単体テスト実行
+      - name: 単体テストを実行
+        run: ./gradlew testDebugUnitTest --no-daemon
+      
+      # デバッグビルド
+      - name: デバッグビルドを作成
+        run: ./gradlew assembleDebug --no-daemon
+      
+#      # APKファイルをアーティファクトとして保存
+#      - name: APKファイルを保存
+#        uses: actions/upload-artifact@v4
+#        with:
+#          name: debug-apk
+#          path: app/build/outputs/apk/debug/*.apk
+#          retention-days: 7
+#
+#      # テスト結果をアーティファクトとして保存
+#      - name: テスト結果を保存
+#        uses: actions/upload-artifact@v4
+#        if: always()
+#        with:
+#          name: test-results
+#          path: |
+#            app/build/test-results/
+#            app/build/reports/tests/
+#          retention-days: 7

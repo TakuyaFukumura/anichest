@@ -1,0 +1,26 @@
+# Dependabot設定ファイル
+# 依存関係の自動更新を管理します
+
+version: 2
+updates:
+  # Gradle依存関係の監視
+  # libs.versions.tomlとbuild.gradle.ktsファイルの依存関係を自動更新
+  - package-ecosystem: "gradle"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 5
+
+  # GitHub Actionsワークフローの依存関係監視
+  # .github/workflows内のアクションを自動更新
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Asia/Tokyo"
+    open-pull-requests-limit: 3
