@@ -1,42 +1,44 @@
-# basic-android-app
+# Anichest
 
-KotlinとJetpack Composeで構築されたモダンなAndroidアプリケーション。シンプルな「Hello Android!」メッセージを表示するサンプルアプリです。
+KotlinとJetpack Composeで構築されたアニメ視聴管理アプリケーション。アニメの視聴状況、評価、進捗を管理できるモダンなAndroidアプリです。
 
 ## 概要
 
 このアプリは以下の機能を提供します：
-- **メインスクリーン**: データベースから取得した文字列を使用した「Hello Android!」メッセージの表示
-- **Roomデータベース統合**: SQLiteデータベースからの文字列データ取得
-- **Jetpack Composeを使用したモダンなUI**: 宣言的UIによる効率的な開発
-- **Material 3デザインシステムの採用**: 最新のデザインガイドラインに準拠
-- **ダークテーマとライトテーマの対応**: システム設定に応じた自動切り替え
-- **動的カラー（Android 12+）の対応**: デバイスの壁紙に基づいた色調整
 
-### アプリの構成
-- **MainActivity**: アプリのエントリーポイント、Composeを設定
-- **MainViewModel**: データベースからの文字列取得を管理するViewModel
-- **Greeting**: データベースから取得した文字列を表示するコンポーザブル関数
-- **Room Database**: 文字列データを格納するSQLiteデータベース
-- **Repository Pattern**: データアクセスの抽象化レイヤー
-- **テーマシステム**: Color、Theme、Typeファイルによる一貫したデザイン
+### 🎯 主要機能
+- **アニメ管理**: 作品の基本情報（タイトル、話数、ジャンル、年度、説明）を管理
+- **視聴状況追跡**: 未視聴、視聴中、視聴済、中止の4つのステータスで管理
+- **5段階評価システム**: 観た作品に1-5の評価を付けることが可能
+- **視聴進捗管理**: 何話まで観たかを記録・追跡
+- **ウィッシュリスト**: 観たい作品を3段階の優先度（高・中・低）で管理
+- **検索・フィルタリング**: タイトル検索や視聴状況での絞り込み
+- **統計表示**: 視聴中・完了作品数の統計情報
+
+### 🏗️ アーキテクチャ
+- **MVVM + Repository パターン**: ViewModel、Repository、DAOによる適切な責任分離
+- **Room Database**: SQLiteベースのローカルデータベース
+- **Jetpack Compose**: 宣言的UIによる効率的な開発
+- **Material 3デザイン**: 最新のデザインガイドラインに準拠
+- **StateFlow**: リアクティブなデータバインディング
 
 ## 開発環境要件
 
 - **Java**: 17
-- **Android SDK**: API 36対応
-- **Kotlin**: 2.0.21
-- **Android Gradle Plugin**: 8.1.0
+- **Android SDK**: API 36対応  
+- **Kotlin**: 2.2.10
+- **Android Gradle Plugin**: 7.4.2
 - **ターゲットSDK**: 36
 - **最小SDK**: 24（Android 7.0以上）
 
 ## 技術スタック
 
-- **UI フレームワーク**: Jetpack Compose (BOM 2024.09.00)
+- **UI フレームワーク**: Jetpack Compose
 - **デザインシステム**: Material 3
 - **アーキテクチャ**: MVVM + Repository Pattern
 - **データベース**: Room (SQLite)
 - **非同期処理**: Kotlin Coroutines + StateFlow
-- **ビルドシステム**: Gradle 8.13 with Kotlin DSL
+- **ビルドシステム**: Gradle with Kotlin DSL
 - **テスト**: JUnit 4 + Espresso
 
 ## セットアップと実行
@@ -47,8 +49,8 @@ KotlinとJetpack Composeで構築されたモダンなAndroidアプリケーシ�
 
 ### 1. プロジェクトのクローン
 ```bash
-git clone https://github.com/TakuyaFukumura/basic-android-app.git
-cd basic-android-app
+git clone https://github.com/TakuyaFukumura/anichest.git
+cd anichest
 ```
 
 ### 2. ビルドと実行
@@ -103,29 +105,37 @@ GitHub Actionsを使用した自動化されたビルドパイプラインが設
 ## プロジェクト構造
 
 ```
-app/src/main/java/com/example/myapplication/
-├── MainActivity.kt              # メインアクティビティ
-├── MyApplication.kt             # アプリケーションクラス（DB初期化）
-├── data/                        # データレイヤー
-│   ├── entity/
-│   │   └── StringEntity.kt      # データベースエンティティ
-│   ├── dao/
-│   │   └── StringDao.kt         # データアクセスオブジェクト
-│   ├── database/
-│   │   └── AppDatabase.kt       # Roomデータベース設定
-│   └── repository/
-│       └── StringRepository.kt  # リポジトリパターン実装
-├── ui/
-│   ├── viewmodel/
-│   │   └── MainViewModel.kt     # ViewModelクラス
-│   └── theme/                   # UIテーマ設定
-│       ├── Color.kt             # カラーパレット
-│       ├── Theme.kt             # Material 3テーマ
-│       └── Type.kt              # タイポグラフィ設定
+anichest/
+├── app/                           # メインアプリケーションモジュール
+│   ├── src/main/
+│   │   ├── java/com/anichest/app/
+│   │   │   ├── MainActivity.kt    # メインアクティビティ
+│   │   │   ├── AnichestApplication.kt # アプリケーションクラス
+│   │   │   ├── data/              # データ層
+│   │   │   │   ├── entity/        # Roomエンティティ
+│   │   │   │   │   ├── Anime.kt   # アニメ情報
+│   │   │   │   │   ├── AnimeStatus.kt # 視聴状況
+│   │   │   │   │   └── WishlistItem.kt # ウィッシュリスト
+│   │   │   │   ├── dao/           # データアクセスオブジェクト
+│   │   │   │   ├── database/      # データベース設定
+│   │   │   │   └── repository/    # リポジトリ層
+│   │   │   └── ui/               # UI層
+│   │   │       ├── screen/       # 画面コンポーネント
+│   │   │       ├── viewmodel/    # ViewModelクラス
+│   │   │       └── theme/        # UIテーマ設定
+│   │   ├── res/                  # Androidリソース
+│   │   └── AndroidManifest.xml   # アプリマニフェスト
+│   ├── src/test/                 # ユニットテスト
+│   └── src/androidTest/          # インストルメンテーションテスト
 ```
 
 ## バージョン履歴
 
-- **v0.3.0**: Roomデータベース統合、MVVM+Repository パターンの実装
-- **v0.2.0**: Java 17への移行、最新依存関係への更新
-- **v0.1.0**: 初期バージョン（Java 11ベース）
+- **v0.1.0**: アニメ視聴管理機能の初期実装
+  - アニメ情報管理（タイトル、話数、ジャンル、年度、説明）
+  - 視聴状況管理（未視聴、視聴中、視聴済、中止）
+  - 5段階評価システム
+  - 視聴進捗追跡
+  - ウィッシュリスト（3段階優先度）
+  - MVVM + Repository パターン実装
+  - Room Database統合
