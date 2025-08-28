@@ -32,9 +32,9 @@ fun HomeScreen(
     onNavigateToWishlist: () -> Unit = {},
     onNavigateToAnimeDetail: (Int) -> Unit = {}
 ) {
-    val animeList by viewModel.animeList.collectAsState()
-    val watchingCount by viewModel.watchingCount.collectAsState()
-    val completedCount by viewModel.completedCount.collectAsState()
+    val animeList by viewModel.animeList.collectAsState(initial = emptyList())
+    val watchingCount by viewModel.watchingCount.collectAsState(initial = 0)
+    val completedCount by viewModel.completedCount.collectAsState(initial = 0)
     val isLoading by viewModel.isLoading.collectAsState()
 
     Column(

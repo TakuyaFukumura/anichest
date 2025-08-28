@@ -2,7 +2,8 @@ package com.anichest.app
 
 import org.junit.Test
 import org.junit.Assert.*
-import com.example.myapplication.data.entity.StringEntity
+import com.anichest.app.data.entity.Anime
+import com.anichest.app.data.entity.WatchStatus
 
 /**
  * ローカルユニットテストクラス
@@ -12,7 +13,7 @@ import com.example.myapplication.data.entity.StringEntity
  * 
  * テスト対象:
  * - 基本的な計算処理
- * - StringEntityクラスの機能
+ * - Animeエンティティクラスの機能
  * - ビジネスロジックの検証
  * 
  * ユニットテストの利点:
@@ -44,44 +45,59 @@ class ExampleUnitTest {
     }
     
     /**
-     * StringEntityクラスのコンストラクタテスト
+     * Animeエンティティクラスのコンストラクタテスト
      * 
-     * StringEntityオブジェクトが正しく作成され、
+     * Animeオブジェクトが正しく作成され、
      * プロパティに適切な値が設定されることを確認します。
      * 
      * 検証内容:
      * - IDが正しく設定される
-     * - 文字列値が正しく設定される
+     * - タイトルが正しく設定される
+     * - エピソード数が正しく設定される
      * - オブジェクトの整合性が保たれる
      */
     @Test
-    fun stringEntity_creation_isCorrect() {
-        // テスト用のStringEntityを作成
-        val entity = StringEntity(id = 1, value = "Android")
+    fun anime_creation_isCorrect() {
+        // テスト用のAnimeを作成
+        val anime = Anime(
+            id = 1,
+            title = "鬼滅の刃",
+            totalEpisodes = 24,
+            genre = "アクション",
+            year = 2019,
+            description = "大正時代を舞台とした剣戟奇譚"
+        )
         
         // 設定した値が正しく取得できることを確認
-        assertEquals(1, entity.id)
-        assertEquals("Android", entity.value)
+        assertEquals(1, anime.id)
+        assertEquals("鬼滅の刃", anime.title)
+        assertEquals(24, anime.totalEpisodes)
+        assertEquals("アクション", anime.genre)
+        assertEquals(2019, anime.year)
     }
     
     /**
-     * StringEntityのデフォルトIDテスト
+     * WatchStatusのenumテスト
      * 
-     * StringEntityのIDにデフォルト値（0）が正しく設定されることを確認します。
-     * これはRoom データベースでの自動ID生成時に重要な動作です。
+     * WatchStatusの列挙値が正しく定義されていることを確認します。
+     * これはデータベースでの視聴状況管理に重要な動作です。
      * 
      * 検証内容:
-     * - IDが指定されない場合にデフォルト値0が設定される
-     * - 文字列値は正しく設定される
-     * - データベース挿入時の動作をシミュレート
+     * - UNWATCHED状態が存在する
+     * - WATCHING状態が存在する
+     * - COMPLETED状態が存在する
+     * - DROPPED状態が存在する
      */
     @Test
-    fun stringEntity_defaultId_isZero() {
-        // IDを指定せずにStringEntityを作成（デフォルト値使用）
-        val entity = StringEntity(value = "Test")
+    fun watchStatus_enumValues_areCorrect() {
+        // 全ての視聴状況が定義されていることを確認
+        val statuses = WatchStatus.values()
+        assertEquals(4, statuses.size)
         
-        // デフォルトIDが0に設定されることを確認
-        assertEquals(0, entity.id)
-        assertEquals("Test", entity.value)
+        // 各状況が正しく定義されていることを確認
+        assertTrue(statuses.contains(WatchStatus.UNWATCHED))
+        assertTrue(statuses.contains(WatchStatus.WATCHING))
+        assertTrue(statuses.contains(WatchStatus.COMPLETED))
+        assertTrue(statuses.contains(WatchStatus.DROPPED))
     }
 }
