@@ -38,7 +38,7 @@ enum class Priority {
 data class WishlistItem(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val animeId: Int,
+    val animeId: Long,
     val priority: Priority = Priority.MEDIUM,
     val addedAt: Long = System.currentTimeMillis(),
     val notes: String = ""

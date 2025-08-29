@@ -37,7 +37,7 @@ class AnimeDetailViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
-    fun loadAnime(animeId: Int) {
+    fun loadAnime(animeId: Long) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true

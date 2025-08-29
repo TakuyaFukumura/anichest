@@ -107,7 +107,7 @@ class AddWishlistViewModel(
 
                 // ウィッシュリストアイテムを作成
                 val wishlistItem = WishlistItem(
-                    animeId = animeId.toInt(),
+                    animeId = animeId,
                     priority = currentState.priority,
                     notes = currentState.notes.trim()
                 )

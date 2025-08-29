@@ -50,7 +50,7 @@ import com.anichest.app.ui.viewmodel.WishlistViewModel
 fun WishlistScreen(
     viewModel: WishlistViewModel,
     onNavigateBack: () -> Unit = {},
-    onNavigateToAnimeDetail: (Int) -> Unit = {},
+    onNavigateToAnimeDetail: (Long) -> Unit = {},
     onNavigateToAddWishlist: () -> Unit = {}
 ) {
     val wishlistItems by viewModel.wishlistItems.collectAsState(initial = emptyList())

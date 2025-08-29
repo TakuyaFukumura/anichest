@@ -15,7 +15,7 @@ class AnimeStatusRepository(private val animeStatusDao: AnimeStatusDao) {
     fun getStatusByWatchStatus(status: WatchStatus): Flow<List<AnimeStatus>> =
         animeStatusDao.getStatusByWatchStatus(status)
 
-    suspend fun getStatusByAnimeId(animeId: Int): AnimeStatus? =
+    suspend fun getStatusByAnimeId(animeId: Long): AnimeStatus? =
         animeStatusDao.getStatusByAnimeId(animeId)
 
     suspend fun insertOrUpdateStatus(status: AnimeStatus) =
@@ -25,7 +25,7 @@ class AnimeStatusRepository(private val animeStatusDao: AnimeStatusDao) {
 
     suspend fun deleteStatus(status: AnimeStatus) = animeStatusDao.deleteStatus(status)
 
-    suspend fun deleteStatusByAnimeId(animeId: Int) = animeStatusDao.deleteStatusByAnimeId(animeId)
+    suspend fun deleteStatusByAnimeId(animeId: Long) = animeStatusDao.deleteStatusByAnimeId(animeId)
 
     fun getWatchingCount(): Flow<Int> = animeStatusDao.getWatchingCount()
 

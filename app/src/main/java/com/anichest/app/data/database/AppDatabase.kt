@@ -27,7 +27,7 @@ import kotlinx.coroutines.launch
         WishlistItem::class,
         StringEntity::class // 後方互換性のため残す
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -53,6 +53,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "anichest_database"
                 )
                     .addCallback(AppDatabaseCallback(scope))
+                    .fallbackToDestructiveMigration()
                     .build()
 
                 INSTANCE = instance

@@ -48,7 +48,7 @@ import com.anichest.app.ui.viewmodel.AnimeListViewModel
 fun AnimeListScreen(
     viewModel: AnimeListViewModel,
     onNavigateBack: () -> Unit = {},
-    onNavigateToAnimeDetail: (Int) -> Unit = {}
+    onNavigateToAnimeDetail: (Long) -> Unit = {}
 ) {
     val animeList by viewModel.animeList.collectAsState(initial = emptyList())
     val isLoading by viewModel.isLoading.collectAsState()

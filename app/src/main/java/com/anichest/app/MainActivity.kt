@@ -65,7 +65,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
         val navigateToAnimeList = { currentDestination = NavigationDestination.AnimeList }
         val navigateToWishlist = { currentDestination = NavigationDestination.Wishlist }
         val navigateToAddWishlist = { currentDestination = NavigationDestination.AddWishlist }
-        val navigateToAnimeDetail = { animeId: Int ->
+        val navigateToAnimeDetail = { animeId: Long ->
             currentDestination = NavigationDestination.AnimeDetail(animeId)
         }
 

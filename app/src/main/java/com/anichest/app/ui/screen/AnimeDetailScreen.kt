@@ -41,7 +41,7 @@ import com.anichest.app.ui.viewmodel.AnimeDetailViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AnimeDetailScreen(
-    animeId: Int,
+    animeId: Long,
     viewModel: AnimeDetailViewModel,
     onNavigateBack: () -> Unit = {}
 ) {

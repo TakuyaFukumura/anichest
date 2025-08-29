@@ -8,5 +8,5 @@ sealed class NavigationDestination {
     object AnimeList : NavigationDestination()
     object Wishlist : NavigationDestination()
     object AddWishlist : NavigationDestination()
-    data class AnimeDetail(val animeId: Int) : NavigationDestination()
+    data class AnimeDetail(val animeId: Long) : NavigationDestination()
 }

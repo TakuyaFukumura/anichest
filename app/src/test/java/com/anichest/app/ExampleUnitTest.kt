@@ -61,7 +61,7 @@ class ExampleUnitTest {
     fun anime_creation_isCorrect() {
         // テスト用のAnimeを作成
         val anime = Anime(
-            id = 1,
+            id = 1L,
             title = "鬼滅の刃",
             totalEpisodes = 24,
             genre = "アクション",
@@ -70,7 +70,7 @@ class ExampleUnitTest {
         )
 
         // 設定した値が正しく取得できることを確認
-        assertEquals(1, anime.id)
+        assertEquals(1L, anime.id)
         assertEquals("鬼滅の刃", anime.title)
         assertEquals(24, anime.totalEpisodes)
         assertEquals("アクション", anime.genre)

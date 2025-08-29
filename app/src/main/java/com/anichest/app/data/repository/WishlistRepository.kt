@@ -18,7 +18,7 @@ class WishlistRepository(private val wishlistDao: WishlistDao) {
     fun getWishlistByPriority(priority: Priority): Flow<List<WishlistItem>> =
         wishlistDao.getWishlistByPriority(priority)
 
-    suspend fun getWishlistItemByAnimeId(animeId: Int): WishlistItem? =
+    suspend fun getWishlistItemByAnimeId(animeId: Long): WishlistItem? =
         wishlistDao.getWishlistItemByAnimeId(animeId)
 
     suspend fun insertWishlistItem(item: WishlistItem) = wishlistDao.insertWishlistItem(item)
@@ -27,7 +27,7 @@ class WishlistRepository(private val wishlistDao: WishlistDao) {
 
     suspend fun deleteWishlistItem(item: WishlistItem) = wishlistDao.deleteWishlistItem(item)
 
-    suspend fun deleteWishlistItemByAnimeId(animeId: Int) =
+    suspend fun deleteWishlistItemByAnimeId(animeId: Long) =
         wishlistDao.deleteWishlistItemByAnimeId(animeId)
 
     fun getWishlistCount(): Flow<Int> = wishlistDao.getWishlistCount()

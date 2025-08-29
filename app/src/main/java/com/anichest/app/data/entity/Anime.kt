@@ -17,7 +17,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "anime")
 data class Anime(
     @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    val id: Long = 0L,
     val title: String,
     val totalEpisodes: Int = 0,
     val genre: String = "",

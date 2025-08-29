@@ -19,7 +19,7 @@ class AnimeRepository(private val animeDao: AnimeDao) {
     fun getAnimeByStatus(status: String): Flow<List<AnimeWithStatus>> =
         animeDao.getAnimeByStatus(status)
 
-    suspend fun getAnimeById(id: Int): Anime? = animeDao.getAnimeById(id)
+    suspend fun getAnimeById(id: Long): Anime? = animeDao.getAnimeById(id)
 
     suspend fun insertAnime(anime: Anime): Long = animeDao.insertAnime(anime)
 
@@ -27,5 +27,5 @@ class AnimeRepository(private val animeDao: AnimeDao) {
 
     suspend fun deleteAnime(anime: Anime) = animeDao.deleteAnime(anime)
 
-    suspend fun deleteAnimeById(id: Int) = animeDao.deleteAnimeById(id)
+    suspend fun deleteAnimeById(id: Long) = animeDao.deleteAnimeById(id)
 }
