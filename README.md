@@ -1,6 +1,7 @@
 # Anichest
 
-KotlinとJetpack Composeで構築されたアニメ視聴管理アプリケーション。アニメの視聴状況、評価、進捗を管理できるモダンなAndroidアプリです。
+KotlinとJetpack Composeで構築されたアニメ視聴管理アプリケーション。
+アニメの視聴状況、評価、進捗を管理できるモダンなAndroidアプリです。
 
 ## 概要
 
@@ -45,44 +46,51 @@ KotlinとJetpack Composeで構築されたアニメ視聴管理アプリケー�
 
 ### 前提条件
 
-⚠️ **注意**: ビルドにはインターネット接続が必要です。Android Gradle Pluginの依存関係をGoogleのMavenリポジトリからダウンロードする必要があります。
+⚠️ **注意**: ビルドにはインターネット接続が必要です。
+Android Gradle Pluginの依存関係をGoogleのMavenリポジトリからダウンロードする必要があります。
 
 ### 1. プロジェクトのクローン
 ```bash
 git clone https://github.com/TakuyaFukumura/anichest.git
+```
+```bash
 cd anichest
 ```
 
 ### 2. ビルドと実行
+- 実行権限の付与
 ```bash
-# 実行権限の付与
 chmod +x gradlew
-
-# 依存関係の確認
+```
+- 依存関係の確認
+```bash
 ./gradlew dependencies
-
-# デバッグビルド（初回は時間がかかります）
+```
+- デバッグビルド（初回は時間がかかります）
+```bash
 ./gradlew assembleDebug
-
-# デバイスまたはエミュレーターにインストール
+```
+- デバイスまたはエミュレーターにインストール
+```bash
 ./gradlew installDebug
 ```
 
 ### 3. 開発用のタスク
+- Lintチェック
 ```bash
-# Lintチェック
 ./gradlew lintDebug
-
-# ユニットテスト実行
+```
+- ユニットテスト実行
+```bash
 ./gradlew testDebugUnitTest
-
-# 全体的なコード品質チェック
+```
+- 全体的なコード品質チェック
+```bash
 ./gradlew check
 ```
 
 ### トラブルシューティング
 
-- 初回ビルドでネットワークエラーが発生する場合は、インターネット接続を確認してください
 - Gradleデーモンの問題が発生した場合は `./gradlew --stop` で停止後に再実行してください
 
 ## CI/CD設定
