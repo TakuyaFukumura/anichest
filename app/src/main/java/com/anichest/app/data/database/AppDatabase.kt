@@ -84,7 +84,7 @@ abstract class AppDatabase : RoomDatabase() {
          */
         private suspend fun populateSampleData(database: AppDatabase) {
             val animeDao = database.animeDao()
-            
+
             // サンプルアニメデータ
             val sampleAnimes = listOf(
                 Anime(
@@ -109,7 +109,7 @@ abstract class AppDatabase : RoomDatabase() {
                     description = "スパイ、殺し屋、超能力者による偽装家族の日常"
                 )
             )
-            
+
             sampleAnimes.forEach { anime ->
                 animeDao.insertAnime(anime)
             }

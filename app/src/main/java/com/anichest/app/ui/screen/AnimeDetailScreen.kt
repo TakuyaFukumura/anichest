@@ -81,6 +81,7 @@ fun AnimeDetailScreen(
                         CircularProgressIndicator()
                     }
                 }
+
                 error != null -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
@@ -93,6 +94,7 @@ fun AnimeDetailScreen(
                         )
                     }
                 }
+
                 anime != null -> {
                     Column(
                         modifier = Modifier

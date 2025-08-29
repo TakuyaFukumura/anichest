@@ -2,10 +2,6 @@ package com.anichest.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
-import com.anichest.app.data.entity.Anime
-import com.anichest.app.data.entity.AnimeStatus
-import com.anichest.app.data.entity.AnimeWithStatus
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.data.repository.AnimeRepository
 import com.anichest.app.data.repository.AnimeStatusRepository
@@ -13,7 +9,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.launch
 
 /**
  * アニメリスト画面のViewModel
@@ -39,24 +34,24 @@ class AnimeListViewModel(
         selectedFilter
     ) { allAnime, query, filter ->
         _isLoading.value = false
-        
+
         var filteredList = allAnime
-        
+
         // 検索フィルター
         if (query.isNotBlank()) {
             filteredList = filteredList.filter { animeWithStatus ->
                 animeWithStatus.anime.title.contains(query, ignoreCase = true)
             }
         }
-        
+
         // 視聴状況フィルター
         if (filter != null) {
             filteredList = filteredList.filter { animeWithStatus ->
-                animeWithStatus.status?.status == filter || 
-                (animeWithStatus.status == null && filter == WatchStatus.UNWATCHED)
+                animeWithStatus.status?.status == filter ||
+                        (animeWithStatus.status == null && filter == WatchStatus.UNWATCHED)
             }
         }
-        
+
         filteredList
     }
 
