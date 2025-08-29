@@ -46,7 +46,7 @@ class AddWishlistViewModel(
 
     fun updateTotalEpisodes(episodes: String) {
         // 数字のみ許可
-        if (episodes.isEmpty() || episodes.all { it.isDigit() }) {
+        if (episodes.isEmpty() || episodes.matches(Regex("\\d*"))) {
             _uiState.value = _uiState.value.copy(totalEpisodes = episodes)
         }
     }
@@ -57,7 +57,7 @@ class AddWishlistViewModel(
 
     fun updateYear(year: String) {
         // 数字のみ許可（4桁まで）
-        if (year.isEmpty() || (year.all { it.isDigit() } && year.length <= 4)) {
+        if (year.isEmpty() || year.matches(Regex("\\d{0,4}"))) {
             _uiState.value = _uiState.value.copy(year = year)
         }
     }
