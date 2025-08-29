@@ -48,7 +48,7 @@ class WishlistViewModel(
         _selectedPriority.value = null
     }
 
-    fun updatePriority(animeId: Int, priority: Priority) {
+    fun updatePriority(animeId: Long, priority: Priority) {
         viewModelScope.launch {
             try {
                 val item = wishlistRepository.getWishlistItemByAnimeId(animeId)
@@ -62,7 +62,7 @@ class WishlistViewModel(
         }
     }
 
-    fun removeFromWishlist(animeId: Int) {
+    fun removeFromWishlist(animeId: Long) {
         viewModelScope.launch {
             try {
                 wishlistRepository.deleteWishlistItemByAnimeId(animeId)

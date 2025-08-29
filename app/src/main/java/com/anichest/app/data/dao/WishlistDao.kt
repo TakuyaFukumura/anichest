@@ -47,7 +47,7 @@ interface WishlistDao {
      * 特定アニメのウィッシュリストアイテムを取得
      */
     @Query("SELECT * FROM wishlist WHERE animeId = :animeId")
-    suspend fun getWishlistItemByAnimeId(animeId: Int): WishlistItem?
+    suspend fun getWishlistItemByAnimeId(animeId: Long): WishlistItem?
 
     /**
      * ウィッシュリストアイテムを挿入
@@ -71,7 +71,7 @@ interface WishlistDao {
      * 特定アニメのウィッシュリストアイテムを削除
      */
     @Query("DELETE FROM wishlist WHERE animeId = :animeId")
-    suspend fun deleteWishlistItemByAnimeId(animeId: Int)
+    suspend fun deleteWishlistItemByAnimeId(animeId: Long)
 
     /**
      * ウィッシュリストの総数を取得

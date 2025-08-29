@@ -26,7 +26,7 @@ interface AnimeStatusDao {
      * 特定アニメの視聴状況を取得
      */
     @Query("SELECT * FROM anime_status WHERE animeId = :animeId")
-    suspend fun getStatusByAnimeId(animeId: Int): AnimeStatus?
+    suspend fun getStatusByAnimeId(animeId: Long): AnimeStatus?
 
     /**
      * 特定の視聴状況のアニメを取得
@@ -56,7 +56,7 @@ interface AnimeStatusDao {
      * 特定アニメの視聴状況を削除
      */
     @Query("DELETE FROM anime_status WHERE animeId = :animeId")
-    suspend fun deleteStatusByAnimeId(animeId: Int)
+    suspend fun deleteStatusByAnimeId(animeId: Long)
 
     /**
      * 視聴中のアニメ数を取得

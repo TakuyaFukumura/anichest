@@ -43,7 +43,7 @@ enum class WatchStatus {
 data class AnimeStatus(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
-    val animeId: Int,
+    val animeId: Long,
     val status: WatchStatus = WatchStatus.UNWATCHED,
     val rating: Int = 0, // 0: 未評価, 1-5: 評価
     val review: String = "",

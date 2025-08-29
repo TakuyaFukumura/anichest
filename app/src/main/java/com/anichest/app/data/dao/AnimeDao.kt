@@ -27,7 +27,7 @@ interface AnimeDao {
      * IDでアニメ作品を取得
      */
     @Query("SELECT * FROM anime WHERE id = :id")
-    suspend fun getAnimeById(id: Int): Anime?
+    suspend fun getAnimeById(id: Long): Anime?
 
     /**
      * タイトルでアニメ作品を検索
@@ -78,5 +78,5 @@ interface AnimeDao {
      * IDでアニメ作品を削除
      */
     @Query("DELETE FROM anime WHERE id = :id")
-    suspend fun deleteAnimeById(id: Int)
+    suspend fun deleteAnimeById(id: Long)
 }

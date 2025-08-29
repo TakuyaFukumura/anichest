@@ -17,11 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.anichest.app.ui.navigation.NavigationDestination
+import com.anichest.app.ui.screen.AddWishlistScreen
 import com.anichest.app.ui.screen.AnimeDetailScreen
 import com.anichest.app.ui.screen.AnimeListScreen
 import com.anichest.app.ui.screen.HomeScreen
 import com.anichest.app.ui.screen.WishlistScreen
 import com.anichest.app.ui.theme.AnichestTheme
+import com.anichest.app.ui.viewmodel.AddWishlistViewModel
+import com.anichest.app.ui.viewmodel.AddWishlistViewModelFactory
 import com.anichest.app.ui.viewmodel.AnimeDetailViewModel
 import com.anichest.app.ui.viewmodel.AnimeDetailViewModelFactory
 import com.anichest.app.ui.viewmodel.AnimeListViewModel
@@ -61,7 +64,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
         val navigateToHome = { currentDestination = NavigationDestination.Home }
         val navigateToAnimeList = { currentDestination = NavigationDestination.AnimeList }
         val navigateToWishlist = { currentDestination = NavigationDestination.Wishlist }
-        val navigateToAnimeDetail = { animeId: Int ->
+        val navigateToAddWishlist = { currentDestination = NavigationDestination.AddWishlist }
+        val navigateToAnimeDetail = { animeId: Long ->
             currentDestination = NavigationDestination.AnimeDetail(animeId)
         }
 
@@ -108,7 +112,22 @@ fun MainScreen(modifier: Modifier = Modifier) {
                 WishlistScreen(
                     viewModel = viewModel,
                     onNavigateBack = navigateToHome,
-                    onNavigateToAnimeDetail = navigateToAnimeDetail
+                    onNavigateToAnimeDetail = navigateToAnimeDetail,
+                    onNavigateToAddWishlist = navigateToAddWishlist
+                )
+            }
+
+            NavigationDestination.AddWishlist -> {
+                val viewModel: AddWishlistViewModel = viewModel(
+                    factory = AddWishlistViewModelFactory(
+                        application.animeRepository,
+                        application.wishlistRepository
+                    )
+                )
+
+                AddWishlistScreen(
+                    viewModel = viewModel,
+                    onNavigateBack = navigateToWishlist
                 )
             }
 

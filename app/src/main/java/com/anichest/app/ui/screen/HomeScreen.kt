@@ -46,7 +46,7 @@ fun HomeScreen(
     viewModel: AnimeListViewModel,
     onNavigateToAnimeList: () -> Unit = {},
     onNavigateToWishlist: () -> Unit = {},
-    onNavigateToAnimeDetail: (Int) -> Unit = {}
+    onNavigateToAnimeDetail: (Long) -> Unit = {}
 ) {
     val animeList by viewModel.animeList.collectAsState(initial = emptyList())
     val watchingCount by viewModel.watchingCount.collectAsState(initial = 0)
@@ -216,7 +216,7 @@ private fun StatCard(
 @Composable
 private fun RecentActivitySection(
     animeList: List<AnimeWithStatus>,
-    onAnimeClick: (Int) -> Unit
+    onAnimeClick: (Long) -> Unit
 ) {
     Column {
         Text(
