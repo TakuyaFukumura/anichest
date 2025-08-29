@@ -10,25 +10,25 @@ import kotlinx.coroutines.flow.Flow
  * ウィッシュリストデータアクセスを抽象化するRepository
  */
 class WishlistRepository(private val wishlistDao: WishlistDao) {
-    
+
     fun getAllWishlistItems(): Flow<List<WishlistItem>> = wishlistDao.getAllWishlistItems()
-    
+
     fun getWishlistWithAnime(): Flow<List<AnimeWithWishlist>> = wishlistDao.getWishlistWithAnime()
-    
-    fun getWishlistByPriority(priority: Priority): Flow<List<WishlistItem>> = 
+
+    fun getWishlistByPriority(priority: Priority): Flow<List<WishlistItem>> =
         wishlistDao.getWishlistByPriority(priority)
-    
-    suspend fun getWishlistItemByAnimeId(animeId: Int): WishlistItem? = 
+
+    suspend fun getWishlistItemByAnimeId(animeId: Int): WishlistItem? =
         wishlistDao.getWishlistItemByAnimeId(animeId)
-    
+
     suspend fun insertWishlistItem(item: WishlistItem) = wishlistDao.insertWishlistItem(item)
-    
+
     suspend fun updateWishlistItem(item: WishlistItem) = wishlistDao.updateWishlistItem(item)
-    
+
     suspend fun deleteWishlistItem(item: WishlistItem) = wishlistDao.deleteWishlistItem(item)
-    
-    suspend fun deleteWishlistItemByAnimeId(animeId: Int) = 
+
+    suspend fun deleteWishlistItemByAnimeId(animeId: Int) =
         wishlistDao.deleteWishlistItemByAnimeId(animeId)
-    
+
     fun getWishlistCount(): Flow<Int> = wishlistDao.getWishlistCount()
 }

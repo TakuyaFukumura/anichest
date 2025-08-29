@@ -41,13 +41,13 @@ class AnimeDetailViewModel(
             try {
                 _isLoading.value = true
                 _error.value = null
-                
+
                 val anime = animeRepository.getAnimeById(animeId)
                 _anime.value = anime
-                
+
                 val status = animeStatusRepository.getStatusByAnimeId(animeId)
                 _animeStatus.value = status
-                
+
                 _isLoading.value = false
             } catch (e: Exception) {
                 _error.value = "アニメ情報の読み込みに失敗しました"
@@ -63,11 +63,11 @@ class AnimeDetailViewModel(
         watchedEpisodes: Int
     ) {
         val currentAnime = _anime.value ?: return
-        
+
         viewModelScope.launch {
             try {
                 val currentStatus = _animeStatus.value
-                
+
                 val newStatus = if (currentStatus != null) {
                     currentStatus.copy(
                         status = status,
@@ -94,10 +94,10 @@ class AnimeDetailViewModel(
                         } else ""
                     )
                 }
-                
+
                 animeStatusRepository.insertOrUpdateStatus(newStatus)
                 _animeStatus.value = newStatus
-                
+
             } catch (e: Exception) {
                 _error.value = "視聴状況の更新に失敗しました"
             }
@@ -112,7 +112,7 @@ class AnimeDetailViewModel(
         description: String
     ) {
         val currentAnime = _anime.value ?: return
-        
+
         viewModelScope.launch {
             try {
                 val updatedAnime = currentAnime.copy(
@@ -122,11 +122,11 @@ class AnimeDetailViewModel(
                     year = year,
                     description = description
                 )
-                
+
                 animeRepository.updateAnime(updatedAnime)
                 _anime.value = updatedAnime
                 _isEditing.value = false
-                
+
             } catch (e: Exception) {
                 _error.value = "アニメ情報の更新に失敗しました"
             }
@@ -135,7 +135,7 @@ class AnimeDetailViewModel(
 
     fun deleteAnime() {
         val currentAnime = _anime.value ?: return
-        
+
         viewModelScope.launch {
             try {
                 animeRepository.deleteAnime(currentAnime)

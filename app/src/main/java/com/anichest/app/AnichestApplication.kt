@@ -24,15 +24,15 @@ class AnichestApplication : Application() {
     val animeRepository by lazy {
         AnimeRepository(database.animeDao())
     }
-    
+
     val animeStatusRepository by lazy {
         AnimeStatusRepository(database.animeStatusDao())
     }
-    
+
     val wishlistRepository by lazy {
         WishlistRepository(database.wishlistDao())
     }
-    
+
     // 後方互換性のため残す
     val stringRepository by lazy {
         StringRepository(database.stringDao())

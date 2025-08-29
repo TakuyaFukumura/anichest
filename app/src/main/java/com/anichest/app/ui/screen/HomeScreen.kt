@@ -281,14 +281,14 @@ private fun RecentAnimeItem(
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Medium
                 )
-                
+
                 animeWithStatus.status?.let { status ->
                     Text(
                         text = getStatusText(status.status),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    
+
                     if (status.watchedEpisodes > 0) {
                         Text(
                             text = "${status.watchedEpisodes}話視聴",
@@ -298,7 +298,7 @@ private fun RecentAnimeItem(
                     }
                 }
             }
-            
+
             animeWithStatus.status?.let { status ->
                 if (status.rating > 0) {
                     Row(

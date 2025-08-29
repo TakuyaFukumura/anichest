@@ -37,7 +37,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        
+
         setContent {
             AnichestTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -52,7 +52,7 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current.applicationContext
     val application = context as? AnichestApplication
-    
+
     // ナビゲーションの状態管理
     var currentDestination by remember { mutableStateOf<NavigationDestination>(NavigationDestination.Home) }
 
@@ -61,8 +61,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
         val navigateToHome = { currentDestination = NavigationDestination.Home }
         val navigateToAnimeList = { currentDestination = NavigationDestination.AnimeList }
         val navigateToWishlist = { currentDestination = NavigationDestination.Wishlist }
-        val navigateToAnimeDetail = { animeId: Int -> 
-            currentDestination = NavigationDestination.AnimeDetail(animeId) 
+        val navigateToAnimeDetail = { animeId: Int ->
+            currentDestination = NavigationDestination.AnimeDetail(animeId)
         }
 
         // 現在の画面に応じてコンテンツを表示
@@ -74,7 +74,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         application.animeStatusRepository
                     )
                 )
-                
+
                 HomeScreen(
                     viewModel = viewModel,
                     onNavigateToAnimeList = navigateToAnimeList,
@@ -82,7 +82,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                     onNavigateToAnimeDetail = navigateToAnimeDetail
                 )
             }
-            
+
             NavigationDestination.AnimeList -> {
                 val viewModel: AnimeListViewModel = viewModel(
                     factory = AnimeListViewModelFactory(
@@ -90,28 +90,28 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         application.animeStatusRepository
                     )
                 )
-                
+
                 AnimeListScreen(
                     viewModel = viewModel,
                     onNavigateBack = navigateToHome,
                     onNavigateToAnimeDetail = navigateToAnimeDetail
                 )
             }
-            
+
             NavigationDestination.Wishlist -> {
                 val viewModel: WishlistViewModel = viewModel(
                     factory = WishlistViewModelFactory(
                         application.wishlistRepository
                     )
                 )
-                
+
                 WishlistScreen(
                     viewModel = viewModel,
                     onNavigateBack = navigateToHome,
                     onNavigateToAnimeDetail = navigateToAnimeDetail
                 )
             }
-            
+
             is NavigationDestination.AnimeDetail -> {
                 val viewModel: AnimeDetailViewModel = viewModel(
                     factory = AnimeDetailViewModelFactory(
@@ -119,7 +119,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
                         application.animeStatusRepository
                     )
                 )
-                
+
                 val animeDetailDestination = currentDestination as NavigationDestination.AnimeDetail
                 AnimeDetailScreen(
                     animeId = animeDetailDestination.animeId,
