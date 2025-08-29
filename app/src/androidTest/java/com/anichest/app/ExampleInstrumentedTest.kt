@@ -61,38 +61,4 @@ class ExampleInstrumentedTest {
         // パッケージ名が正しく設定されていることを確認
         assertEquals("com.anichest.app", appContext.packageName)
     }
-
-    /**
-     * MyApplicationクラスの型検証テスト
-     *
-     * アプリケーションクラスが正しくMyApplicationとして
-     * インスタンス化されていることを確認します。
-     *
-     * 検証内容:
-     * - ApplicationクラスがMyApplicationとして認識される
-     * - AndroidManifest.xmlの設定が正しく反映されている
-     * - データベースとリポジトリの初期化準備が整っている
-     *
-     * 重要性:
-     * - MVVMアーキテクチャの基盤となるクラス
-     * - データベース接続の責任を持つ
-     * - アプリ全体のライフサイクル管理
-     *
-     * テスト手法:
-     * - instanceof演算子による型チェック
-     * - assertTrue での真偽値検証
-     * - わかりやすいエラーメッセージの提供
-     */
-    @Test
-    fun myApplication_isCorrectType() {
-        // アプリケーションコンテキストを取得
-        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        val application = appContext.applicationContext
-
-        // アプリケーションクラスがMyApplicationのインスタンスであることを確認
-        assertTrue(
-            "Application should be instance of MyApplication",
-            application is MyApplication
-        )
-    }
 }

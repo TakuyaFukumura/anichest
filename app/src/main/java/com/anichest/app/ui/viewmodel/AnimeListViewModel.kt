@@ -14,8 +14,8 @@ import kotlinx.coroutines.flow.combine
  * アニメリスト画面のViewModel
  */
 class AnimeListViewModel(
-    private val animeRepository: AnimeRepository,
-    private val animeStatusRepository: AnimeStatusRepository
+    animeRepository: AnimeRepository,
+    animeStatusRepository: AnimeStatusRepository
 ) : ViewModel() {
 
     private val _searchQuery = MutableStateFlow("")

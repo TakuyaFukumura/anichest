@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 /**
  * アニメ詳細・編集画面のViewModel
@@ -68,32 +69,29 @@ class AnimeDetailViewModel(
             try {
                 val currentStatus = _animeStatus.value
 
-                val newStatus = if (currentStatus != null) {
-                    currentStatus.copy(
-                        status = status,
-                        rating = rating,
-                        review = review,
-                        watchedEpisodes = watchedEpisodes,
-                        updatedAt = System.currentTimeMillis(),
-                        finishDate = if (status == WatchStatus.COMPLETED) {
-                            java.time.LocalDate.now().toString()
-                        } else currentStatus.finishDate
-                    )
-                } else {
-                    AnimeStatus(
+                val newStatus = currentStatus?.copy(
+                    status = status,
+                    rating = rating,
+                    review = review,
+                    watchedEpisodes = watchedEpisodes,
+                    updatedAt = System.currentTimeMillis(),
+                    finishDate = if (status == WatchStatus.COMPLETED) {
+                        LocalDate.now().toString()
+                    } else currentStatus.finishDate
+                )
+                    ?: AnimeStatus(
                         animeId = currentAnime.id,
                         status = status,
                         rating = rating,
                         review = review,
                         watchedEpisodes = watchedEpisodes,
                         startDate = if (status == WatchStatus.WATCHING) {
-                            java.time.LocalDate.now().toString()
+                            LocalDate.now().toString()
                         } else "",
                         finishDate = if (status == WatchStatus.COMPLETED) {
-                            java.time.LocalDate.now().toString()
+                            LocalDate.now().toString()
                         } else ""
                     )
-                }
 
                 animeStatusRepository.insertOrUpdateStatus(newStatus)
                 _animeStatus.value = newStatus

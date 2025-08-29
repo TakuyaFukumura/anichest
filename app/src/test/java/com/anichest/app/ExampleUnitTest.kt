@@ -92,7 +92,7 @@ class ExampleUnitTest {
     @Test
     fun watchStatus_enumValues_areCorrect() {
         // 全ての視聴状況が定義されていることを確認
-        val statuses = WatchStatus.values()
+        val statuses = WatchStatus.entries.toTypedArray()
         assertEquals(4, statuses.size)
 
         // 各状況が正しく定義されていることを確認

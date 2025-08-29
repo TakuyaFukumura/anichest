@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -61,7 +61,7 @@ fun WishlistScreen(
                 title = { Text("ウィッシュリスト") },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = "戻る")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
                     }
                 },
                 actions = {
@@ -79,7 +79,7 @@ fun WishlistScreen(
                                 showFilterMenu = false
                             }
                         )
-                        Priority.values().forEach { priority ->
+                        Priority.entries.forEach { priority ->
                             DropdownMenuItem(
                                 text = { Text(getPriorityText(priority)) },
                                 onClick = {
