@@ -1,17 +1,18 @@
 package com.anichest.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WishlistItem
 import com.anichest.app.data.repository.AnimeRepository
 import com.anichest.app.data.repository.WishlistRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * ウィッシュリスト新規追加画面のUIState
@@ -32,7 +33,8 @@ data class AddWishlistUiState(
 /**
  * ウィッシュリスト新規追加のViewModel
  */
-class AddWishlistViewModel(
+@HiltViewModel
+class AddWishlistViewModel @Inject constructor(
     private val animeRepository: AnimeRepository,
     private val wishlistRepository: WishlistRepository
 ) : ViewModel() {
@@ -127,21 +129,5 @@ class AddWishlistViewModel(
                 )
             }
         }
-    }
-}
-
-/**
- * AddWishlistViewModelのFactory
- */
-class AddWishlistViewModelFactory(
-    private val animeRepository: AnimeRepository,
-    private val wishlistRepository: WishlistRepository
-) : ViewModelProvider.Factory {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AddWishlistViewModel::class.java)) {
-            return AddWishlistViewModel(animeRepository, wishlistRepository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

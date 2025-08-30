@@ -1,13 +1,14 @@
 package com.anichest.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.anichest.app.data.repository.StringRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * メイン画面のViewModel
@@ -30,7 +31,8 @@ import kotlinx.coroutines.launch
  *
  * @property repository データベースアクセスを提供するStringRepository
  */
-class MainViewModel(private val repository: StringRepository) : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(private val repository: StringRepository) : ViewModel() {
 
     /**
      * 内部で管理される挨拶メッセージの状態
@@ -103,58 +105,5 @@ class MainViewModel(private val repository: StringRepository) : ViewModel() {
                 _greeting.value = "Android"
             }
         }
-    }
-}
-
-/**
- * MainViewModelのファクトリークラス
- *
- * ViewModelProvider.Factoryを実装し、MainViewModelのインスタンス作成を管理します。
- * ViewModelには引数付きコンストラクタがあるため、Androidシステムが
- * 直接インスタンス化できません。このファクトリーを使用することで、
- * 依存性注入（StringRepository）を含むViewModelの作成が可能になります。
- *
- * ファクトリーパターンの利点:
- * - 複雑なオブジェクト作成の隠蔽
- * - 依存性注入の実現
- * - テスト時のモック注入が容易
- * - 型安全なインスタンス作成
- *
- * 使用方法:
- * ```kotlin
- * val viewModel: MainViewModel = viewModel(
- *     factory = MainViewModelFactory(repository)
- * )
- * ```
- *
- * @property repository ViewModelに注入するStringRepositoryインスタンス
- */
-class MainViewModelFactory(private val repository: StringRepository) : ViewModelProvider.Factory {
-
-    /**
-     * 指定されたViewModelクラスのインスタンスを作成する
-     *
-     * Androidシステムから呼び出され、適切なViewModelインスタンスを返します。
-     * 型安全性を保つため、要求されたクラスがMainViewModelかどうかを
-     * チェックしてから作成を行います。
-     *
-     * ジェネリクス:
-     * - <T : ViewModel> により、ViewModelのサブクラスのみ受け入れ
-     * - 型安全なキャストを実現
-     * - コンパイル時の型チェック
-     *
-     * @param modelClass 作成するViewModelのClassオブジェクト
-     * @return T 要求されたViewModelのインスタンス
-     * @throws IllegalArgumentException 未対応のViewModelクラスが指定された場合
-     */
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        // 要求されたクラスがMainViewModelかどうかをチェック
-        if (modelClass.isAssignableFrom(MainViewModel::class.java)) {
-            // 型安全なキャストでMainViewModelインスタンスを返す
-            @Suppress("UNCHECKED_CAST")
-            return MainViewModel(repository) as T
-        }
-        // 未対応のViewModelクラスの場合は例外をスロー
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

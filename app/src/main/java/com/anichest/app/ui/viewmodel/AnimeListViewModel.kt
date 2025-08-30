@@ -1,19 +1,21 @@
 package com.anichest.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.data.repository.AnimeRepository
 import com.anichest.app.data.repository.AnimeStatusRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import javax.inject.Inject
 
 /**
  * アニメリスト画面のViewModel
  */
-class AnimeListViewModel(
+@HiltViewModel
+class AnimeListViewModel @Inject constructor(
     animeRepository: AnimeRepository,
     animeStatusRepository: AnimeStatusRepository
 ) : ViewModel() {
@@ -69,18 +71,5 @@ class AnimeListViewModel(
 
     fun clearFilter() {
         _selectedFilter.value = null
-    }
-}
-
-class AnimeListViewModelFactory(
-    private val animeRepository: AnimeRepository,
-    private val animeStatusRepository: AnimeStatusRepository
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AnimeListViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return AnimeListViewModel(animeRepository, animeStatusRepository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

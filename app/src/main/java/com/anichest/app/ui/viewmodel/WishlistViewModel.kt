@@ -1,20 +1,22 @@
 package com.anichest.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.repository.WishlistRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 /**
  * ウィッシュリスト画面のViewModel
  */
-class WishlistViewModel(
+@HiltViewModel
+class WishlistViewModel @Inject constructor(
     private val wishlistRepository: WishlistRepository
 ) : ViewModel() {
 
@@ -70,17 +72,5 @@ class WishlistViewModel(
                 // エラーハンドリング
             }
         }
-    }
-}
-
-class WishlistViewModelFactory(
-    private val wishlistRepository: WishlistRepository
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(WishlistViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return WishlistViewModel(wishlistRepository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
