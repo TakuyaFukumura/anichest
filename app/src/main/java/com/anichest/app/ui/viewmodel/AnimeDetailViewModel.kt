@@ -1,23 +1,25 @@
 package com.anichest.app.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.data.repository.AnimeRepository
 import com.anichest.app.data.repository.AnimeStatusRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.time.LocalDate
+import javax.inject.Inject
 
 /**
  * アニメ詳細・編集画面のViewModel
  */
-class AnimeDetailViewModel(
+@HiltViewModel
+class AnimeDetailViewModel @Inject constructor(
     private val animeRepository: AnimeRepository,
     private val animeStatusRepository: AnimeStatusRepository
 ) : ViewModel() {
@@ -149,18 +151,5 @@ class AnimeDetailViewModel(
 
     fun clearError() {
         _error.value = null
-    }
-}
-
-class AnimeDetailViewModelFactory(
-    private val animeRepository: AnimeRepository,
-    private val animeStatusRepository: AnimeStatusRepository
-) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(AnimeDetailViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return AnimeDetailViewModel(animeRepository, animeStatusRepository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
