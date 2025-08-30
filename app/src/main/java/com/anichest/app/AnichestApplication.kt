@@ -6,12 +6,14 @@ import com.anichest.app.data.repository.AnimeRepository
 import com.anichest.app.data.repository.AnimeStatusRepository
 import com.anichest.app.data.repository.StringRepository
 import com.anichest.app.data.repository.WishlistRepository
+import dagger.hilt.android.HiltAndroidApp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 
 /**
  * アニメ視聴管理アプリのメインApplicationクラス
  */
+@HiltAndroidApp
 class AnichestApplication : Application() {
 
     private val applicationScope = CoroutineScope(SupervisorJob())
