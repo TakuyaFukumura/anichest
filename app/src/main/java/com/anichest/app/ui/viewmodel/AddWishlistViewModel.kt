@@ -3,9 +3,12 @@ package com.anichest.app.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anichest.app.data.entity.Anime
+import com.anichest.app.data.entity.AnimeStatus
 import com.anichest.app.data.entity.Priority
+import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.data.entity.WishlistItem
 import com.anichest.app.data.repository.AnimeRepository
+import com.anichest.app.data.repository.AnimeStatusRepository
 import com.anichest.app.data.repository.WishlistRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +28,7 @@ data class AddWishlistUiState(
     val description: String = "",
     val priority: Priority = Priority.MEDIUM,
     val notes: String = "",
+    val watchStatus: WatchStatus = WatchStatus.UNWATCHED,
     val isLoading: Boolean = false,
     val isSaved: Boolean = false,
     val error: String? = null
@@ -36,7 +40,8 @@ data class AddWishlistUiState(
 @HiltViewModel
 class AddWishlistViewModel @Inject constructor(
     private val animeRepository: AnimeRepository,
-    private val wishlistRepository: WishlistRepository
+    private val wishlistRepository: WishlistRepository,
+    private val animeStatusRepository: AnimeStatusRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddWishlistUiState())
@@ -74,6 +79,10 @@ class AddWishlistViewModel @Inject constructor(
 
     fun updateNotes(notes: String) {
         _uiState.value = _uiState.value.copy(notes = notes)
+    }
+
+    fun updateWatchStatus(watchStatus: WatchStatus) {
+        _uiState.value = _uiState.value.copy(watchStatus = watchStatus)
     }
 
     fun clearError() {
@@ -116,6 +125,22 @@ class AddWishlistViewModel @Inject constructor(
 
                 // ウィッシュリストに追加
                 wishlistRepository.insertWishlistItem(wishlistItem)
+
+                // 視聴ステータスを作成・保存
+                val animeStatus = AnimeStatus(
+                    animeId = animeId,
+                    status = currentState.watchStatus,
+                    rating = 0,
+                    review = "",
+                    watchedEpisodes = 0,
+                    startDate = if (currentState.watchStatus == WatchStatus.WATCHING) {
+                        java.time.LocalDate.now().toString()
+                    } else "",
+                    finishDate = if (currentState.watchStatus == WatchStatus.COMPLETED) {
+                        java.time.LocalDate.now().toString()
+                    } else ""
+                )
+                animeStatusRepository.insertOrUpdateStatus(animeStatus)
 
                 _uiState.value = currentState.copy(
                     isLoading = false,
