@@ -1,5 +1,8 @@
 # Anichest
 
+[![Android CI](https://github.com/TakuyaFukumura/anichest/actions/workflows/ci.yml/badge.svg)](https://github.com/TakuyaFukumura/anichest/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/TakuyaFukumura/anichest?include_prereleases)](https://github.com/TakuyaFukumura/anichest/releases)
+
 KotlinとJetpack Composeで構築されたアニメ視聴管理アプリケーション。
 アニメの視聴状況、評価、進捗を管理できるモダンなAndroidアプリです。
 
