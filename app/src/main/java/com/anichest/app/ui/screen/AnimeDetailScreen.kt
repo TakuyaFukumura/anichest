@@ -137,7 +137,13 @@ fun AnimeDetailScreen(
                                 anime = anime!!,
                                 wishlistItem = wishlistItem!!,
                                 onAnimeUpdate = { title, totalEpisodes, genre, year, description ->
-                                    viewModel.updateAnime(title, totalEpisodes, genre, year, description)
+                                    viewModel.updateAnime(
+                                        title,
+                                        totalEpisodes,
+                                        genre,
+                                        year,
+                                        description
+                                    )
                                 },
                                 onWishlistUpdate = { priority, notes ->
                                     viewModel.updateWishlistItem(priority, notes)
@@ -151,7 +157,7 @@ fun AnimeDetailScreen(
                                 totalEpisodes = anime!!.totalEpisodes,
                                 description = anime!!.description
                             )
-                            
+
                             // ウィッシュリスト情報の表示
                             wishlistItem?.let { wishlist ->
                                 Spacer(modifier = Modifier.height(16.dp))
@@ -453,9 +459,9 @@ private fun EditableAnimeInfoCard(
                 // 全話数
                 OutlinedTextField(
                     value = totalEpisodes,
-                    onValueChange = { 
+                    onValueChange = {
                         if (it.isEmpty() || it.matches(Regex("\\d*"))) {
-                            totalEpisodes = it 
+                            totalEpisodes = it
                         }
                     },
                     label = { Text("全話数") },
@@ -466,9 +472,9 @@ private fun EditableAnimeInfoCard(
                 // 放送年
                 OutlinedTextField(
                     value = year,
-                    onValueChange = { 
+                    onValueChange = {
                         if (it.isEmpty() || it.matches(Regex("\\d*"))) {
-                            year = it 
+                            year = it
                         }
                     },
                     label = { Text("放送年") },
