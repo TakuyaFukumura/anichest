@@ -161,7 +161,6 @@ class AnimeDetailViewModel @Inject constructor(
 
     fun updateWishlistItem(priority: Priority, notes: String) {
         val currentWishlist = _wishlistItem.value ?: return
-        val currentAnime = _anime.value ?: return
 
         viewModelScope.launch {
             try {
