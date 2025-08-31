@@ -1,7 +1,23 @@
 # Anichest
 
+[![Android CI](https://github.com/TakuyaFukumura/anichest/actions/workflows/ci.yml/badge.svg)](https://github.com/TakuyaFukumura/anichest/actions/workflows/ci.yml)
+[![GitHub release](https://img.shields.io/github/v/release/TakuyaFukumura/anichest?include_prereleases&label=リリース)](https://github.com/TakuyaFukumura/anichest/releases)
+[![GitHub issues](https://img.shields.io/github/issues/TakuyaFukumura/anichest?label=イシュー)](https://github.com/TakuyaFukumura/anichest/issues)
+[![GitHub stars](https://img.shields.io/github/stars/TakuyaFukumura/anichest?label=スター)](https://github.com/TakuyaFukumura/anichest/stargazers)
+[![License](https://img.shields.io/badge/ライセンス-未指定-lightgrey.svg)](#)
+
 KotlinとJetpack Composeで構築されたアニメ視聴管理アプリケーション。
 アニメの視聴状況、評価、進捗を管理できるモダンなAndroidアプリです。
+
+## ステータスバッジについて
+
+上記のバッジは以下の情報を表示しています：
+
+- **Android CI**: GitHub Actionsによる自動ビルド・テストの状態
+- **リリース**: 最新のリリースバージョン（利用可能な場合）
+- **イシュー**: オープンなイシューの数
+- **スター**: GitHubでこのプロジェクトにスターを付けた人数
+- **ライセンス**: プロジェクトのライセンス情報
 
 ## 概要
 
