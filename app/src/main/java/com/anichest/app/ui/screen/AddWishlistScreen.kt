@@ -43,6 +43,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WatchStatus
+import com.anichest.app.ui.util.WatchStatusUtils
 import com.anichest.app.ui.viewmodel.AddWishlistViewModel
 
 /**
@@ -219,7 +220,7 @@ fun AddWishlistScreen(
                         onExpandedChange = { watchStatusExpanded = !watchStatusExpanded }
                     ) {
                         OutlinedTextField(
-                            value = getWatchStatusText(uiState.watchStatus),
+                            value = WatchStatusUtils.getWatchStatusText(uiState.watchStatus),
                             onValueChange = { },
                             readOnly = true,
                             label = { Text("視聴ステータス") },
@@ -236,7 +237,7 @@ fun AddWishlistScreen(
                         ) {
                             WatchStatus.entries.forEach { status ->
                                 DropdownMenuItem(
-                                    text = { Text(getWatchStatusText(status)) },
+                                    text = { Text(WatchStatusUtils.getWatchStatusText(status)) },
                                     onClick = {
                                         viewModel.updateWatchStatus(status)
                                         watchStatusExpanded = false
@@ -298,11 +299,4 @@ private fun getPriorityText(priority: Priority): String {
     }
 }
 
-private fun getWatchStatusText(status: WatchStatus): String {
-    return when (status) {
-        WatchStatus.UNWATCHED -> "未視聴"
-        WatchStatus.WATCHING -> "視聴中"
-        WatchStatus.COMPLETED -> "視聴済"
-        WatchStatus.DROPPED -> "中止"
-    }
-}
+

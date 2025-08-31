@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WatchStatus
+import com.anichest.app.ui.util.WatchStatusUtils
 import com.anichest.app.ui.viewmodel.AnimeDetailViewModel
 
 /**
@@ -565,7 +566,7 @@ private fun EditableAnimeInfoCard(
                 onExpandedChange = { watchStatusExpanded = !watchStatusExpanded }
             ) {
                 OutlinedTextField(
-                    value = getWatchStatusText(watchStatus),
+                    value = WatchStatusUtils.getWatchStatusText(watchStatus),
                     onValueChange = { },
                     readOnly = true,
                     label = { Text("視聴ステータス") },
@@ -580,7 +581,7 @@ private fun EditableAnimeInfoCard(
                 ) {
                     WatchStatus.entries.forEach { statusOption ->
                         DropdownMenuItem(
-                            text = { Text(getWatchStatusText(statusOption)) },
+                            text = { Text(WatchStatusUtils.getWatchStatusText(statusOption)) },
                             onClick = {
                                 watchStatus = statusOption
                                 watchStatusExpanded = false
@@ -632,11 +633,4 @@ private fun getPriorityText(priority: Priority): String {
     }
 }
 
-private fun getWatchStatusText(status: WatchStatus): String {
-    return when (status) {
-        WatchStatus.UNWATCHED -> "未視聴"
-        WatchStatus.WATCHING -> "視聴中"
-        WatchStatus.COMPLETED -> "視聴済"
-        WatchStatus.DROPPED -> "中止"
-    }
-}
+
