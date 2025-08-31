@@ -4,9 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
+import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WatchStatus
+import com.anichest.app.data.entity.WishlistItem
 import com.anichest.app.data.repository.AnimeRepository
 import com.anichest.app.data.repository.AnimeStatusRepository
+import com.anichest.app.data.repository.WishlistRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,7 +24,8 @@ import javax.inject.Inject
 @HiltViewModel
 class AnimeDetailViewModel @Inject constructor(
     private val animeRepository: AnimeRepository,
-    private val animeStatusRepository: AnimeStatusRepository
+    private val animeStatusRepository: AnimeStatusRepository,
+    private val wishlistRepository: WishlistRepository
 ) : ViewModel() {
 
     private val _anime = MutableStateFlow<Anime?>(null)
@@ -29,6 +33,9 @@ class AnimeDetailViewModel @Inject constructor(
 
     private val _animeStatus = MutableStateFlow<AnimeStatus?>(null)
     val animeStatus: StateFlow<AnimeStatus?> = _animeStatus.asStateFlow()
+
+    private val _wishlistItem = MutableStateFlow<WishlistItem?>(null)
+    val wishlistItem: StateFlow<WishlistItem?> = _wishlistItem.asStateFlow()
 
     private val _isEditing = MutableStateFlow(false)
     val isEditing: StateFlow<Boolean> = _isEditing.asStateFlow()
@@ -50,6 +57,9 @@ class AnimeDetailViewModel @Inject constructor(
 
                 val status = animeStatusRepository.getStatusByAnimeId(animeId)
                 _animeStatus.value = status
+
+                val wishlistItem = wishlistRepository.getWishlistItemByAnimeId(animeId)
+                _wishlistItem.value = wishlistItem
 
                 _isLoading.value = false
             } catch (e: Exception) {
@@ -147,6 +157,25 @@ class AnimeDetailViewModel @Inject constructor(
 
     fun setEditing(editing: Boolean) {
         _isEditing.value = editing
+    }
+
+    fun updateWishlistItem(priority: Priority, notes: String) {
+        val currentWishlist = _wishlistItem.value ?: return
+
+        viewModelScope.launch {
+            try {
+                val updatedWishlistItem = currentWishlist.copy(
+                    priority = priority,
+                    notes = notes
+                )
+
+                wishlistRepository.updateWishlistItem(updatedWishlistItem)
+                _wishlistItem.value = updatedWishlistItem
+
+            } catch (e: Exception) {
+                _error.value = "ウィッシュリスト情報の更新に失敗しました"
+            }
+        }
     }
 
     fun clearError() {

@@ -10,17 +10,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -28,10 +37,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.ui.viewmodel.AnimeDetailViewModel
 
@@ -47,6 +60,8 @@ fun AnimeDetailScreen(
 ) {
     val anime by viewModel.anime.collectAsState()
     val animeStatus by viewModel.animeStatus.collectAsState()
+    val wishlistItem by viewModel.wishlistItem.collectAsState()
+    val isEditing by viewModel.isEditing.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
 
@@ -62,6 +77,20 @@ fun AnimeDetailScreen(
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
+                    }
+                },
+                actions = {
+                    // ウィッシュリストにあるアニメの場合、編集ボタンを表示
+                    if (wishlistItem != null) {
+                        if (isEditing) {
+                            IconButton(onClick = { viewModel.setEditing(false) }) {
+                                Icon(Icons.Filled.Close, contentDescription = "編集をキャンセル")
+                            }
+                        } else {
+                            IconButton(onClick = { viewModel.setEditing(true) }) {
+                                Icon(Icons.Filled.Edit, contentDescription = "編集")
+                            }
+                        }
                     }
                 }
             )
@@ -102,14 +131,43 @@ fun AnimeDetailScreen(
                             .padding(16.dp)
                             .verticalScroll(rememberScrollState())
                     ) {
-                        // アニメ基本情報
-                        AnimeInfoCard(
-                            title = anime!!.title,
-                            year = anime!!.year,
-                            genre = anime!!.genre,
-                            totalEpisodes = anime!!.totalEpisodes,
-                            description = anime!!.description
-                        )
+                        // アニメ基本情報（編集モードまたは表示モード）
+                        if (isEditing && wishlistItem != null) {
+                            EditableAnimeInfoCard(
+                                anime = anime!!,
+                                wishlistItem = wishlistItem!!,
+                                onAnimeUpdate = { title, totalEpisodes, genre, year, description ->
+                                    viewModel.updateAnime(
+                                        title,
+                                        totalEpisodes,
+                                        genre,
+                                        year,
+                                        description
+                                    )
+                                },
+                                onWishlistUpdate = { priority, notes ->
+                                    viewModel.updateWishlistItem(priority, notes)
+                                }
+                            )
+                        } else {
+                            AnimeInfoCard(
+                                title = anime!!.title,
+                                year = anime!!.year,
+                                genre = anime!!.genre,
+                                totalEpisodes = anime!!.totalEpisodes,
+                                description = anime!!.description
+                            )
+
+                            // ウィッシュリスト情報の表示
+                            wishlistItem?.let { wishlist ->
+                                Spacer(modifier = Modifier.height(16.dp))
+                                WishlistInfoCard(
+                                    priority = wishlist.priority,
+                                    notes = wishlist.notes,
+                                    addedAt = wishlist.addedAt
+                                )
+                            }
+                        }
 
                         Spacer(modifier = Modifier.height(16.dp))
 
@@ -301,5 +359,224 @@ private fun getStatusColor(status: WatchStatus): androidx.compose.ui.graphics.Co
         WatchStatus.WATCHING -> MaterialTheme.colorScheme.primary
         WatchStatus.COMPLETED -> MaterialTheme.colorScheme.secondary
         WatchStatus.DROPPED -> MaterialTheme.colorScheme.error
+    }
+}
+
+@Composable
+private fun WishlistInfoCard(
+    priority: Priority,
+    notes: String,
+    addedAt: Long
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "ウィッシュリスト情報",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                Text(
+                    text = "優先度: ${getPriorityText(priority)}",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            if (notes.isNotBlank()) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "メモ",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = notes,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun EditableAnimeInfoCard(
+    anime: com.anichest.app.data.entity.Anime,
+    wishlistItem: com.anichest.app.data.entity.WishlistItem,
+    onAnimeUpdate: (String, Int, String, Int, String) -> Unit,
+    onWishlistUpdate: (Priority, String) -> Unit
+) {
+    var title by remember { mutableStateOf(anime.title) }
+    var totalEpisodes by remember { mutableStateOf(anime.totalEpisodes.toString()) }
+    var genre by remember { mutableStateOf(anime.genre) }
+    var year by remember { mutableStateOf(anime.year.toString()) }
+    var description by remember { mutableStateOf(anime.description) }
+    var priority by remember { mutableStateOf(wishlistItem.priority) }
+    var notes by remember { mutableStateOf(wishlistItem.notes) }
+
+    Card(
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Text(
+                text = "アニメ情報編集",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            // アニメタイトル
+            OutlinedTextField(
+                value = title,
+                onValueChange = { title = it },
+                label = { Text("タイトル") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // 全話数
+                OutlinedTextField(
+                    value = totalEpisodes,
+                    onValueChange = {
+                        if (it.isEmpty() || it.matches(Regex("\\d*"))) {
+                            totalEpisodes = it
+                        }
+                    },
+                    label = { Text("全話数") },
+                    modifier = Modifier.weight(1f),
+                    singleLine = true
+                )
+
+                // 放送年
+                OutlinedTextField(
+                    value = year,
+                    onValueChange = {
+                        if (it.isEmpty() || it.matches(Regex("\\d*"))) {
+                            year = it
+                        }
+                    },
+                    label = { Text("放送年") },
+                    modifier = Modifier.weight(1f),
+                    singleLine = true
+                )
+            }
+
+            // ジャンル
+            OutlinedTextField(
+                value = genre,
+                onValueChange = { genre = it },
+                label = { Text("ジャンル") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
+            )
+
+            // 説明
+            OutlinedTextField(
+                value = description,
+                onValueChange = { description = it },
+                label = { Text("説明・あらすじ") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3,
+                maxLines = 5
+            )
+
+            Text(
+                text = "ウィッシュリスト設定",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            // 優先度選択
+            var priorityExpanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = priorityExpanded,
+                onExpandedChange = { priorityExpanded = !priorityExpanded }
+            ) {
+                OutlinedTextField(
+                    value = getPriorityText(priority),
+                    onValueChange = { },
+                    readOnly = true,
+                    label = { Text("優先度") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = priorityExpanded) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = priorityExpanded,
+                    onDismissRequest = { priorityExpanded = false }
+                ) {
+                    Priority.entries.forEach { priorityOption ->
+                        DropdownMenuItem(
+                            text = { Text(getPriorityText(priorityOption)) },
+                            onClick = {
+                                priority = priorityOption
+                                priorityExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            // メモ
+            OutlinedTextField(
+                value = notes,
+                onValueChange = { notes = it },
+                label = { Text("メモ・備考") },
+                placeholder = { Text("このアニメについてのメモを入力（任意）") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 2,
+                maxLines = 4
+            )
+
+            // 保存ボタン
+            Button(
+                onClick = {
+                    onAnimeUpdate(
+                        title.trim(),
+                        totalEpisodes.toIntOrNull() ?: 0,
+                        genre.trim(),
+                        year.toIntOrNull() ?: 0,
+                        description.trim()
+                    )
+                    onWishlistUpdate(priority, notes.trim())
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Icon(Icons.Filled.Check, contentDescription = null)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("保存")
+            }
+        }
+    }
+}
+
+private fun getPriorityText(priority: Priority): String {
+    return when (priority) {
+        Priority.LOW -> "低"
+        Priority.MEDIUM -> "中"
+        Priority.HIGH -> "高"
     }
 }
