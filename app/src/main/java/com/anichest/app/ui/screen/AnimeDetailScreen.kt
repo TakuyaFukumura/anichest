@@ -522,7 +522,7 @@ private fun EditableAnimeInfoCard(
                     expanded = priorityExpanded,
                     onDismissRequest = { priorityExpanded = false }
                 ) {
-                    Priority.values().forEach { priorityOption ->
+                    Priority.entries.forEach { priorityOption ->
                         DropdownMenuItem(
                             text = { Text(getPriorityText(priorityOption)) },
                             onClick = {
