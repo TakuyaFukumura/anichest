@@ -3,6 +3,7 @@ package com.anichest.app
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
 import com.anichest.app.data.entity.WatchStatus
+import com.anichest.app.ui.navigation.NavigationDestination
 import com.anichest.app.ui.viewmodel.AddWishlistUiState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -117,6 +118,32 @@ class ExampleUnitTest {
     fun addWishlistUiState_defaultWatchStatus_isUnwatched() {
         val uiState = AddWishlistUiState()
         assertEquals(WatchStatus.UNWATCHED, uiState.watchStatus)
+    }
+
+    /**
+     * NavigationDestination.AnimeListのフィルター機能テスト
+     *
+     * アニメリスト画面へのナビゲーション時にフィルターパラメータが
+     * 正しく設定できることを確認します。
+     *
+     * 検証内容:
+     * - フィルターなしの場合はnullが設定される
+     * - WATCHING状態でのフィルターが正しく設定される
+     * - COMPLETED状態でのフィルターが正しく設定される
+     */
+    @Test
+    fun navigationDestination_animeListFilter_isCorrect() {
+        // フィルターなしの場合
+        val destinationWithoutFilter = NavigationDestination.AnimeList()
+        assertEquals(null, destinationWithoutFilter.filter)
+
+        // 視聴中フィルターの場合
+        val destinationWithWatchingFilter = NavigationDestination.AnimeList(WatchStatus.WATCHING)
+        assertEquals(WatchStatus.WATCHING, destinationWithWatchingFilter.filter)
+
+        // 視聴済フィルターの場合
+        val destinationWithCompletedFilter = NavigationDestination.AnimeList(WatchStatus.COMPLETED)
+        assertEquals(WatchStatus.COMPLETED, destinationWithCompletedFilter.filter)
     }
 
     /**
