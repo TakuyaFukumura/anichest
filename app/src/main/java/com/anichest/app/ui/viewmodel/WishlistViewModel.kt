@@ -31,8 +31,8 @@ class WishlistViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private fun mapToAnimeWithWishlist(item: AnimeWithWishlistAndStatus): AnimeWithWishlist {
-        require(item.status?.status == WatchStatus.UNWATCHED) {
-            "statusが未視聴でない、またはnullのアイテムが含まれています"
+        require(item.status?.status == WatchStatus.UNWATCHED || item.status == null) {
+            "statusが未視聴でもnullでもないアイテムが含まれています"
         }
         return AnimeWithWishlist(
             anime = item.anime,
