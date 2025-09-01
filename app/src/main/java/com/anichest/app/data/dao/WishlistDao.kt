@@ -45,11 +45,11 @@ interface WishlistDao {
     @Transaction
     @Query(
         """
-        SELECT anime.* FROM anime 
-        INNER JOIN wishlist ON anime.id = wishlist.animeId 
-        LEFT JOIN anime_status ON anime.id = anime_status.animeId
-        WHERE anime_status.status IS NULL OR anime_status.status = 'UNWATCHED'
-        ORDER BY wishlist.priority DESC, wishlist.addedAt DESC
+    SELECT anime.*, wishlist.*, anime_status.* FROM anime
+    INNER JOIN wishlist ON anime.id = wishlist.animeId
+    LEFT JOIN anime_status ON anime.id = anime_status.animeId
+    WHERE anime_status.status IS NULL OR anime_status.status = 'UNWATCHED'
+    ORDER BY wishlist.priority DESC, wishlist.addedAt DESC
     """
     )
     fun getUnwatchedWishlistWithAnime(): Flow<List<AnimeWithWishlistAndStatus>>
