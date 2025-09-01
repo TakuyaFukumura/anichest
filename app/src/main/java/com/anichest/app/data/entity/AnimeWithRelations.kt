@@ -26,3 +26,20 @@ data class AnimeWithWishlist(
     )
     val wishlistItem: WishlistItem?
 )
+
+/**
+ * アニメ作品、ウィッシュリスト情報、視聴ステータスを結合したデータクラス
+ */
+data class AnimeWithWishlistAndStatus(
+    @Embedded val anime: Anime,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "animeId"
+    )
+    val wishlistItem: WishlistItem?,
+    @Relation(
+        parentColumn = "id",
+        entityColumn = "animeId"
+    )
+    val status: AnimeStatus?
+)

@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.anichest.app.data.entity.AnimeWithWishlist
+import com.anichest.app.data.entity.AnimeWithWishlistAndStatus
 import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WishlistItem
 import kotlinx.coroutines.flow.Flow
@@ -36,6 +37,22 @@ interface WishlistDao {
     """
     )
     fun getWishlistWithAnime(): Flow<List<AnimeWithWishlist>>
+
+    /**
+     * 未視聴のアニメのみのウィッシュリストを取得
+     * 視聴ステータスがない場合（null）も未視聴として扱う
+     */
+    @Transaction
+    @Query(
+        """
+        SELECT anime.* FROM anime
+        INNER JOIN wishlist ON anime.id = wishlist.animeId
+        LEFT JOIN anime_status ON anime.id = anime_status.animeId
+        WHERE anime_status.status IS NULL OR anime_status.status = 'UNWATCHED'
+        ORDER BY wishlist.priority DESC, wishlist.addedAt DESC
+        """
+    )
+    fun getUnwatchedWishlistWithAnime(): Flow<List<AnimeWithWishlistAndStatus>>
 
     /**
      * 特定の優先度のウィッシュリストを取得
