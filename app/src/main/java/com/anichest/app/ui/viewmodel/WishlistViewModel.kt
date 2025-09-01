@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.repository.WishlistRepository
+import com.anichest.app.data.entity.AnimeWithWishlist
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -42,7 +43,7 @@ class WishlistViewModel @Inject constructor(
     }.map { items ->
         // AnimeWithWishlistAndStatusをAnimeWithWishlistに変換
         items.map { item ->
-            com.anichest.app.data.entity.AnimeWithWishlist(
+            AnimeWithWishlist(
                 anime = item.anime,
                 wishlistItem = item.wishlistItem
             )
