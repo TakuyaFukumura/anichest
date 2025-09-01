@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WatchStatus
+import com.anichest.app.ui.util.WatchStatusUtils
 import com.anichest.app.ui.viewmodel.AnimeDetailViewModel
 
 /**
@@ -136,6 +137,7 @@ fun AnimeDetailScreen(
                             EditableAnimeInfoCard(
                                 anime = anime!!,
                                 wishlistItem = wishlistItem!!,
+                                animeStatus = animeStatus,
                                 onAnimeUpdate = { title, totalEpisodes, genre, year, description ->
                                     viewModel.updateAnime(
                                         title,
@@ -147,6 +149,14 @@ fun AnimeDetailScreen(
                                 },
                                 onWishlistUpdate = { priority, notes ->
                                     viewModel.updateWishlistItem(priority, notes)
+                                },
+                                onStatusUpdate = { watchStatus ->
+                                    viewModel.updateAnimeStatus(
+                                        status = watchStatus,
+                                        rating = animeStatus?.rating ?: 0,
+                                        review = animeStatus?.review ?: "",
+                                        watchedEpisodes = animeStatus?.watchedEpisodes ?: 0
+                                    )
                                 }
                             )
                         } else {
@@ -417,8 +427,10 @@ private fun WishlistInfoCard(
 private fun EditableAnimeInfoCard(
     anime: com.anichest.app.data.entity.Anime,
     wishlistItem: com.anichest.app.data.entity.WishlistItem,
+    animeStatus: com.anichest.app.data.entity.AnimeStatus?,
     onAnimeUpdate: (String, Int, String, Int, String) -> Unit,
-    onWishlistUpdate: (Priority, String) -> Unit
+    onWishlistUpdate: (Priority, String) -> Unit,
+    onStatusUpdate: (WatchStatus) -> Unit
 ) {
     var title by remember { mutableStateOf(anime.title) }
     var totalEpisodes by remember { mutableStateOf(anime.totalEpisodes.toString()) }
@@ -427,6 +439,7 @@ private fun EditableAnimeInfoCard(
     var description by remember { mutableStateOf(anime.description) }
     var priority by remember { mutableStateOf(wishlistItem.priority) }
     var notes by remember { mutableStateOf(wishlistItem.notes) }
+    var watchStatus by remember { mutableStateOf(animeStatus?.status ?: WatchStatus.UNWATCHED) }
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -540,6 +553,44 @@ private fun EditableAnimeInfoCard(
                 }
             }
 
+            Text(
+                text = "視聴ステータス設定",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            // 視聴ステータス選択
+            var watchStatusExpanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = watchStatusExpanded,
+                onExpandedChange = { watchStatusExpanded = !watchStatusExpanded }
+            ) {
+                OutlinedTextField(
+                    value = WatchStatusUtils.getWatchStatusText(watchStatus),
+                    onValueChange = { },
+                    readOnly = true,
+                    label = { Text("視聴ステータス") },
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = watchStatusExpanded) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = watchStatusExpanded,
+                    onDismissRequest = { watchStatusExpanded = false }
+                ) {
+                    WatchStatus.entries.forEach { statusOption ->
+                        DropdownMenuItem(
+                            text = { Text(WatchStatusUtils.getWatchStatusText(statusOption)) },
+                            onClick = {
+                                watchStatus = statusOption
+                                watchStatusExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
             // メモ
             OutlinedTextField(
                 value = notes,
@@ -562,6 +613,7 @@ private fun EditableAnimeInfoCard(
                         description.trim()
                     )
                     onWishlistUpdate(priority, notes.trim())
+                    onStatusUpdate(watchStatus)
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {

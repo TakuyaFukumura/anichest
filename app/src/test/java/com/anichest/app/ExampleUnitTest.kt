@@ -1,7 +1,9 @@
 package com.anichest.app
 
 import com.anichest.app.data.entity.Anime
+import com.anichest.app.data.entity.AnimeStatus
 import com.anichest.app.data.entity.WatchStatus
+import com.anichest.app.ui.viewmodel.AddWishlistUiState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -100,5 +102,43 @@ class ExampleUnitTest {
         assertTrue(statuses.contains(WatchStatus.WATCHING))
         assertTrue(statuses.contains(WatchStatus.COMPLETED))
         assertTrue(statuses.contains(WatchStatus.DROPPED))
+    }
+
+    /**
+     * AddWishlistUiStateのデフォルト視聴ステータステスト
+     *
+     * ウィッシュリスト追加時にデフォルトで未視聴状態が設定されることを確認します。
+     * これは新規アニメ登録時の視聴ステータス機能の基本動作です。
+     *
+     * 検証内容:
+     * - デフォルトの視聴ステータスがUNWATCHEDであること
+     */
+    @Test
+    fun addWishlistUiState_defaultWatchStatus_isUnwatched() {
+        val uiState = AddWishlistUiState()
+        assertEquals(WatchStatus.UNWATCHED, uiState.watchStatus)
+    }
+
+    /**
+     * AnimeStatusのデフォルト値テスト
+     *
+     * AnimeStatusエンティティが適切なデフォルト値を持つことを確認します。
+     * これは視聴ステータス機能の基盤となる重要な動作です。
+     *
+     * 検証内容:
+     * - デフォルトの視聴ステータスがUNWATCHEDであること
+     * - デフォルトの評価が0（未評価）であること
+     * - デフォルトの視聴済み話数が0であること
+     */
+    @Test
+    fun animeStatus_defaultValues_areCorrect() {
+        val animeStatus = AnimeStatus(animeId = 1L)
+        
+        assertEquals(WatchStatus.UNWATCHED, animeStatus.status)
+        assertEquals(0, animeStatus.rating)
+        assertEquals("", animeStatus.review)
+        assertEquals(0, animeStatus.watchedEpisodes)
+        assertEquals("", animeStatus.startDate)
+        assertEquals("", animeStatus.finishDate)
     }
 }

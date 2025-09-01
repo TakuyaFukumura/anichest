@@ -42,6 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.anichest.app.data.entity.Priority
+import com.anichest.app.data.entity.WatchStatus
+import com.anichest.app.ui.util.WatchStatusUtils
 import com.anichest.app.ui.viewmodel.AddWishlistViewModel
 
 /**
@@ -205,6 +207,40 @@ fun AddWishlistScreen(
                                     onClick = {
                                         viewModel.updatePriority(priority)
                                         priorityExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    // 視聴ステータス選択
+                    var watchStatusExpanded by remember { mutableStateOf(false) }
+                    ExposedDropdownMenuBox(
+                        expanded = watchStatusExpanded,
+                        onExpandedChange = { watchStatusExpanded = !watchStatusExpanded }
+                    ) {
+                        OutlinedTextField(
+                            value = WatchStatusUtils.getWatchStatusText(uiState.watchStatus),
+                            onValueChange = { },
+                            readOnly = true,
+                            label = { Text("視聴ステータス") },
+                            trailingIcon = {
+                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = watchStatusExpanded)
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = watchStatusExpanded,
+                            onDismissRequest = { watchStatusExpanded = false }
+                        ) {
+                            WatchStatus.entries.forEach { status ->
+                                DropdownMenuItem(
+                                    text = { Text(WatchStatusUtils.getWatchStatusText(status)) },
+                                    onClick = {
+                                        viewModel.updateWatchStatus(status)
+                                        watchStatusExpanded = false
                                     }
                                 )
                             }
