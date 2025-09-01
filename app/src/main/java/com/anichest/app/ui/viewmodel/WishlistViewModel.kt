@@ -6,6 +6,7 @@ import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.repository.WishlistRepository
 import com.anichest.app.data.entity.AnimeWithWishlist
 import com.anichest.app.data.entity.AnimeWithWishlistAndStatus
+import com.anichest.app.data.entity.WatchStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,6 +31,9 @@ class WishlistViewModel @Inject constructor(
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
     private fun mapToAnimeWithWishlist(item: AnimeWithWishlistAndStatus): AnimeWithWishlist {
+        require(item.status?.status == WatchStatus.UNWATCHED) {
+            "statusが未視聴でない、またはnullのアイテムが含まれています"
+        }
         return AnimeWithWishlist(
             anime = item.anime,
             wishlistItem = item.wishlistItem
