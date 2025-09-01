@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -26,9 +27,9 @@ class WishlistViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
-    // ウィッシュリストと優先度フィルター
+    // 未視聴ウィッシュリストと優先度フィルター
     val wishlistItems = combine(
-        wishlistRepository.getWishlistWithAnime(),
+        wishlistRepository.getUnwatchedWishlistWithAnime(),
         selectedPriority
     ) { allItems, priority ->
         _isLoading.value = false
@@ -37,6 +38,14 @@ class WishlistViewModel @Inject constructor(
             allItems.filter { it.wishlistItem?.priority == priority }
         } else {
             allItems
+        }
+    }.map { items ->
+        // AnimeWithWishlistAndStatusをAnimeWithWishlistに変換
+        items.map { item ->
+            com.anichest.app.data.entity.AnimeWithWishlist(
+                anime = item.anime,
+                wishlistItem = item.wishlistItem
+            )
         }
     }
 
