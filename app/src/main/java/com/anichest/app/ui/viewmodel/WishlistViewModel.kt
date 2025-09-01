@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.repository.WishlistRepository
 import com.anichest.app.data.entity.AnimeWithWishlist
+import com.anichest.app.data.entity.AnimeWithWishlistAndStatus
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,6 +29,13 @@ class WishlistViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    private fun mapToAnimeWithWishlist(item: AnimeWithWishlistAndStatus): AnimeWithWishlist {
+        return AnimeWithWishlist(
+            anime = item.anime,
+            wishlistItem = item.wishlistItem
+        )
+    }
+
     // 未視聴ウィッシュリストと優先度フィルター
     val wishlistItems = combine(
         wishlistRepository.getUnwatchedWishlistWithAnime(),
@@ -41,13 +49,7 @@ class WishlistViewModel @Inject constructor(
             allItems
         }
     }.map { items ->
-        // AnimeWithWishlistAndStatusをAnimeWithWishlistに変換
-        items.map { item ->
-            AnimeWithWishlist(
-                anime = item.anime,
-                wishlistItem = item.wishlistItem
-            )
-        }
+        items.map { mapToAnimeWithWishlist(it) }
     }
 
     val wishlistCount = wishlistRepository.getWishlistCount()
