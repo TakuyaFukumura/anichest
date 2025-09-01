@@ -3,6 +3,7 @@ package com.anichest.app
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
 import com.anichest.app.data.entity.WatchStatus
+import com.anichest.app.ui.viewmodel.AddWishlistUiState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -114,7 +115,7 @@ class ExampleUnitTest {
      */
     @Test
     fun addWishlistUiState_defaultWatchStatus_isUnwatched() {
-        val uiState = com.anichest.app.ui.viewmodel.AddWishlistUiState()
+        val uiState = AddWishlistUiState()
         assertEquals(WatchStatus.UNWATCHED, uiState.watchStatus)
     }
 

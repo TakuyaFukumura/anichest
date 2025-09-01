@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 /**
@@ -134,10 +135,10 @@ class AddWishlistViewModel @Inject constructor(
                     review = "",
                     watchedEpisodes = 0,
                     startDate = if (currentState.watchStatus == WatchStatus.WATCHING) {
-                        java.time.LocalDate.now().toString()
+                        LocalDate.now().toString()
                     } else "",
                     finishDate = if (currentState.watchStatus == WatchStatus.COMPLETED) {
-                        java.time.LocalDate.now().toString()
+                        LocalDate.now().toString()
                     } else ""
                 )
                 animeStatusRepository.insertOrUpdateStatus(animeStatus)
