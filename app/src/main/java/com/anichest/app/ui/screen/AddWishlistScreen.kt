@@ -298,5 +298,3 @@ private fun getPriorityText(priority: Priority): String {
         Priority.LOW -> "低優先度"
     }
 }
-
-

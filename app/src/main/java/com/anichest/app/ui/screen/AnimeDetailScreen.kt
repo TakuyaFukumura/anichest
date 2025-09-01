@@ -632,5 +632,3 @@ private fun getPriorityText(priority: Priority): String {
         Priority.HIGH -> "高"
     }
 }
-
-
