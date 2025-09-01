@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -47,12 +48,18 @@ import com.anichest.app.ui.viewmodel.AnimeListViewModel
 @Composable
 fun AnimeListScreen(
     viewModel: AnimeListViewModel,
+    filter: WatchStatus? = null,
     onNavigateBack: () -> Unit = {},
     onNavigateToAnimeDetail: (Long) -> Unit = {}
 ) {
     val animeList by viewModel.animeList.collectAsState(initial = emptyList())
     val isLoading by viewModel.isLoading.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+
+    // フィルターが指定されている場合は設定
+    LaunchedEffect(filter) {
+        viewModel.setFilter(filter)
+    }
 
     Scaffold(
         topBar = {

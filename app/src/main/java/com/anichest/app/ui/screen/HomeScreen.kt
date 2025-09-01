@@ -44,7 +44,7 @@ import com.anichest.app.ui.viewmodel.AnimeListViewModel
 @Composable
 fun HomeScreen(
     viewModel: AnimeListViewModel,
-    onNavigateToAnimeList: () -> Unit = {},
+    onNavigateToAnimeList: (WatchStatus?) -> Unit = {},
     onNavigateToWishlist: () -> Unit = {},
     onNavigateToAnimeDetail: (Long) -> Unit = {}
 ) {
@@ -100,7 +100,7 @@ private fun StatsSection(
     watchingCount: Int,
     completedCount: Int,
     totalCount: Int,
-    onNavigateToAnimeList: () -> Unit,
+    onNavigateToAnimeList: (WatchStatus?) -> Unit,
     onNavigateToWishlist: () -> Unit
 ) {
     Column {
@@ -121,7 +121,7 @@ private fun StatsSection(
                 count = watchingCount,
                 icon = Icons.Filled.PlayArrow,
                 color = MaterialTheme.colorScheme.primary,
-                onClick = onNavigateToAnimeList
+                onClick = { onNavigateToAnimeList(WatchStatus.WATCHING) }
             )
 
             StatCard(
@@ -130,7 +130,7 @@ private fun StatsSection(
                 count = completedCount,
                 icon = Icons.Filled.Star,
                 color = MaterialTheme.colorScheme.secondary,
-                onClick = onNavigateToAnimeList
+                onClick = { onNavigateToAnimeList(WatchStatus.COMPLETED) }
             )
         }
 
@@ -146,7 +146,7 @@ private fun StatsSection(
                 count = totalCount,
                 icon = Icons.Filled.Favorite,
                 color = MaterialTheme.colorScheme.tertiary,
-                onClick = onNavigateToAnimeList
+                onClick = { onNavigateToAnimeList(null) }
             )
 
             OutlinedCard(
