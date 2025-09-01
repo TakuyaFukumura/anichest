@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.ui.navigation.NavigationDestination
 import com.anichest.app.ui.screen.AddWishlistScreen
 import com.anichest.app.ui.screen.AnimeDetailScreen
@@ -55,7 +56,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
     // ナビゲーション関数
     val navigateToHome = { currentDestination = NavigationDestination.Home }
-    val navigateToAnimeList = { filter: com.anichest.app.data.entity.WatchStatus? -> 
+    val navigateToAnimeList = { filter: WatchStatus? ->
         currentDestination = NavigationDestination.AnimeList(filter) 
     }
     val navigateToWishlist = { currentDestination = NavigationDestination.Wishlist }
