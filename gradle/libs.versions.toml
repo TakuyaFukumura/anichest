@@ -9,7 +9,7 @@ lifecycleRuntimeKtx = "2.9.2"
 activityCompose = "1.10.1"
 composeBom = "2025.08.00"
 room = "2.7.2"
-lifecycleViewmodel = "2.9.2"
+lifecycleViewmodel = "2.9.3"
 hilt = "2.57.1"
 hiltNavigationCompose = "1.2.0"
 
