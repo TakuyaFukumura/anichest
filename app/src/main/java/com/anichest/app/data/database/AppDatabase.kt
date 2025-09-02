@@ -53,7 +53,7 @@ abstract class AppDatabase : RoomDatabase() {
                     "anichest_database"
                 )
                     .addCallback(AppDatabaseCallback(scope))
-                    .fallbackToDestructiveMigration()
+                    .fallbackToDestructiveMigration(false)
                     .build()
 
                 INSTANCE = instance
