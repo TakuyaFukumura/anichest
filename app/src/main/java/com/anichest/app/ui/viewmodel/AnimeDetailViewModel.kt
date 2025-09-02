@@ -46,11 +46,15 @@ class AnimeDetailViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _isDeleted = MutableStateFlow(false)
+    val isDeleted: StateFlow<Boolean> = _isDeleted.asStateFlow()
+
     fun loadAnime(animeId: Long) {
         viewModelScope.launch {
             try {
                 _isLoading.value = true
                 _error.value = null
+                _isDeleted.value = false // 削除状態をリセット
 
                 val anime = animeRepository.getAnimeById(animeId)
                 _anime.value = anime
@@ -149,6 +153,7 @@ class AnimeDetailViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 animeRepository.deleteAnime(currentAnime)
+                _isDeleted.value = true
             } catch (e: Exception) {
                 _error.value = "アニメの削除に失敗しました"
             }
