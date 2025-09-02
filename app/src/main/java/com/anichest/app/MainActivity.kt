@@ -121,5 +121,3 @@ fun MainScreen(modifier: Modifier = Modifier) {
         }
     }
 }
-
-
