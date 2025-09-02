@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -57,7 +56,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
     // ナビゲーション関数
     val navigateToHome = { currentDestination = NavigationDestination.Home }
     val navigateToAnimeList = { filter: WatchStatus? ->
-        currentDestination = NavigationDestination.AnimeList(filter) 
+        currentDestination = NavigationDestination.AnimeList(filter)
     }
     val navigateToWishlist = { currentDestination = NavigationDestination.Wishlist }
     val navigateToAddWishlist = { currentDestination = NavigationDestination.AddWishlist }

@@ -16,7 +16,7 @@ class WishlistRepository(private val wishlistDao: WishlistDao) {
 
     fun getWishlistWithAnime(): Flow<List<AnimeWithWishlist>> = wishlistDao.getWishlistWithAnime()
 
-    fun getUnwatchedWishlistWithAnime(): Flow<List<AnimeWithWishlistAndStatus>> = 
+    fun getUnwatchedWishlistWithAnime(): Flow<List<AnimeWithWishlistAndStatus>> =
         wishlistDao.getUnwatchedWishlistWithAnime()
 
     fun getWishlistByPriority(priority: Priority): Flow<List<WishlistItem>> =
