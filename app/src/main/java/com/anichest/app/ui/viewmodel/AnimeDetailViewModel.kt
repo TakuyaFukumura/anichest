@@ -54,6 +54,7 @@ class AnimeDetailViewModel @Inject constructor(
             try {
                 _isLoading.value = true
                 _error.value = null
+                _isDeleted.value = false // 削除状態をリセット
 
                 val anime = animeRepository.getAnimeById(animeId)
                 _anime.value = anime
