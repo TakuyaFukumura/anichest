@@ -18,7 +18,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
@@ -32,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -65,10 +68,21 @@ fun AnimeDetailScreen(
     val isEditing by viewModel.isEditing.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
+    val isDeleted by viewModel.isDeleted.collectAsState()
+
+    // 削除確認ダイアログの表示状態
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     // アニメデータをロード
     LaunchedEffect(animeId) {
         viewModel.loadAnime(animeId)
+    }
+
+    // 削除成功時のナビゲーション
+    LaunchedEffect(isDeleted) {
+        if (isDeleted) {
+            onNavigateBack()
+        }
     }
 
     Scaffold(
@@ -81,6 +95,13 @@ fun AnimeDetailScreen(
                     }
                 },
                 actions = {
+                    // 削除ボタン（アニメが存在する場合）
+                    if (anime != null) {
+                        IconButton(onClick = { showDeleteDialog = true }) {
+                            Icon(Icons.Filled.Delete, contentDescription = "削除")
+                        }
+                    }
+                    
                     // ウィッシュリストにあるアニメの場合、編集ボタンを表示
                     if (wishlistItem != null) {
                         if (isEditing) {
@@ -212,6 +233,32 @@ fun AnimeDetailScreen(
                 }
             }
         }
+    }
+
+    // 削除確認ダイアログ
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text("削除の確認") },
+            text = { 
+                Text("「${anime?.title ?: "このアニメ"}」を削除しますか？\nこの操作は取り消せません。") 
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDeleteDialog = false
+                        viewModel.deleteAnime()
+                    }
+                ) {
+                    Text("削除")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) {
+                    Text("キャンセル")
+                }
+            }
+        )
     }
 }
 
