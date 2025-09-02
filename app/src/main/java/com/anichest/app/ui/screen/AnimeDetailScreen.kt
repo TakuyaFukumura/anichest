@@ -240,8 +240,9 @@ fun AnimeDetailScreen(
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text("削除の確認") },
-            text = { 
-                Text("「${anime?.title ?: "このアニメ"}」を削除しますか？\nこの操作は取り消せません。") 
+            text = {
+                val displayTitle = anime?.title ?: "タイトル不明のアニメ"
+                Text("「$displayTitle」を削除しますか？\nこの操作は取り消せません。")
             },
             confirmButton = {
                 TextButton(
