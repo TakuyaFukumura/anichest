@@ -3,7 +3,6 @@ package com.anichest.app.di
 import android.content.Context
 import com.anichest.app.data.dao.AnimeDao
 import com.anichest.app.data.dao.AnimeStatusDao
-import com.anichest.app.data.dao.StringDao
 import com.anichest.app.data.dao.WishlistDao
 import com.anichest.app.data.database.AppDatabase
 import dagger.Module
@@ -50,10 +49,5 @@ object DatabaseModule {
     @Provides
     fun provideWishlistDao(database: AppDatabase): WishlistDao {
         return database.wishlistDao()
-    }
-
-    @Provides
-    fun provideStringDao(database: AppDatabase): StringDao {
-        return database.stringDao()
     }
 }

@@ -2,11 +2,9 @@ package com.anichest.app.di
 
 import com.anichest.app.data.dao.AnimeDao
 import com.anichest.app.data.dao.AnimeStatusDao
-import com.anichest.app.data.dao.StringDao
 import com.anichest.app.data.dao.WishlistDao
 import com.anichest.app.data.repository.AnimeRepository
 import com.anichest.app.data.repository.AnimeStatusRepository
-import com.anichest.app.data.repository.StringRepository
 import com.anichest.app.data.repository.WishlistRepository
 import dagger.Module
 import dagger.Provides
@@ -33,10 +31,5 @@ object RepositoryModule {
     @Provides
     fun provideWishlistRepository(wishlistDao: WishlistDao): WishlistRepository {
         return WishlistRepository(wishlistDao)
-    }
-
-    @Provides
-    fun provideStringRepository(stringDao: StringDao): StringRepository {
-        return StringRepository(stringDao)
     }
 }
