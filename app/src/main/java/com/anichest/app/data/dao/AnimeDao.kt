@@ -79,4 +79,12 @@ interface AnimeDao {
      */
     @Query("DELETE FROM anime WHERE id = :id")
     suspend fun deleteAnimeById(id: Long)
+
+    /**
+     * アニメ作品の総数を取得
+     * 
+     * @return データベース内のアニメ作品数
+     */
+    @Query("SELECT COUNT(*) FROM anime")
+    suspend fun getAnimeCount(): Int
 }
