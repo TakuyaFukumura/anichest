@@ -6,7 +6,7 @@ import com.anichest.app.data.entity.WatchStatus
  * 視聴ステータス関連のユーティリティ関数
  */
 object WatchStatusUtils {
-    
+
     /**
      * WatchStatusを日本語テキストに変換する
      * @param status 視聴ステータス
