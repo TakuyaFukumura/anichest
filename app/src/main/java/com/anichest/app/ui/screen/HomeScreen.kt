@@ -38,7 +38,15 @@ import com.anichest.app.ui.viewmodel.AnimeListViewModel
 
 /**
  * ホーム画面
- * アニメの統計情報と最近の活動を表示
+ * 
+ * アニメの統計情報と最近の活動を表示するアプリのメイン画面です。
+ * 視聴中・完了のアニメ数、ウィッシュリスト数の統計と、
+ * 各カテゴリへのナビゲーション機能を提供します。
+ * 
+ * @param viewModel アニメリスト情報を提供するViewModel
+ * @param onNavigateToAnimeList アニメリスト画面への遷移コールバック
+ * @param onNavigateToWishlist ウィッシュリスト画面への遷移コールバック
+ * @param onNavigateToAnimeDetail アニメ詳細画面への遷移コールバック
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

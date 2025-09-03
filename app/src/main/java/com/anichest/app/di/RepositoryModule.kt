@@ -13,21 +13,49 @@ import dagger.hilt.components.SingletonComponent
 
 /**
  * リポジトリ関連の依存関係を提供するHiltモジュール
+ * 
+ * DAOを使用してRepositoryパターンを実装するクラスを提供します。
+ * ViewModelとDAOの間の抽象化レイヤーとして機能します。
+ * 
+ * @see AnimeRepository
+ * @see AnimeStatusRepository
+ * @see WishlistRepository
  */
 @Module
 @InstallIn(SingletonComponent::class)
 object RepositoryModule {
 
+    /**
+     * アニメデータリポジトリを提供
+     * アニメ作品の基本情報へのアクセスを抽象化します
+     * 
+     * @param animeDao アニメデータアクセス用DAO
+     * @return AnimeRepository
+     */
     @Provides
     fun provideAnimeRepository(animeDao: AnimeDao): AnimeRepository {
         return AnimeRepository(animeDao)
     }
 
+    /**
+     * アニメ視聴状況リポジトリを提供
+     * 視聴進捗や評価データへのアクセスを抽象化します
+     * 
+     * @param animeStatusDao アニメ視聴状況データアクセス用DAO
+     * @return AnimeStatusRepository
+     */
     @Provides
     fun provideAnimeStatusRepository(animeStatusDao: AnimeStatusDao): AnimeStatusRepository {
         return AnimeStatusRepository(animeStatusDao)
     }
 
+    /**
+     * ウィッシュリストリポジトリを提供
+     * 視聴予定アニメデータへのアクセスを抽象化します
+     * 
+     * @param wishlistDao ウィッシュリストデータアクセス用DAO
+     * @return WishlistRepository
+     */
     @Provides
     fun provideWishlistRepository(wishlistDao: WishlistDao): WishlistRepository {
         return WishlistRepository(wishlistDao)
