@@ -87,4 +87,13 @@ interface AnimeDao {
      */
     @Query("SELECT COUNT(*) FROM anime")
     suspend fun getAnimeCount(): Int
+
+    /**
+     * 指定されたタイトルのアニメ作品が存在するかチェック
+     * 
+     * @param title チェックするアニメタイトル
+     * @return 存在する場合はtrue、しない場合はfalse
+     */
+    @Query("SELECT EXISTS(SELECT 1 FROM anime WHERE title = :title)")
+    suspend fun existsByTitle(title: String): Boolean
 }

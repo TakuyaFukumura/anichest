@@ -1,9 +1,13 @@
 package com.anichest.app.data.repository
 
+import android.content.Context
+import android.net.Uri
 import com.anichest.app.data.dao.AnimeDao
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeWithStatus
+import com.anichest.app.util.CsvUtils
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 
 /**
  * アニメデータアクセスを抽象化するRepository
@@ -85,4 +89,73 @@ class AnimeRepository(private val animeDao: AnimeDao) {
      * @param id 削除するアニメ作品のID
      */
     suspend fun deleteAnimeById(id: Long) = animeDao.deleteAnimeById(id)
+
+    /**
+     * 全てのアニメデータをCSV形式で出力
+     * 
+     * @return CSV形式の文字列
+     */
+    suspend fun exportToCsv(): String {
+        val animeList = getAllAnime().first()
+        return CsvUtils.exportToCsv(animeList)
+    }
+
+    /**
+     * CSVファイルからアニメデータをインポート
+     * 重複タイトルをチェックし、既存データはスキップする
+     * 
+     * @param context アプリケーションコンテキスト
+     * @param uri CSVファイルのURI
+     * @return インポート結果（成功件数、スキップ件数、エラー情報）
+     */
+    suspend fun importFromCsv(context: Context, uri: Uri): CsvImportResult {
+        val importResult = CsvUtils.importFromCsv(context, uri)
+        
+        if (importResult.errors.isNotEmpty()) {
+            return CsvImportResult(
+                successCount = 0,
+                skipCount = 0,
+                errors = importResult.errors
+            )
+        }
+
+        var successCount = 0
+        var skipCount = 0
+        val errors = mutableListOf<String>()
+
+        // 各アニメデータを処理
+        importResult.animeList.forEach { anime ->
+            try {
+                if (animeDao.existsByTitle(anime.title)) {
+                    // 重複タイトルはスキップ
+                    skipCount++
+                } else {
+                    // 新規データを挿入
+                    insertAnime(anime)
+                    successCount++
+                }
+            } catch (e: Exception) {
+                errors.add("「${anime.title}」の挿入に失敗: ${e.message}")
+            }
+        }
+
+        return CsvImportResult(
+            successCount = successCount,
+            skipCount = skipCount,
+            errors = errors
+        )
+    }
+
+    /**
+     * CSVインポート結果を保持するデータクラス
+     * 
+     * @property successCount 成功したインポート件数
+     * @property skipCount スキップされた件数（重複タイトル）
+     * @property errors エラーメッセージのリスト
+     */
+    data class CsvImportResult(
+        val successCount: Int,
+        val skipCount: Int,
+        val errors: List<String>
+    )
 }
