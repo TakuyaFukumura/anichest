@@ -8,11 +8,9 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.anichest.app.data.dao.AnimeDao
 import com.anichest.app.data.dao.AnimeStatusDao
-import com.anichest.app.data.dao.StringDao
 import com.anichest.app.data.dao.WishlistDao
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
-import com.anichest.app.data.entity.StringEntity
 import com.anichest.app.data.entity.WishlistItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -24,10 +22,9 @@ import kotlinx.coroutines.launch
     entities = [
         Anime::class,
         AnimeStatus::class,
-        WishlistItem::class,
-        StringEntity::class // 後方互換性のため残す
+        WishlistItem::class
     ],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -36,7 +33,6 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun animeDao(): AnimeDao
     abstract fun animeStatusDao(): AnimeStatusDao
     abstract fun wishlistDao(): WishlistDao
-    abstract fun stringDao(): StringDao
 
     companion object {
         @Volatile
