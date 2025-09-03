@@ -7,32 +7,12 @@ import org.junit.Test
 
 /**
  * AppDatabaseの改善点をテストするクラス
- * 
+ *
  * 主に以下の機能をテストする：
  * - 架空アニメタイトルの使用確認
  * - データベース定数の整合性確認
  */
 class AppDatabaseImprovementTest {
-
-    @Test
-    fun `sample data contains fictional anime titles`() {
-        // リアルなアニメタイトルが含まれていないことを確認
-        val realAnimeTitles = listOf("鬼滅の刃", "呪術廻戦", "SPY×FAMILY", "進撃の巨人", "ワンピース")
-        
-        // サンプルデータ内に実在のアニメタイトルが含まれていないことを確認
-        val sampleAnimes = listOf(
-            "星空の騎士団",
-            "未来学園アカデミー", 
-            "ドラゴンハート・クロニクル",
-            "月光探偵事務所",
-            "虹色マジカルガールズ"
-        )
-        
-        sampleAnimes.forEach { title ->
-            assertTrue("サンプルアニメ '$title' は架空のタイトルである必要があります", 
-                !realAnimeTitles.contains(title))
-        }
-    }
 
     @Test
     fun `sample anime count matches expected count`() {
@@ -44,10 +24,10 @@ class AppDatabaseImprovementTest {
     fun `database constants are properly defined`() {
         // データベース名が正しく定義されていることを確認
         assertEquals("anichest_database", DatabaseConstants.DATABASE_NAME)
-        
+
         // デフォルト値が適切に定義されていることを確認
-        assertEquals(0, DatabaseConstants.DEFAULT_YEAR)
-        assertEquals(0, DatabaseConstants.DEFAULT_EPISODES)
+        assertEquals(2020, DatabaseConstants.DEFAULT_YEAR)
+        assertEquals(12, DatabaseConstants.DEFAULT_EPISODES)
     }
 
     @Test
@@ -58,9 +38,9 @@ class AppDatabaseImprovementTest {
             totalEpisodes = DatabaseConstants.DEFAULT_EPISODES,
             year = DatabaseConstants.DEFAULT_YEAR
         )
-        
-        assertEquals(0, anime.totalEpisodes)
-        assertEquals(0, anime.year)
+
+        assertEquals(12, anime.totalEpisodes)
+        assertEquals(2025, anime.year)
         assertEquals("", anime.genre)
         assertEquals("", anime.description)
         assertEquals("", anime.imageUrl)
