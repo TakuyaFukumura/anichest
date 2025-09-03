@@ -20,6 +20,21 @@ import javax.inject.Inject
 
 /**
  * ウィッシュリスト新規追加画面のUIState
+ * 
+ * 新規アニメ作品とウィッシュリストアイテムの追加に必要な
+ * 全ての入力値と状態を管理します。
+ * 
+ * @property title アニメタイトル
+ * @property totalEpisodes 全話数（文字列）
+ * @property genre ジャンル
+ * @property year 放送年（文字列）
+ * @property description 作品説明
+ * @property priority ウィッシュリストの優先度
+ * @property notes ウィッシュリストのメモ
+ * @property watchStatus 初期視聴状況
+ * @property isLoading 保存処理中の状態
+ * @property isSaved 保存完了の状態
+ * @property error エラーメッセージ
  */
 data class AddWishlistUiState(
     val title: String = "",
@@ -37,6 +52,16 @@ data class AddWishlistUiState(
 
 /**
  * ウィッシュリスト新規追加のViewModel
+ * 
+ * 新しいアニメ作品の登録とウィッシュリストへの追加を行います。
+ * 入力値の検証、データの保存、エラーハンドリングを担当します。
+ * 
+ * @param animeRepository アニメデータアクセス用Repository
+ * @param wishlistRepository ウィッシュリストデータアクセス用Repository
+ * @param animeStatusRepository アニメ視聴状況データアクセス用Repository
+ * @see AnimeRepository
+ * @see WishlistRepository
+ * @see AnimeStatusRepository
  */
 @HiltViewModel
 class AddWishlistViewModel @Inject constructor(
@@ -45,13 +70,27 @@ class AddWishlistViewModel @Inject constructor(
     private val animeStatusRepository: AnimeStatusRepository
 ) : ViewModel() {
 
+    /**
+     * UI状態の管理
+     */
     private val _uiState = MutableStateFlow(AddWishlistUiState())
     val uiState: StateFlow<AddWishlistUiState> = _uiState.asStateFlow()
 
+    /**
+     * アニメタイトルを更新
+     * 
+     * @param title 新しいタイトル
+     */
     fun updateTitle(title: String) {
         _uiState.value = _uiState.value.copy(title = title)
     }
 
+    /**
+     * 全話数を更新
+     * 数字のみを許可し、無効な入力は無視されます。
+     * 
+     * @param episodes 全話数（数字文字列）
+     */
     fun updateTotalEpisodes(episodes: String) {
         // 数字のみ許可
         if (episodes.isEmpty() || episodes.matches(Regex("\\d*"))) {
@@ -59,10 +98,21 @@ class AddWishlistViewModel @Inject constructor(
         }
     }
 
+    /**
+     * ジャンルを更新
+     * 
+     * @param genre 新しいジャンル
+     */
     fun updateGenre(genre: String) {
         _uiState.value = _uiState.value.copy(genre = genre)
     }
 
+    /**
+     * 放送年を更新
+     * 4桁までの数字のみを許可し、無効な入力は無視されます。
+     * 
+     * @param year 放送年（数字文字列）
+     */
     fun updateYear(year: String) {
         // 数字のみ許可（4桁まで）
         if (year.isEmpty() || year.matches(Regex("\\d{0,4}"))) {
@@ -70,28 +120,60 @@ class AddWishlistViewModel @Inject constructor(
         }
     }
 
+    /**
+     * 作品説明を更新
+     * 
+     * @param description 新しい作品説明
+     */
     fun updateDescription(description: String) {
         _uiState.value = _uiState.value.copy(description = description)
     }
 
+    /**
+     * ウィッシュリストの優先度を更新
+     * 
+     * @param priority 新しい優先度
+     */
     fun updatePriority(priority: Priority) {
         _uiState.value = _uiState.value.copy(priority = priority)
     }
 
+    /**
+     * ウィッシュリストのメモを更新
+     * 
+     * @param notes 新しいメモ
+     */
     fun updateNotes(notes: String) {
         _uiState.value = _uiState.value.copy(notes = notes)
     }
 
+    /**
+     * 初期視聴状況を更新
+     * 
+     * @param watchStatus 新しい視聴状況
+     */
     fun updateWatchStatus(watchStatus: WatchStatus) {
         _uiState.value = _uiState.value.copy(watchStatus = watchStatus)
     }
 
+    /**
+     * エラーメッセージをクリア
+     * UI側でエラー表示を消去する際に使用
+     */
     fun clearError() {
         _uiState.value = _uiState.value.copy(error = null)
     }
 
     /**
      * ウィッシュリストアイテムを保存
+     * 
+     * 以下の処理を順次実行します：
+     * 1. 入力値の検証
+     * 2. アニメ作品の作成・保存
+     * 3. ウィッシュリストアイテムの作成・保存
+     * 4. 初期視聴ステータスの作成・保存
+     * 
+     * 保存成功時はisSavedがtrueになります。
      */
     fun saveWishlistItem() {
         val currentState = _uiState.value

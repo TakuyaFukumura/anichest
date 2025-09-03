@@ -20,6 +20,16 @@ import javax.inject.Inject
 
 /**
  * アニメ詳細・編集画面のViewModel
+ * 
+ * 特定のアニメ作品の詳細情報表示、編集、削除機能を提供します。
+ * 視聴状況の更新、ウィッシュリストアイテムの管理も行います。
+ * 
+ * @param animeRepository アニメデータアクセス用Repository
+ * @param animeStatusRepository アニメ視聴状況データアクセス用Repository
+ * @param wishlistRepository ウィッシュリストデータアクセス用Repository
+ * @see AnimeRepository
+ * @see AnimeStatusRepository
+ * @see WishlistRepository
  */
 @HiltViewModel
 class AnimeDetailViewModel @Inject constructor(
@@ -28,27 +38,59 @@ class AnimeDetailViewModel @Inject constructor(
     private val wishlistRepository: WishlistRepository
 ) : ViewModel() {
 
+    /**
+     * 表示中のアニメ作品情報
+     */
     private val _anime = MutableStateFlow<Anime?>(null)
     val anime: StateFlow<Anime?> = _anime.asStateFlow()
 
+    /**
+     * アニメの視聴状況情報
+     */
     private val _animeStatus = MutableStateFlow<AnimeStatus?>(null)
     val animeStatus: StateFlow<AnimeStatus?> = _animeStatus.asStateFlow()
 
+    /**
+     * ウィッシュリストアイテム情報
+     */
     private val _wishlistItem = MutableStateFlow<WishlistItem?>(null)
     val wishlistItem: StateFlow<WishlistItem?> = _wishlistItem.asStateFlow()
 
+    /**
+     * 編集モードの状態
+     * trueの場合、アニメ情報の編集が可能な状態
+     */
     private val _isEditing = MutableStateFlow(false)
     val isEditing: StateFlow<Boolean> = _isEditing.asStateFlow()
 
+    /**
+     * ローディング状態
+     * データ取得中や処理中の表示制御に使用
+     */
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
 
+    /**
+     * エラーメッセージ
+     * 処理失敗時のメッセージを保持
+     */
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    /**
+     * 削除完了状態
+     * アニメが削除された際にtrueになる
+     */
     private val _isDeleted = MutableStateFlow(false)
     val isDeleted: StateFlow<Boolean> = _isDeleted.asStateFlow()
 
+    /**
+     * 指定されたIDのアニメ情報を読み込み
+     * 
+     * アニメ基本情報、視聴状況、ウィッシュリストアイテムを同時に取得します。
+     * 
+     * @param animeId 読み込み対象のアニメID
+     */
     fun loadAnime(animeId: Long) {
         viewModelScope.launch {
             try {
@@ -73,6 +115,17 @@ class AnimeDetailViewModel @Inject constructor(
         }
     }
 
+    /**
+     * アニメの視聴状況を更新
+     * 
+     * 視聴状況、評価、レビュー、視聴話数を一括で更新します。
+     * 状況に応じて開始日や完了日も自動的に設定されます。
+     * 
+     * @param status 新しい視聴状況
+     * @param rating 評価（1-10）
+     * @param review レビューテキスト
+     * @param watchedEpisodes 視聴済み話数
+     */
     fun updateAnimeStatus(
         status: WatchStatus,
         rating: Int,
@@ -118,6 +171,18 @@ class AnimeDetailViewModel @Inject constructor(
         }
     }
 
+    /**
+     * アニメの基本情報を更新
+     * 
+     * タイトル、話数、ジャンル、放送年、説明を更新し、
+     * 編集モードを終了します。
+     * 
+     * @param title アニメタイトル
+     * @param totalEpisodes 全話数
+     * @param genre ジャンル
+     * @param year 放送年
+     * @param description 作品説明
+     */
     fun updateAnime(
         title: String,
         totalEpisodes: Int,
@@ -147,6 +212,12 @@ class AnimeDetailViewModel @Inject constructor(
         }
     }
 
+    /**
+     * アニメを削除
+     * 
+     * アニメ作品をデータベースから完全に削除します。
+     * 成功時はisDeletedがtrueになります。
+     */
     fun deleteAnime() {
         val currentAnime = _anime.value ?: return
 
@@ -160,10 +231,23 @@ class AnimeDetailViewModel @Inject constructor(
         }
     }
 
+    /**
+     * 編集モードの切り替え
+     * 
+     * @param editing true: 編集モード、false: 表示モード
+     */
     fun setEditing(editing: Boolean) {
         _isEditing.value = editing
     }
 
+    /**
+     * ウィッシュリストアイテムの情報を更新
+     * 
+     * 優先度とメモを更新します。
+     * 
+     * @param priority 新しい優先度
+     * @param notes メモ内容
+     */
     fun updateWishlistItem(priority: Priority, notes: String) {
         val currentWishlist = _wishlistItem.value ?: return
 
@@ -183,6 +267,10 @@ class AnimeDetailViewModel @Inject constructor(
         }
     }
 
+    /**
+     * エラーメッセージをクリア
+     * UI側でエラー表示を消去する際に使用
+     */
     fun clearError() {
         _error.value = null
     }
