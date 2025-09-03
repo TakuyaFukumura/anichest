@@ -40,7 +40,7 @@ class AppDatabaseImprovementTest {
         )
 
         assertEquals(12, anime.totalEpisodes)
-        assertEquals(2025, anime.year)
+        assertEquals(2020, anime.year)
         assertEquals("", anime.genre)
         assertEquals("", anime.description)
         assertEquals("", anime.imageUrl)
