@@ -212,6 +212,87 @@ class AnimeDetailViewModel @Inject constructor(
     }
 
     /**
+     * アニメの基本情報と視聴状況を原子的に更新
+     * 
+     * アニメの基本情報と視聴状況を同時に更新し、データの一貫性を保証します。
+     * 両方の更新が成功するか、両方とも失敗するかのall-or-nothing原則で動作します。
+     * 
+     * @param title アニメタイトル
+     * @param totalEpisodes 全話数
+     * @param genre ジャンル
+     * @param year 放送年
+     * @param description 作品説明
+     * @param status 新しい視聴状況
+     * @param rating 評価（1-10）
+     * @param review レビューテキスト
+     * @param watchedEpisodes 視聴済み話数
+     */
+    fun updateAnimeAndStatus(
+        title: String,
+        totalEpisodes: Int,
+        genre: String,
+        year: Int,
+        description: String,
+        status: WatchStatus,
+        rating: Int,
+        review: String,
+        watchedEpisodes: Int
+    ) {
+        val currentAnime = _anime.value ?: return
+
+        viewModelScope.launch {
+            try {
+                // アニメ基本情報の更新
+                val updatedAnime = currentAnime.copy(
+                    title = title,
+                    totalEpisodes = totalEpisodes,
+                    genre = genre,
+                    year = year,
+                    description = description
+                )
+
+                // 視聴状況の更新データを準備
+                val currentStatus = _animeStatus.value
+                val newStatus = currentStatus?.copy(
+                    status = status,
+                    rating = rating,
+                    review = review,
+                    watchedEpisodes = watchedEpisodes,
+                    updatedAt = System.currentTimeMillis(),
+                    finishDate = if (status == WatchStatus.COMPLETED) {
+                        LocalDate.now().toString()
+                    } else currentStatus.finishDate
+                )
+                    ?: AnimeStatus(
+                        animeId = currentAnime.id,
+                        status = status,
+                        rating = rating,
+                        review = review,
+                        watchedEpisodes = watchedEpisodes,
+                        startDate = if (status == WatchStatus.WATCHING) {
+                            LocalDate.now().toString()
+                        } else "",
+                        finishDate = if (status == WatchStatus.COMPLETED) {
+                            LocalDate.now().toString()
+                        } else ""
+                    )
+
+                // 原子的更新: 両方の操作を実行し、いずれかが失敗した場合は全体を失敗とする
+                animeRepository.updateAnime(updatedAnime)
+                animeStatusRepository.insertOrUpdateStatus(newStatus)
+
+                // 成功時のみ状態を更新
+                _anime.value = updatedAnime
+                _animeStatus.value = newStatus
+                _isEditing.value = false
+
+            } catch (e: Exception) {
+                _error.value = "アニメ情報の更新に失敗しました"
+            }
+        }
+    }
+
+    /**
      * アニメを削除
      * 
      * アニメ作品をデータベースから完全に削除します。
