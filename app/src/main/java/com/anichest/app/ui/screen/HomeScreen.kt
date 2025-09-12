@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -58,6 +60,8 @@ fun HomeScreen(
     val animeList by viewModel.animeList.collectAsState(initial = emptyList())
     val watchingCount by viewModel.watchingCount.collectAsState(initial = 0)
     val completedCount by viewModel.completedCount.collectAsState(initial = 0)
+    val unwatchedCount by viewModel.unwatchedCount.collectAsState(initial = 0)
+    val droppedCount by viewModel.droppedCount.collectAsState(initial = 0)
     val isLoading by viewModel.isLoading.collectAsState()
 
     Scaffold(
@@ -97,6 +101,8 @@ fun HomeScreen(
                 StatsSection(
                     watchingCount = watchingCount,
                     completedCount = completedCount,
+                    unwatchedCount = unwatchedCount,
+                    droppedCount = droppedCount,
                     totalCount = animeList.size,
                     onNavigateToAnimeList = onNavigateToAnimeList,
                     onNavigateToWishlist = onNavigateToWishlist
@@ -110,6 +116,8 @@ fun HomeScreen(
 private fun StatsSection(
     watchingCount: Int,
     completedCount: Int,
+    unwatchedCount: Int,
+    droppedCount: Int,
     totalCount: Int,
     onNavigateToAnimeList: (WatchStatus?) -> Unit,
     onNavigateToWishlist: () -> Unit
@@ -122,6 +130,7 @@ private fun StatsSection(
             modifier = Modifier.padding(bottom = 16.dp)
         )
 
+        // 第1行: 視聴中と視聴済
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -137,7 +146,7 @@ private fun StatsSection(
 
             StatCard(
                 modifier = Modifier.weight(1f),
-                title = "完了",
+                title = "視聴済",
                 count = completedCount,
                 icon = Icons.Filled.Star,
                 color = MaterialTheme.colorScheme.secondary,
@@ -147,6 +156,33 @@ private fun StatsSection(
 
         Spacer(modifier = Modifier.height(8.dp))
 
+        // 第2行: 未視聴と中止
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            StatCard(
+                modifier = Modifier.weight(1f),
+                title = "未視聴",
+                count = unwatchedCount,
+                icon = Icons.Filled.Search,
+                color = MaterialTheme.colorScheme.tertiary,
+                onClick = { onNavigateToAnimeList(WatchStatus.UNWATCHED) }
+            )
+
+            StatCard(
+                modifier = Modifier.weight(1f),
+                title = "中止",
+                count = droppedCount,
+                icon = Icons.Filled.Delete,
+                color = MaterialTheme.colorScheme.error,
+                onClick = { onNavigateToAnimeList(WatchStatus.DROPPED) }
+            )
+        }
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // 第3行: 合計とウィッシュリスト
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -156,7 +192,7 @@ private fun StatsSection(
                 title = "合計",
                 count = totalCount,
                 icon = Icons.Filled.Favorite,
-                color = MaterialTheme.colorScheme.tertiary,
+                color = MaterialTheme.colorScheme.outline,
                 onClick = { onNavigateToAnimeList(null) }
             )
 

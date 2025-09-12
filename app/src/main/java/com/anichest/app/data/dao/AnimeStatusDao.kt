@@ -101,4 +101,22 @@ interface AnimeStatusDao {
      */
     @Query("SELECT COUNT(*) FROM anime_status WHERE status = 'COMPLETED'")
     fun getCompletedCount(): Flow<Int>
+
+    /**
+     * 未視聴のアニメ数を取得
+     * ホーム画面の統計表示に使用されます
+     * 
+     * @return 未視聴のアニメ数のFlow
+     */
+    @Query("SELECT COUNT(*) FROM anime_status WHERE status = 'UNWATCHED'")
+    fun getUnwatchedCount(): Flow<Int>
+
+    /**
+     * 中止したアニメ数を取得
+     * ホーム画面の統計表示に使用されます
+     * 
+     * @return 中止したアニメ数のFlow
+     */
+    @Query("SELECT COUNT(*) FROM anime_status WHERE status = 'DROPPED'")
+    fun getDroppedCount(): Flow<Int>
 }

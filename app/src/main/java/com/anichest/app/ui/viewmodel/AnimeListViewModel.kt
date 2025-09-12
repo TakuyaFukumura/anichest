@@ -98,6 +98,18 @@ class AnimeListViewModel @Inject constructor(
     val completedCount = animeStatusRepository.getCompletedCount()
 
     /**
+     * 未視聴のアニメ数
+     * ホーム画面の統計表示に使用されます
+     */
+    val unwatchedCount = animeStatusRepository.getUnwatchedCount()
+
+    /**
+     * 中止したアニメ数
+     * ホーム画面の統計表示に使用されます
+     */
+    val droppedCount = animeStatusRepository.getDroppedCount()
+
+    /**
      * 検索クエリを更新
      * 
      * @param query 新しい検索クエリ

@@ -86,4 +86,18 @@ class AnimeStatusRepository(private val animeStatusDao: AnimeStatusDao) {
      * @return 視聴完了のアニメ数のFlow
      */
     fun getCompletedCount(): Flow<Int> = animeStatusDao.getCompletedCount()
+
+    /**
+     * 未視聴のアニメ数を取得
+     * 
+     * @return 未視聴のアニメ数のFlow
+     */
+    fun getUnwatchedCount(): Flow<Int> = animeStatusDao.getUnwatchedCount()
+
+    /**
+     * 中止したアニメ数を取得
+     * 
+     * @return 中止したアニメ数のFlow
+     */
+    fun getDroppedCount(): Flow<Int> = animeStatusDao.getDroppedCount()
 }
