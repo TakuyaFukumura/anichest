@@ -57,6 +57,7 @@ fun AddWishlistScreen(
     // 保存成功時の処理
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) {
+            viewModel.reset()
             onNavigateBack()
         }
     }
