@@ -9,9 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Favorite
@@ -32,29 +29,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.anichest.app.data.entity.AnimeWithStatus
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.ui.viewmodel.AnimeListViewModel
 
 /**
  * ホーム画面
  * 
- * アニメの統計情報と最近の活動を表示するアプリのメイン画面です。
+ * アニメの統計情報を表示するアプリのメイン画面です。
  * 視聴中・完了のアニメ数、ウィッシュリスト数の統計と、
  * 各カテゴリへのナビゲーション機能を提供します。
  * 
  * @param viewModel アニメリスト情報を提供するViewModel
  * @param onNavigateToAnimeList アニメリスト画面への遷移コールバック
  * @param onNavigateToWishlist ウィッシュリスト画面への遷移コールバック
- * @param onNavigateToAnimeDetail アニメ詳細画面への遷移コールバック
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: AnimeListViewModel,
     onNavigateToAnimeList: (WatchStatus?) -> Unit = {},
-    onNavigateToWishlist: () -> Unit = {},
-    onNavigateToAnimeDetail: (Long) -> Unit = {}
+    onNavigateToWishlist: () -> Unit = {}
 ) {
     val animeList by viewModel.animeList.collectAsState(initial = emptyList())
     val watchingCount by viewModel.watchingCount.collectAsState(initial = 0)
@@ -88,16 +82,6 @@ fun HomeScreen(
                 totalCount = animeList.size,
                 onNavigateToAnimeList = onNavigateToAnimeList,
                 onNavigateToWishlist = onNavigateToWishlist
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // 最近の活動
-            RecentActivitySection(
-                animeList = animeList.filter { it.status != null }
-                    .sortedByDescending { it.status?.updatedAt }
-                    .take(5),
-                onAnimeClick = onNavigateToAnimeDetail
             )
         }
     }
@@ -221,120 +205,4 @@ private fun StatCard(
     }
 }
 
-@Composable
-private fun RecentActivitySection(
-    animeList: List<AnimeWithStatus>,
-    onAnimeClick: (Long) -> Unit
-) {
-    Column {
-        Text(
-            text = "最近の活動",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
 
-        if (animeList.isEmpty()) {
-            Card(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(32.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "まだアニメが登録されていません",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        } else {
-            LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                items(animeList) { animeWithStatus ->
-                    RecentAnimeItem(
-                        animeWithStatus = animeWithStatus,
-                        onClick = { onAnimeClick(animeWithStatus.anime.id) }
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun RecentAnimeItem(
-    animeWithStatus: AnimeWithStatus,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onClick
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = animeWithStatus.anime.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium
-                )
-
-                animeWithStatus.status?.let { status ->
-                    Text(
-                        text = getStatusText(status.status),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-
-                    if (status.watchedEpisodes > 0) {
-                        Text(
-                            text = "${status.watchedEpisodes}話視聴",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-                }
-            }
-
-            animeWithStatus.status?.let { status ->
-                if (status.rating > 0) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            text = status.rating.toString(),
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-private fun getStatusText(status: WatchStatus): String {
-    return when (status) {
-        WatchStatus.UNWATCHED -> "未視聴"
-        WatchStatus.WATCHING -> "視聴中"
-        WatchStatus.COMPLETED -> "視聴済"
-        WatchStatus.DROPPED -> "中止"
-    }
-}
