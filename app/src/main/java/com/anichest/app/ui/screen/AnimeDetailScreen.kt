@@ -22,7 +22,10 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -46,6 +49,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.anichest.app.data.entity.WatchStatus
+import com.anichest.app.ui.util.WatchStatusUtils
 import com.anichest.app.ui.viewmodel.AnimeDetailViewModel
 
 /**
@@ -154,7 +159,17 @@ fun AnimeDetailScreen(
                                 genre = anime!!.genre,
                                 year = anime!!.year,
                                 description = anime!!.description,
-                                onSave = { title, totalEpisodes, genre, year, description ->
+                                watchStatus = animeStatus?.status ?: WatchStatus.UNWATCHED,
+                                onSave = { title, totalEpisodes, genre, year, description, watchStatus ->
+                                    // 既存のステータス情報を保持して更新
+                                    val currentStatus = animeStatus
+                                    viewModel.updateAnimeStatus(
+                                        status = watchStatus,
+                                        rating = currentStatus?.rating ?: 0,
+                                        review = currentStatus?.review ?: "",
+                                        watchedEpisodes = currentStatus?.watchedEpisodes ?: 0
+                                    )
+                                    // 基本情報も更新
                                     viewModel.updateAnime(title, totalEpisodes, genre, year, description)
                                 },
                                 onCancel = { viewModel.setEditMode(false) }
@@ -293,6 +308,7 @@ private fun AnimeInfoCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun EditAnimeCard(
     title: String,
@@ -300,7 +316,8 @@ private fun EditAnimeCard(
     genre: String,
     year: Int,
     description: String,
-    onSave: (String, Int, String, Int, String) -> Unit,
+    watchStatus: WatchStatus,
+    onSave: (String, Int, String, Int, String, WatchStatus) -> Unit,
     onCancel: () -> Unit
 ) {
     var editedTitle by remember { mutableStateOf(title) }
@@ -308,6 +325,7 @@ private fun EditAnimeCard(
     var editedGenre by remember { mutableStateOf(genre) }
     var editedYear by remember { mutableStateOf(year.toString()) }
     var editedDescription by remember { mutableStateOf(description) }
+    var editedWatchStatus by remember { mutableStateOf(watchStatus) }
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -366,6 +384,40 @@ private fun EditAnimeCard(
                 maxLines = 5
             )
 
+            // 視聴ステータス選択
+            var watchStatusExpanded by remember { mutableStateOf(false) }
+            ExposedDropdownMenuBox(
+                expanded = watchStatusExpanded,
+                onExpandedChange = { watchStatusExpanded = !watchStatusExpanded }
+            ) {
+                OutlinedTextField(
+                    value = WatchStatusUtils.getWatchStatusText(editedWatchStatus),
+                    onValueChange = { },
+                    readOnly = true,
+                    label = { Text("視聴ステータス") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = watchStatusExpanded)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor()
+                )
+                ExposedDropdownMenu(
+                    expanded = watchStatusExpanded,
+                    onDismissRequest = { watchStatusExpanded = false }
+                ) {
+                    WatchStatus.entries.forEach { status ->
+                        DropdownMenuItem(
+                            text = { Text(WatchStatusUtils.getWatchStatusText(status)) },
+                            onClick = {
+                                editedWatchStatus = status
+                                watchStatusExpanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -377,7 +429,8 @@ private fun EditAnimeCard(
                             editedTotalEpisodes.toIntOrNull() ?: 0,
                             editedGenre,
                             editedYear.toIntOrNull() ?: 0,
-                            editedDescription
+                            editedDescription,
+                            editedWatchStatus
                         )
                     },
                     modifier = Modifier.weight(1f),

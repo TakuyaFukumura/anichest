@@ -46,9 +46,10 @@
 
 ## バージョン更新
 
-- バージョンコード: 4 → 5
-- バージョン名: 0.4.0 → 0.5.0
+- バージョンコード: 13 → 14
+- バージョン名: 1.1.0 → 1.2.0
 - セマンティックバージョニングに従ったマイナーバージョンアップ
+- アニメ詳細画面での視聴ステータス編集機能追加による機能拡張
 
 ## テスト
 
@@ -59,6 +60,10 @@
 
 2. `animeStatus_defaultValues_areCorrect()`
    - AnimeStatusエンティティのデフォルト値を検証
+
+3. `watchStatusUtils_getWatchStatusText_isCorrect()`
+   - 視聴ステータスの日本語テキスト変換機能を検証
+   - 編集画面でのドロップダウン表示の正確性を保証
 
 ### テスト結果
 - ✅ 全ユニットテスト通過
@@ -81,11 +86,14 @@
 
 ## ファイル変更一覧
 
-- `app/build.gradle.kts` - バージョン更新
-- `app/src/main/java/com/anichest/app/ui/viewmodel/AddWishlistViewModel.kt` - 視聴ステータス管理機能追加
-- `app/src/main/java/com/anichest/app/ui/screen/AddWishlistScreen.kt` - 視聴ステータス選択UI追加
+- `app/build.gradle.kts` - バージョン更新 (1.1.0 → 1.2.0)
 - `app/src/main/java/com/anichest/app/ui/screen/AnimeDetailScreen.kt` - 編集モードに視聴ステータス編集機能追加
-- `app/src/test/java/com/anichest/app/ExampleUnitTest.kt` - テストケース追加
+  - EditAnimeCardに視聴ステータスドロップダウンを追加
+  - ExposedDropdownMenuBoxとWatchStatusUtilsを使用
+  - onSaveコールバックにwatchStatusパラメータを追加
+  - updateAnimeStatusメソッドでの一括更新対応
+- `app/src/test/java/com/anichest/app/ExampleUnitTest.kt` - 視聴ステータステキスト変換テスト追加
+- `docs/WATCH_STATUS_FEATURE.md` - ドキュメント更新
 
 ## 今後の拡張可能性
 
