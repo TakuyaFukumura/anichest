@@ -13,11 +13,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -42,8 +40,7 @@ import com.anichest.app.ui.viewmodel.WishlistViewModel
 fun WishlistScreen(
     viewModel: WishlistViewModel,
     onNavigateBack: () -> Unit = {},
-    onNavigateToAnimeDetail: (Long) -> Unit = {},
-    onNavigateToAddWishlist: () -> Unit = {}
+    onNavigateToAnimeDetail: (Long) -> Unit = {}
 ) {
     val wishlistItems by viewModel.wishlistItems.collectAsState(initial = emptyList())
     val isLoading by viewModel.isLoading.collectAsState()
@@ -58,16 +55,6 @@ fun WishlistScreen(
                     }
                 }
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToAddWishlist
-            ) {
-                Icon(
-                    Icons.Filled.Add,
-                    contentDescription = "ウィッシュリストに追加"
-                )
-            }
         }
     ) { paddingValues ->
         Column(
