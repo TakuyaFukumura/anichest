@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
-import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.data.entity.WishlistItem
 import com.anichest.app.data.repository.AnimeRepository
@@ -236,33 +235,41 @@ class AnimeDetailViewModel @Inject constructor(
      * 
      * @param editing true: 編集モード、false: 表示モード
      */
-    fun setEditing(editing: Boolean) {
+    fun setEditMode(editing: Boolean) {
         _isEditing.value = editing
     }
 
     /**
-     * ウィッシュリストアイテムの情報を更新
-     * 
-     * 優先度とメモを更新します。
-     * 
-     * @param priority 新しい優先度
-     * @param notes メモ内容
+     * ウィッシュリストに追加
      */
-    fun updateWishlistItem(priority: Priority, notes: String) {
-        val currentWishlist = _wishlistItem.value ?: return
+    fun addToWishlist() {
+        val currentAnime = _anime.value ?: return
 
         viewModelScope.launch {
             try {
-                val updatedWishlistItem = currentWishlist.copy(
-                    priority = priority,
-                    notes = notes
+                val wishlistItem = WishlistItem(
+                    animeId = currentAnime.id
                 )
-
-                wishlistRepository.updateWishlistItem(updatedWishlistItem)
-                _wishlistItem.value = updatedWishlistItem
-
+                wishlistRepository.insertWishlistItem(wishlistItem)
+                _wishlistItem.value = wishlistItem
             } catch (e: Exception) {
-                _error.value = "ウィッシュリスト情報の更新に失敗しました"
+                _error.value = "ウィッシュリストへの追加に失敗しました"
+            }
+        }
+    }
+
+    /**
+     * ウィッシュリストから削除
+     */
+    fun removeFromWishlist() {
+        val currentAnime = _anime.value ?: return
+
+        viewModelScope.launch {
+            try {
+                wishlistRepository.deleteWishlistItemByAnimeId(currentAnime.id)
+                _wishlistItem.value = null
+            } catch (e: Exception) {
+                _error.value = "ウィッシュリストからの削除に失敗しました"
             }
         }
     }

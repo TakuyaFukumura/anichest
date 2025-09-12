@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
         AnimeStatus::class,
         WishlistItem::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

@@ -3,7 +3,6 @@ package com.anichest.app.data.repository
 import com.anichest.app.data.dao.WishlistDao
 import com.anichest.app.data.entity.AnimeWithWishlist
 import com.anichest.app.data.entity.AnimeWithWishlistAndStatus
-import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WishlistItem
 import kotlinx.coroutines.flow.Flow
 
@@ -17,7 +16,6 @@ import kotlinx.coroutines.flow.Flow
  * @see WishlistDao
  * @see WishlistItem
  * @see AnimeWithWishlist
- * @see Priority
  */
 class WishlistRepository(private val wishlistDao: WishlistDao) {
 
@@ -42,15 +40,6 @@ class WishlistRepository(private val wishlistDao: WishlistDao) {
      */
     fun getUnwatchedWishlistWithAnime(): Flow<List<AnimeWithWishlistAndStatus>> =
         wishlistDao.getUnwatchedWishlistWithAnime()
-
-    /**
-     * 指定された優先度のウィッシュリストアイテムを取得
-     * 
-     * @param priority 取得する優先度
-     * @return 指定された優先度のウィッシュリストアイテムのFlow
-     */
-    fun getWishlistByPriority(priority: Priority): Flow<List<WishlistItem>> =
-        wishlistDao.getWishlistByPriority(priority)
 
     /**
      * アニメIDでウィッシュリストアイテムを取得

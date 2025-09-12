@@ -38,7 +38,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.ui.util.WatchStatusUtils
 import com.anichest.app.ui.viewmodel.AddWishlistViewModel
@@ -159,56 +158,6 @@ fun AddWishlistScreen(
                         minLines = 3,
                         maxLines = 5
                     )
-                }
-            }
-
-            Card(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    Text(
-                        text = "ウィッシュリスト設定",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    // 優先度選択
-                    var priorityExpanded by remember { mutableStateOf(false) }
-                    ExposedDropdownMenuBox(
-                        expanded = priorityExpanded,
-                        onExpandedChange = { priorityExpanded = !priorityExpanded }
-                    ) {
-                        OutlinedTextField(
-                            value = getPriorityText(uiState.priority),
-                            onValueChange = { },
-                            readOnly = true,
-                            label = { Text("優先度") },
-                            trailingIcon = {
-                                ExposedDropdownMenuDefaults.TrailingIcon(expanded = priorityExpanded)
-                            },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .menuAnchor()
-                        )
-                        ExposedDropdownMenu(
-                            expanded = priorityExpanded,
-                            onDismissRequest = { priorityExpanded = false }
-                        ) {
-                            Priority.entries.forEach { priority ->
-                                DropdownMenuItem(
-                                    text = { Text(getPriorityText(priority)) },
-                                    onClick = {
-                                        viewModel.updatePriority(priority)
-                                        priorityExpanded = false
-                                    }
-                                )
-                            }
-                        }
-                    }
 
                     // 視聴ステータス選択
                     var watchStatusExpanded by remember { mutableStateOf(false) }
@@ -243,17 +192,6 @@ fun AddWishlistScreen(
                             }
                         }
                     }
-
-                    // メモ
-                    OutlinedTextField(
-                        value = uiState.notes,
-                        onValueChange = viewModel::updateNotes,
-                        label = { Text("メモ") },
-                        placeholder = { Text("備考やメモを入力（任意）") },
-                        modifier = Modifier.fillMaxWidth(),
-                        minLines = 2,
-                        maxLines = 4
-                    )
                 }
             }
 
@@ -285,13 +223,5 @@ fun AddWishlistScreen(
                 )
             }
         }
-    }
-}
-
-private fun getPriorityText(priority: Priority): String {
-    return when (priority) {
-        Priority.HIGH -> "高優先度"
-        Priority.MEDIUM -> "中優先度"
-        Priority.LOW -> "低優先度"
     }
 }
