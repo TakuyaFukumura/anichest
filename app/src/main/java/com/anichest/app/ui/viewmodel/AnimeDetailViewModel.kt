@@ -235,8 +235,43 @@ class AnimeDetailViewModel @Inject constructor(
      * 
      * @param editing true: 編集モード、false: 表示モード
      */
-    fun setEditing(editing: Boolean) {
+    fun setEditMode(editing: Boolean) {
         _isEditing.value = editing
+    }
+
+    /**
+     * ウィッシュリストに追加
+     */
+    fun addToWishlist() {
+        val currentAnime = _anime.value ?: return
+
+        viewModelScope.launch {
+            try {
+                val wishlistItem = WishlistItem(
+                    animeId = currentAnime.id
+                )
+                wishlistRepository.insertWishlistItem(wishlistItem)
+                _wishlistItem.value = wishlistItem
+            } catch (e: Exception) {
+                _error.value = "ウィッシュリストへの追加に失敗しました"
+            }
+        }
+    }
+
+    /**
+     * ウィッシュリストから削除
+     */
+    fun removeFromWishlist() {
+        val currentAnime = _anime.value ?: return
+
+        viewModelScope.launch {
+            try {
+                wishlistRepository.deleteWishlistItemByAnimeId(currentAnime.id)
+                _wishlistItem.value = null
+            } catch (e: Exception) {
+                _error.value = "ウィッシュリストからの削除に失敗しました"
+            }
+        }
     }
 
     /**
