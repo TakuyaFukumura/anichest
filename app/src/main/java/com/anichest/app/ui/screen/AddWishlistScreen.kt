@@ -54,14 +54,10 @@ fun AddWishlistScreen(
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // 画面初期化時に状態リセット
-    LaunchedEffect(Unit) {
-        viewModel.reset()
-    }
-
     // 保存成功時の処理
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) {
+            viewModel.reset()
             onNavigateBack()
         }
     }
