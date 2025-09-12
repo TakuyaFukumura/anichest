@@ -213,4 +213,11 @@ class AddWishlistViewModel @Inject constructor(
             }
         }
     }
+
+    /**
+     * 状態を初期化（画面遷移直後などで呼び出し）
+     */
+    fun reset() {
+        _uiState.value = AddWishlistUiState()
+    }
 }
