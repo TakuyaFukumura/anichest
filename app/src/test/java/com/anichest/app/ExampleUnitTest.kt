@@ -4,6 +4,7 @@ import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.ui.navigation.NavigationDestination
+import com.anichest.app.ui.util.WatchStatusUtils
 import com.anichest.app.ui.viewmodel.AddWishlistUiState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -167,5 +168,25 @@ class ExampleUnitTest {
         assertEquals(0, animeStatus.watchedEpisodes)
         assertEquals("", animeStatus.startDate)
         assertEquals("", animeStatus.finishDate)
+    }
+
+    /**
+     * WatchStatusUtilsの日本語テキスト変換テスト
+     *
+     * 視聴ステータスが適切な日本語テキストに変換されることを確認します。
+     * これは編集画面のドロップダウンで表示される文字列の正確性を保証します。
+     *
+     * 検証内容:
+     * - UNWATCHED → "未視聴"
+     * - WATCHING → "視聴中"  
+     * - COMPLETED → "視聴済"
+     * - DROPPED → "中止"
+     */
+    @Test
+    fun watchStatusUtils_getWatchStatusText_isCorrect() {
+        assertEquals("未視聴", WatchStatusUtils.getWatchStatusText(WatchStatus.UNWATCHED))
+        assertEquals("視聴中", WatchStatusUtils.getWatchStatusText(WatchStatus.WATCHING))
+        assertEquals("視聴済", WatchStatusUtils.getWatchStatusText(WatchStatus.COMPLETED))
+        assertEquals("中止", WatchStatusUtils.getWatchStatusText(WatchStatus.DROPPED))
     }
 }
