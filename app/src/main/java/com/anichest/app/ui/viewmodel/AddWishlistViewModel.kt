@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
-import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.data.entity.WishlistItem
 import com.anichest.app.data.repository.AnimeRepository
@@ -29,8 +28,6 @@ import javax.inject.Inject
  * @property genre ジャンル
  * @property year 放送年（文字列）
  * @property description 作品説明
- * @property priority ウィッシュリストの優先度
- * @property notes ウィッシュリストのメモ
  * @property watchStatus 初期視聴状況
  * @property isLoading 保存処理中の状態
  * @property isSaved 保存完了の状態
@@ -42,8 +39,6 @@ data class AddWishlistUiState(
     val genre: String = "",
     val year: String = "",
     val description: String = "",
-    val priority: Priority = Priority.MEDIUM,
-    val notes: String = "",
     val watchStatus: WatchStatus = WatchStatus.UNWATCHED,
     val isLoading: Boolean = false,
     val isSaved: Boolean = false,
@@ -130,24 +125,6 @@ class AddWishlistViewModel @Inject constructor(
     }
 
     /**
-     * ウィッシュリストの優先度を更新
-     * 
-     * @param priority 新しい優先度
-     */
-    fun updatePriority(priority: Priority) {
-        _uiState.value = _uiState.value.copy(priority = priority)
-    }
-
-    /**
-     * ウィッシュリストのメモを更新
-     * 
-     * @param notes 新しいメモ
-     */
-    fun updateNotes(notes: String) {
-        _uiState.value = _uiState.value.copy(notes = notes)
-    }
-
-    /**
      * 初期視聴状況を更新
      * 
      * @param watchStatus 新しい視聴状況
@@ -201,9 +178,7 @@ class AddWishlistViewModel @Inject constructor(
 
                 // ウィッシュリストアイテムを作成
                 val wishlistItem = WishlistItem(
-                    animeId = animeId,
-                    priority = currentState.priority,
-                    notes = currentState.notes.trim()
+                    animeId = animeId
                 )
 
                 // ウィッシュリストに追加

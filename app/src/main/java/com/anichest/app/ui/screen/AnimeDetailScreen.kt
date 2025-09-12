@@ -47,7 +47,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.ui.util.WatchStatusUtils
 import com.anichest.app.ui.viewmodel.AnimeDetailViewModel

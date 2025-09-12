@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
-import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.data.entity.WishlistItem
 import com.anichest.app.data.repository.AnimeRepository
@@ -238,33 +237,6 @@ class AnimeDetailViewModel @Inject constructor(
      */
     fun setEditing(editing: Boolean) {
         _isEditing.value = editing
-    }
-
-    /**
-     * ウィッシュリストアイテムの情報を更新
-     * 
-     * 優先度とメモを更新します。
-     * 
-     * @param priority 新しい優先度
-     * @param notes メモ内容
-     */
-    fun updateWishlistItem(priority: Priority, notes: String) {
-        val currentWishlist = _wishlistItem.value ?: return
-
-        viewModelScope.launch {
-            try {
-                val updatedWishlistItem = currentWishlist.copy(
-                    priority = priority,
-                    notes = notes
-                )
-
-                wishlistRepository.updateWishlistItem(updatedWishlistItem)
-                _wishlistItem.value = updatedWishlistItem
-
-            } catch (e: Exception) {
-                _error.value = "ウィッシュリスト情報の更新に失敗しました"
-            }
-        }
     }
 
     /**
