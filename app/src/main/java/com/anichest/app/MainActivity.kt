@@ -92,7 +92,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
             HomeScreen(
                 viewModel = viewModel,
                 onNavigateToAnimeList = { filter -> navigateToAnimeList(filter) },
-                onNavigateToWishlist = navigateToWishlist
+                onNavigateToWishlist = navigateToWishlist,
+                onNavigateToAddWishlist = navigateToAddWishlist
             )
         }
 
@@ -114,8 +115,7 @@ fun MainScreen(modifier: Modifier = Modifier) {
             WishlistScreen(
                 viewModel = viewModel,
                 onNavigateBack = navigateToHome,
-                onNavigateToAnimeDetail = navigateToAnimeDetail,
-                onNavigateToAddWishlist = navigateToAddWishlist
+                onNavigateToAnimeDetail = navigateToAnimeDetail
             )
         }
 
