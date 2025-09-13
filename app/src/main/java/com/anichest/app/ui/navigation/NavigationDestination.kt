@@ -26,18 +26,6 @@ sealed class NavigationDestination {
     data class AnimeList(val filter: WatchStatus? = null) : NavigationDestination()
     
     /**
-     * ウィッシュリスト画面
-     * 視聴予定のアニメ一覧を表示
-     */
-    object Wishlist : NavigationDestination()
-    
-    /**
-     * ウィッシュリスト新規追加画面
-     * 新しいアニメをウィッシュリストに追加
-     */
-    object AddWishlist : NavigationDestination()
-    
-    /**
      * アニメ詳細画面
      * 
      * @property animeId 表示するアニメのID

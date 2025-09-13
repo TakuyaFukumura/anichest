@@ -2,10 +2,8 @@ package com.anichest.app.di
 
 import com.anichest.app.data.dao.AnimeDao
 import com.anichest.app.data.dao.AnimeStatusDao
-import com.anichest.app.data.dao.WishlistDao
 import com.anichest.app.data.repository.AnimeRepository
 import com.anichest.app.data.repository.AnimeStatusRepository
-import com.anichest.app.data.repository.WishlistRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,7 +17,6 @@ import dagger.hilt.components.SingletonComponent
  * 
  * @see AnimeRepository
  * @see AnimeStatusRepository
- * @see WishlistRepository
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -47,17 +44,5 @@ object RepositoryModule {
     @Provides
     fun provideAnimeStatusRepository(animeStatusDao: AnimeStatusDao): AnimeStatusRepository {
         return AnimeStatusRepository(animeStatusDao)
-    }
-
-    /**
-     * ウィッシュリストリポジトリを提供
-     * 視聴予定アニメデータへのアクセスを抽象化します
-     * 
-     * @param wishlistDao ウィッシュリストデータアクセス用DAO
-     * @return WishlistRepository
-     */
-    @Provides
-    fun provideWishlistRepository(wishlistDao: WishlistDao): WishlistRepository {
-        return WishlistRepository(wishlistDao)
     }
 }

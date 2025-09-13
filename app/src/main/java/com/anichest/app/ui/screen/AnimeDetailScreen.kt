@@ -65,7 +65,6 @@ fun AnimeDetailScreen(
 ) {
     val anime by viewModel.anime.collectAsState()
     val animeStatus by viewModel.animeStatus.collectAsState()
-    val wishlistItem by viewModel.wishlistItem.collectAsState()
     val isEditing by viewModel.isEditing.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
@@ -112,24 +111,6 @@ fun AnimeDetailScreen(
                     }
                 }
             )
-        },
-        floatingActionButton = {
-            if (anime != null && !isLoading) {
-                FloatingActionButton(
-                    onClick = {
-                        if (wishlistItem != null) {
-                            viewModel.removeFromWishlist()
-                        } else {
-                            viewModel.addToWishlist()
-                        }
-                    }
-                ) {
-                    Icon(
-                        imageVector = if (wishlistItem != null) Icons.Filled.Favorite else Icons.Filled.FavoriteBorder,
-                        contentDescription = if (wishlistItem != null) "ウィッシュリストから削除" else "ウィッシュリストに追加"
-                    )
-                }
-            }
         },
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
@@ -185,29 +166,6 @@ fun AnimeDetailScreen(
                                 totalEpisodes = anime!!.totalEpisodes,
                                 description = anime!!.description
                             )
-                            
-                            // ウィッシュリストに追加されている場合の表示
-                            if (wishlistItem != null) {
-                                Card(
-                                    modifier = Modifier.fillMaxWidth()
-                                ) {
-                                    Column(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(16.dp)
-                                    ) {
-                                        Text(
-                                            text = "ウィッシュリスト",
-                                            style = MaterialTheme.typography.titleMedium
-                                        )
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                        Text(
-                                            text = "このアニメはウィッシュリストに追加されています",
-                                            style = MaterialTheme.typography.bodyMedium
-                                        )
-                                    }
-                                }
-                            }
                         }
                     }
                 }

@@ -40,22 +40,17 @@ import com.anichest.app.ui.viewmodel.AnimeListViewModel
  * ホーム画面
  * 
  * アニメの統計情報を表示するアプリのメイン画面です。
- * 視聴中・完了のアニメ数、ウィッシュリスト数の統計と、
+ * 視聴中・完了のアニメ数の統計と、
  * 各カテゴリへのナビゲーション機能を提供します。
- * アニメ情報追加用のFloatingActionButtonも提供します。
  * 
  * @param viewModel アニメリスト情報を提供するViewModel
  * @param onNavigateToAnimeList アニメリスト画面への遷移コールバック
- * @param onNavigateToWishlist ウィッシュリスト画面への遷移コールバック
- * @param onNavigateToAddWishlist アニメ追加画面への遷移コールバック
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: AnimeListViewModel,
-    onNavigateToAnimeList: (WatchStatus?) -> Unit = {},
-    onNavigateToWishlist: () -> Unit = {},
-    onNavigateToAddWishlist: () -> Unit = {}
+    onNavigateToAnimeList: (WatchStatus?) -> Unit = {}
 ) {
     val animeList by viewModel.animeList.collectAsState(initial = emptyList())
     val watchingCount by viewModel.watchingCount.collectAsState(initial = 0)
@@ -64,18 +59,7 @@ fun HomeScreen(
     val droppedCount by viewModel.droppedCount.collectAsState(initial = 0)
     val isLoading by viewModel.isLoading.collectAsState()
 
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onNavigateToAddWishlist
-            ) {
-                Icon(
-                    Icons.Filled.Add,
-                    contentDescription = "アニメ情報を追加"
-                )
-            }
-        }
-    ) { paddingValues ->
+    Scaffold { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -104,8 +88,7 @@ fun HomeScreen(
                     unwatchedCount = unwatchedCount,
                     droppedCount = droppedCount,
                     totalCount = animeList.size,
-                    onNavigateToAnimeList = onNavigateToAnimeList,
-                    onNavigateToWishlist = onNavigateToWishlist
+                    onNavigateToAnimeList = onNavigateToAnimeList
                 )
             }
         }
@@ -119,8 +102,7 @@ private fun StatsSection(
     unwatchedCount: Int,
     droppedCount: Int,
     totalCount: Int,
-    onNavigateToAnimeList: (WatchStatus?) -> Unit,
-    onNavigateToWishlist: () -> Unit
+    onNavigateToAnimeList: (WatchStatus?) -> Unit
 ) {
     Column {
         Text(
@@ -182,41 +164,15 @@ private fun StatsSection(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 第3行: 合計とウィッシュリスト
-        Row(
+        // 第3行: 合計
+        StatCard(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            StatCard(
-                modifier = Modifier.weight(1f),
-                title = "合計",
-                count = totalCount,
-                icon = Icons.Filled.Favorite,
-                color = MaterialTheme.colorScheme.outline,
-                onClick = { onNavigateToAnimeList(null) }
-            )
-
-            OutlinedCard(
-                modifier = Modifier.weight(1f),
-                onClick = onNavigateToWishlist
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "ウィッシュリスト",
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-        }
+            title = "合計",
+            count = totalCount,
+            icon = Icons.Filled.Favorite,
+            color = MaterialTheme.colorScheme.outline,
+            onClick = { onNavigateToAnimeList(null) }
+        )
     }
 }
 

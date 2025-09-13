@@ -3,7 +3,6 @@ package com.anichest.app.di
 import android.content.Context
 import com.anichest.app.data.dao.AnimeDao
 import com.anichest.app.data.dao.AnimeStatusDao
-import com.anichest.app.data.dao.WishlistDao
 import com.anichest.app.data.database.AppDatabase
 import dagger.Module
 import dagger.Provides
@@ -23,7 +22,6 @@ import javax.inject.Singleton
  * @see AppDatabase
  * @see AnimeDao
  * @see AnimeStatusDao
- * @see WishlistDao
  */
 @Module
 @InstallIn(SingletonComponent::class)
@@ -78,16 +76,5 @@ object DatabaseModule {
     @Provides
     fun provideAnimeStatusDao(database: AppDatabase): AnimeStatusDao {
         return database.animeStatusDao()
-    }
-
-    /**
-     * ウィッシュリストデータアクセス用DAOを提供
-     * 
-     * @param database AppDatabaseインスタンス
-     * @return WishlistDao
-     */
-    @Provides
-    fun provideWishlistDao(database: AppDatabase): WishlistDao {
-        return database.wishlistDao()
     }
 }
