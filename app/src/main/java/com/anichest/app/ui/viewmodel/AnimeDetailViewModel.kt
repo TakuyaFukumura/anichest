@@ -136,6 +136,11 @@ class AnimeDetailViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val currentStatus = _animeStatus.value
+                val (startDate, finishDate) = calculateStatusDates(
+                    status = status,
+                    currentStartDate = currentStatus?.startDate,
+                    currentFinishDate = currentStatus?.finishDate
+                )
 
                 val newStatus = currentStatus?.copy(
                     status = status,
@@ -143,9 +148,8 @@ class AnimeDetailViewModel @Inject constructor(
                     review = review,
                     watchedEpisodes = watchedEpisodes,
                     updatedAt = System.currentTimeMillis(),
-                    finishDate = if (status == WatchStatus.COMPLETED) {
-                        LocalDate.now().toString()
-                    } else currentStatus.finishDate
+                    startDate = startDate,
+                    finishDate = finishDate
                 )
                     ?: AnimeStatus(
                         animeId = currentAnime.id,
@@ -153,12 +157,8 @@ class AnimeDetailViewModel @Inject constructor(
                         rating = rating,
                         review = review,
                         watchedEpisodes = watchedEpisodes,
-                        startDate = if (status == WatchStatus.WATCHING) {
-                            LocalDate.now().toString()
-                        } else "",
-                        finishDate = if (status == WatchStatus.COMPLETED) {
-                            LocalDate.now().toString()
-                        } else ""
+                        startDate = startDate,
+                        finishDate = finishDate
                     )
 
                 animeStatusRepository.insertOrUpdateStatus(newStatus)
@@ -215,7 +215,8 @@ class AnimeDetailViewModel @Inject constructor(
      * アニメの基本情報と視聴状況を原子的に更新
      * 
      * アニメの基本情報と視聴状況を同時に更新し、データの一貫性を保証します。
-     * 両方の更新が成功するか、両方とも失敗するかのall-or-nothing原則で動作します。
+     * データベーストランザクション内で両方の更新が実行され、
+     * 真の原子性を提供します（両方成功または両方失敗）。
      * 
      * @param title アニメタイトル
      * @param totalEpisodes 全話数
@@ -242,7 +243,7 @@ class AnimeDetailViewModel @Inject constructor(
 
         viewModelScope.launch {
             try {
-                // アニメ基本情報の更新
+                // アニメ基本情報の更新データを準備
                 val updatedAnime = currentAnime.copy(
                     title = title,
                     totalEpisodes = totalEpisodes,
@@ -253,15 +254,20 @@ class AnimeDetailViewModel @Inject constructor(
 
                 // 視聴状況の更新データを準備
                 val currentStatus = _animeStatus.value
+                val (startDate, finishDate) = calculateStatusDates(
+                    status = status,
+                    currentStartDate = currentStatus?.startDate,
+                    currentFinishDate = currentStatus?.finishDate
+                )
+
                 val newStatus = currentStatus?.copy(
                     status = status,
                     rating = rating,
                     review = review,
                     watchedEpisodes = watchedEpisodes,
                     updatedAt = System.currentTimeMillis(),
-                    finishDate = if (status == WatchStatus.COMPLETED) {
-                        LocalDate.now().toString()
-                    } else currentStatus.finishDate
+                    startDate = startDate,
+                    finishDate = finishDate
                 )
                     ?: AnimeStatus(
                         animeId = currentAnime.id,
@@ -269,17 +275,12 @@ class AnimeDetailViewModel @Inject constructor(
                         rating = rating,
                         review = review,
                         watchedEpisodes = watchedEpisodes,
-                        startDate = if (status == WatchStatus.WATCHING) {
-                            LocalDate.now().toString()
-                        } else "",
-                        finishDate = if (status == WatchStatus.COMPLETED) {
-                            LocalDate.now().toString()
-                        } else ""
+                        startDate = startDate,
+                        finishDate = finishDate
                     )
 
-                // 原子的更新: 両方の操作を実行し、いずれかが失敗した場合は全体を失敗とする
-                animeRepository.updateAnime(updatedAnime)
-                animeStatusRepository.insertOrUpdateStatus(newStatus)
+                // 原子的更新: データベーストランザクション内で両方の操作を実行
+                animeRepository.updateAnimeAndStatus(updatedAnime, newStatus)
 
                 // 成功時のみ状態を更新
                 _anime.value = updatedAnime
@@ -361,5 +362,40 @@ class AnimeDetailViewModel @Inject constructor(
      */
     fun clearError() {
         _error.value = null
+    }
+
+    companion object {
+        /**
+         * 視聴ステータスに基づいて開始日と完了日を計算するヘルパー関数
+         * 
+         * @param status 新しい視聴ステータス
+         * @param currentStartDate 現在の開始日（nullの場合は空文字）
+         * @param currentFinishDate 現在の完了日（nullの場合は空文字）
+         * @return Pair<startDate, finishDate>
+         */
+        private fun calculateStatusDates(
+            status: WatchStatus,
+            currentStartDate: String?,
+            currentFinishDate: String?
+        ): Pair<String, String> {
+            val today = LocalDate.now().toString()
+            
+            return when (status) {
+                WatchStatus.WATCHING -> {
+                    val startDate = currentStartDate?.takeIf { it.isNotBlank() } ?: today
+                    val finishDate = "" // 視聴中は完了日をクリア
+                    Pair(startDate, finishDate)
+                }
+                WatchStatus.COMPLETED -> {
+                    val startDate = currentStartDate ?: ""
+                    val finishDate = today // 完了時は今日の日付を設定
+                    Pair(startDate, finishDate)
+                }
+                else -> {
+                    // UNWATCHED, DROPPED, HOLD などその他のステータス
+                    Pair(currentStartDate ?: "", currentFinishDate ?: "")
+                }
+            }
+        }
     }
 }

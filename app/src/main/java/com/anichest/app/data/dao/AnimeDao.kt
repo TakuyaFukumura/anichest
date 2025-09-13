@@ -8,6 +8,7 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.anichest.app.data.entity.Anime
+import com.anichest.app.data.entity.AnimeStatus
 import com.anichest.app.data.entity.AnimeWithStatus
 import kotlinx.coroutines.flow.Flow
 
@@ -87,4 +88,26 @@ interface AnimeDao {
      */
     @Query("SELECT COUNT(*) FROM anime")
     suspend fun getAnimeCount(): Int
+
+    /**
+     * アニメ基本情報と視聴状況を原子的に更新
+     * 両方の更新が成功するか、両方とも失敗するかを保証します
+     * 
+     * @param anime 更新するアニメ基本情報
+     * @param animeStatus 更新または挿入する視聴状況
+     */
+    @Transaction
+    suspend fun updateAnimeAndStatus(anime: Anime, animeStatus: AnimeStatus) {
+        updateAnime(anime)
+        insertOrUpdateAnimeStatus(animeStatus)
+    }
+
+    /**
+     * アニメ視聴状況を挿入または更新
+     * トランザクション内で使用される内部メソッド
+     * 
+     * @param status 挿入または更新する視聴状況
+     */
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertOrUpdateAnimeStatus(status: AnimeStatus)
 }
