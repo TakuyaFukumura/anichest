@@ -364,37 +364,36 @@ class AnimeDetailViewModel @Inject constructor(
         _error.value = null
     }
 
-    companion object {
-        /**
-         * 視聴ステータスに基づいて開始日と完了日を計算するヘルパー関数
-         * 
-         * @param status 新しい視聴ステータス
-         * @param currentStartDate 現在の開始日（nullの場合は空文字）
-         * @param currentFinishDate 現在の完了日（nullの場合は空文字）
-         * @return Pair<startDate, finishDate>
-         */
-        private fun calculateStatusDates(
-            status: WatchStatus,
-            currentStartDate: String?,
-            currentFinishDate: String?
-        ): Pair<String, String> {
-            val today = LocalDate.now().toString()
-            
-            return when (status) {
-                WatchStatus.WATCHING -> {
-                    val startDate = currentStartDate?.takeIf { it.isNotBlank() } ?: today
-                    val finishDate = "" // 視聴中は完了日をクリア
-                    Pair(startDate, finishDate)
-                }
-                WatchStatus.COMPLETED -> {
-                    val startDate = currentStartDate ?: ""
-                    val finishDate = today // 完了時は今日の日付を設定
-                    Pair(startDate, finishDate)
-                }
-                else -> {
-                    // UNWATCHED, DROPPED, HOLD などその他のステータス
-                    Pair(currentStartDate ?: "", currentFinishDate ?: "")
-                }
+    /**
+     * 視聴ステータスに基づいて開始日と完了日を計算するヘルパー関数
+     *
+     * @param status 新しい視聴ステータス
+     * @param currentStartDate 現在の開始日（nullの場合は空文字）
+     * @param currentFinishDate 現在の完了日（nullの場合は空文字）
+     * @return Pair<startDate, finishDate>
+     */
+    private fun calculateStatusDates(
+        status: WatchStatus,
+        currentStartDate: String?,
+        currentFinishDate: String?
+    ): Pair<String, String> {
+        val today = LocalDate.now().toString()
+        return when (status) {
+            WatchStatus.WATCHING -> {
+                val startDate = currentStartDate?.takeIf { it.isNotBlank() } ?: today
+                val finishDate = "" // 視聴中は完了日をクリア
+                Pair(startDate, finishDate)
+            }
+
+            WatchStatus.COMPLETED -> {
+                val startDate = currentStartDate ?: ""
+                val finishDate = today // 完了時は今日の日付を設定
+                Pair(startDate, finishDate)
+            }
+
+            else -> {
+                // UNWATCHED, DROPPED, HOLD などその他のステータス
+                Pair(currentStartDate ?: "", currentFinishDate ?: "")
             }
         }
     }
