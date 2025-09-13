@@ -18,10 +18,12 @@ import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.ui.navigation.NavigationDestination
 import com.anichest.app.ui.screen.AnimeDetailScreen
 import com.anichest.app.ui.screen.AnimeListScreen
+import com.anichest.app.ui.screen.AnimeRegistrationScreen
 import com.anichest.app.ui.screen.HomeScreen
 import com.anichest.app.ui.theme.AnichestTheme
 import com.anichest.app.ui.viewmodel.AnimeDetailViewModel
 import com.anichest.app.ui.viewmodel.AnimeListViewModel
+import com.anichest.app.ui.viewmodel.AnimeRegistrationViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -77,6 +79,9 @@ fun MainScreen(modifier: Modifier = Modifier) {
     val navigateToAnimeDetail = { animeId: Long ->
         currentDestination = NavigationDestination.AnimeDetail(animeId)
     }
+    val navigateToAnimeRegistration = {
+        currentDestination = NavigationDestination.AnimeRegistration
+    }
 
     // 現在の画面に応じてコンテンツを表示
     when (currentDestination) {
@@ -85,7 +90,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
 
             HomeScreen(
                 viewModel = viewModel,
-                onNavigateToAnimeList = { filter -> navigateToAnimeList(filter) }
+                onNavigateToAnimeList = { filter -> navigateToAnimeList(filter) },
+                onNavigateToAnimeRegistration = navigateToAnimeRegistration
             )
         }
 
@@ -107,6 +113,15 @@ fun MainScreen(modifier: Modifier = Modifier) {
             val animeDetailDestination = currentDestination as NavigationDestination.AnimeDetail
             AnimeDetailScreen(
                 animeId = animeDetailDestination.animeId,
+                viewModel = viewModel,
+                onNavigateBack = navigateToHome
+            )
+        }
+
+        NavigationDestination.AnimeRegistration -> {
+            val viewModel: AnimeRegistrationViewModel = hiltViewModel()
+
+            AnimeRegistrationScreen(
                 viewModel = viewModel,
                 onNavigateBack = navigateToHome
             )

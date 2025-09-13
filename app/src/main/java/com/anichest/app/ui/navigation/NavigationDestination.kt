@@ -31,4 +31,10 @@ sealed class NavigationDestination {
      * @property animeId 表示するアニメのID
      */
     data class AnimeDetail(val animeId: Long) : NavigationDestination()
+    
+    /**
+     * アニメ登録画面
+     * 新しいアニメ情報を登録するための画面
+     */
+    object AnimeRegistration : NavigationDestination()
 }

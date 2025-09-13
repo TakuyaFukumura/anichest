@@ -45,12 +45,14 @@ import com.anichest.app.ui.viewmodel.AnimeListViewModel
  * 
  * @param viewModel アニメリスト情報を提供するViewModel
  * @param onNavigateToAnimeList アニメリスト画面への遷移コールバック
+ * @param onNavigateToAnimeRegistration アニメ登録画面への遷移コールバック
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: AnimeListViewModel,
-    onNavigateToAnimeList: (WatchStatus?) -> Unit = {}
+    onNavigateToAnimeList: (WatchStatus?) -> Unit = {},
+    onNavigateToAnimeRegistration: () -> Unit = {}
 ) {
     val animeList by viewModel.animeList.collectAsState(initial = emptyList())
     val watchingCount by viewModel.watchingCount.collectAsState(initial = 0)
@@ -59,7 +61,20 @@ fun HomeScreen(
     val droppedCount by viewModel.droppedCount.collectAsState(initial = 0)
     val isLoading by viewModel.isLoading.collectAsState()
 
-    Scaffold { paddingValues ->
+    Scaffold(
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onNavigateToAnimeRegistration,
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "アニメを登録",
+                    tint = MaterialTheme.colorScheme.onPrimary
+                )
+            }
+        }
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
