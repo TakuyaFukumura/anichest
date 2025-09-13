@@ -8,10 +8,8 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.anichest.app.data.dao.AnimeDao
 import com.anichest.app.data.dao.AnimeStatusDao
-import com.anichest.app.data.dao.WishlistDao
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
-import com.anichest.app.data.entity.WishlistItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -21,23 +19,20 @@ import kotlinx.coroutines.launch
  * Roomデータベースの中心となるクラスで、以下の機能を提供する：
  * - アニメ作品情報の管理
  * - 視聴状況の追跡
- * - ウィッシュリストの管理
  * - データベースの初期化とサンプルデータの投入
  * 
  * シングルトンパターンを使用してアプリケーション全体で
  * 単一のデータベースインスタンスを共有する。
  * 
  * @see AnimeDao アニメ作品データアクセス
- * @see AnimeStatusDao 視聴状況データアクセス  
- * @see WishlistDao ウィッシュリストデータアクセス
+ * @see AnimeStatusDao 視聴状況データアクセス
  */
 @Database(
     entities = [
         Anime::class,
-        AnimeStatus::class,
-        WishlistItem::class
+        AnimeStatus::class
     ],
-    version = 4,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -56,13 +51,6 @@ abstract class AppDatabase : RoomDatabase() {
      * @return AnimeStatusDao インスタンス
      */
     abstract fun animeStatusDao(): AnimeStatusDao
-    
-    /**
-     * ウィッシュリストデータへのアクセスを提供するDAO
-     * 
-     * @return WishlistDao インスタンス
-     */
-    abstract fun wishlistDao(): WishlistDao
 
     companion object {
         

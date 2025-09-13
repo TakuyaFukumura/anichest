@@ -5,10 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
 import com.anichest.app.data.entity.WatchStatus
-import com.anichest.app.data.entity.WishlistItem
 import com.anichest.app.data.repository.AnimeRepository
 import com.anichest.app.data.repository.AnimeStatusRepository
-import com.anichest.app.data.repository.WishlistRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,20 +19,17 @@ import javax.inject.Inject
  * アニメ詳細・編集画面のViewModel
  * 
  * 特定のアニメ作品の詳細情報表示、編集、削除機能を提供します。
- * 視聴状況の更新、ウィッシュリストアイテムの管理も行います。
+ * 視聴状況の更新も行います。
  * 
  * @param animeRepository アニメデータアクセス用Repository
  * @param animeStatusRepository アニメ視聴状況データアクセス用Repository
- * @param wishlistRepository ウィッシュリストデータアクセス用Repository
  * @see AnimeRepository
  * @see AnimeStatusRepository
- * @see WishlistRepository
  */
 @HiltViewModel
 class AnimeDetailViewModel @Inject constructor(
     private val animeRepository: AnimeRepository,
-    private val animeStatusRepository: AnimeStatusRepository,
-    private val wishlistRepository: WishlistRepository
+    private val animeStatusRepository: AnimeStatusRepository
 ) : ViewModel() {
 
     /**
@@ -48,12 +43,6 @@ class AnimeDetailViewModel @Inject constructor(
      */
     private val _animeStatus = MutableStateFlow<AnimeStatus?>(null)
     val animeStatus: StateFlow<AnimeStatus?> = _animeStatus.asStateFlow()
-
-    /**
-     * ウィッシュリストアイテム情報
-     */
-    private val _wishlistItem = MutableStateFlow<WishlistItem?>(null)
-    val wishlistItem: StateFlow<WishlistItem?> = _wishlistItem.asStateFlow()
 
     /**
      * 編集モードの状態
@@ -86,7 +75,7 @@ class AnimeDetailViewModel @Inject constructor(
     /**
      * 指定されたIDのアニメ情報を読み込み
      * 
-     * アニメ基本情報、視聴状況、ウィッシュリストアイテムを同時に取得します。
+     * アニメ基本情報と視聴状況を同時に取得します。
      * 
      * @param animeId 読み込み対象のアニメID
      */
@@ -102,9 +91,6 @@ class AnimeDetailViewModel @Inject constructor(
 
                 val status = animeStatusRepository.getStatusByAnimeId(animeId)
                 _animeStatus.value = status
-
-                val wishlistItem = wishlistRepository.getWishlistItemByAnimeId(animeId)
-                _wishlistItem.value = wishlistItem
 
                 _isLoading.value = false
             } catch (e: Exception) {
@@ -319,41 +305,6 @@ class AnimeDetailViewModel @Inject constructor(
      */
     fun setEditMode(editing: Boolean) {
         _isEditing.value = editing
-    }
-
-    /**
-     * ウィッシュリストに追加
-     */
-    fun addToWishlist() {
-        val currentAnime = _anime.value ?: return
-
-        viewModelScope.launch {
-            try {
-                val wishlistItem = WishlistItem(
-                    animeId = currentAnime.id
-                )
-                wishlistRepository.insertWishlistItem(wishlistItem)
-                _wishlistItem.value = wishlistItem
-            } catch (e: Exception) {
-                _error.value = "ウィッシュリストへの追加に失敗しました"
-            }
-        }
-    }
-
-    /**
-     * ウィッシュリストから削除
-     */
-    fun removeFromWishlist() {
-        val currentAnime = _anime.value ?: return
-
-        viewModelScope.launch {
-            try {
-                wishlistRepository.deleteWishlistItemByAnimeId(currentAnime.id)
-                _wishlistItem.value = null
-            } catch (e: Exception) {
-                _error.value = "ウィッシュリストからの削除に失敗しました"
-            }
-        }
     }
 
     /**

@@ -5,7 +5,6 @@ import com.anichest.app.data.entity.AnimeStatus
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.ui.navigation.NavigationDestination
 import com.anichest.app.ui.util.WatchStatusUtils
-import com.anichest.app.ui.viewmodel.AddWishlistUiState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -104,21 +103,6 @@ class ExampleUnitTest {
         assertTrue(statuses.contains(WatchStatus.WATCHING))
         assertTrue(statuses.contains(WatchStatus.COMPLETED))
         assertTrue(statuses.contains(WatchStatus.DROPPED))
-    }
-
-    /**
-     * AddWishlistUiStateのデフォルト視聴ステータステスト
-     *
-     * ウィッシュリスト追加時にデフォルトで未視聴状態が設定されることを確認します。
-     * これは新規アニメ登録時の視聴ステータス機能の基本動作です。
-     *
-     * 検証内容:
-     * - デフォルトの視聴ステータスがUNWATCHEDであること
-     */
-    @Test
-    fun addWishlistUiState_defaultWatchStatus_isUnwatched() {
-        val uiState = AddWishlistUiState()
-        assertEquals(WatchStatus.UNWATCHED, uiState.watchStatus)
     }
 
     /**
