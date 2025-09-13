@@ -161,16 +161,19 @@ fun AnimeDetailScreen(
                                 description = anime!!.description,
                                 watchStatus = animeStatus?.status ?: WatchStatus.UNWATCHED,
                                 onSave = { title, totalEpisodes, genre, year, description, watchStatus ->
-                                    // 既存のステータス情報を保持して更新
+                                    // 既存のステータス情報を保持して原子的に更新
                                     val currentStatus = animeStatus
-                                    viewModel.updateAnimeStatus(
+                                    viewModel.updateAnimeAndStatus(
+                                        title = title,
+                                        totalEpisodes = totalEpisodes,
+                                        genre = genre,
+                                        year = year,
+                                        description = description,
                                         status = watchStatus,
                                         rating = currentStatus?.rating ?: 0,
                                         review = currentStatus?.review ?: "",
                                         watchedEpisodes = currentStatus?.watchedEpisodes ?: 0
                                     )
-                                    // 基本情報も更新
-                                    viewModel.updateAnime(title, totalEpisodes, genre, year, description)
                                 },
                                 onCancel = { viewModel.setEditMode(false) }
                             )

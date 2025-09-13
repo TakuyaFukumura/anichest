@@ -2,6 +2,7 @@ package com.anichest.app.data.repository
 
 import com.anichest.app.data.dao.AnimeDao
 import com.anichest.app.data.entity.Anime
+import com.anichest.app.data.entity.AnimeStatus
 import com.anichest.app.data.entity.AnimeWithStatus
 import kotlinx.coroutines.flow.Flow
 
@@ -85,4 +86,16 @@ class AnimeRepository(private val animeDao: AnimeDao) {
      * @param id 削除するアニメ作品のID
      */
     suspend fun deleteAnimeById(id: Long) = animeDao.deleteAnimeById(id)
+
+    /**
+     * アニメ基本情報と視聴状況を原子的に更新
+     * 
+     * 両方の更新が同一トランザクション内で実行され、
+     * データの一貫性が保証されます。
+     * 
+     * @param anime 更新するアニメ基本情報
+     * @param animeStatus 更新または挿入する視聴状況
+     */
+    suspend fun updateAnimeAndStatus(anime: Anime, animeStatus: AnimeStatus) =
+        animeDao.updateAnimeAndStatus(anime, animeStatus)
 }
