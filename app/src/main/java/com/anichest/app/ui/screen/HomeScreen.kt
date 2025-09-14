@@ -23,7 +23,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -120,13 +119,6 @@ private fun StatsSection(
     onNavigateToAnimeList: (WatchStatus?) -> Unit
 ) {
     Column {
-        Text(
-            text = "統計",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
         // 第1行: 視聴中と視聴済
         Row(
             modifier = Modifier.fillMaxWidth(),
