@@ -24,11 +24,11 @@ interface AnimeStatusDao {
 
     /**
      * 全ての視聴状況を取得
-     * 更新日時の降順でソートされます
+     * IDの降順でソートされます
      * 
      * @return 全ての視聴状況のFlow
      */
-    @Query("SELECT * FROM anime_status ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM anime_status ORDER BY id DESC")
     fun getAllStatus(): Flow<List<AnimeStatus>>
 
     /**
@@ -42,12 +42,12 @@ interface AnimeStatusDao {
 
     /**
      * 特定の視聴状況のアニメを取得
-     * 更新日時の降順でソートされます
+     * IDの降順でソートされます
      * 
      * @param status 取得対象の視聴状況
      * @return 指定された視聴状況のアニメリストのFlow
      */
-    @Query("SELECT * FROM anime_status WHERE status = :status ORDER BY updatedAt DESC")
+    @Query("SELECT * FROM anime_status WHERE status = :status ORDER BY id DESC")
     fun getStatusByWatchStatus(status: WatchStatus): Flow<List<AnimeStatus>>
 
     /**
