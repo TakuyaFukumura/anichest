@@ -15,10 +15,10 @@ import javax.inject.Singleton
 
 /**
  * データベース関連の依存関係を提供するHiltモジュール
- * 
+ *
  * アプリケーション全体で使用されるデータベースとDAOのインスタンスを
  * シングルトンとして提供します。
- * 
+ *
  * @see AppDatabase
  * @see AnimeDao
  * @see AnimeStatusDao
@@ -30,7 +30,7 @@ object DatabaseModule {
     /**
      * アプリケーション全体で使用するCoroutineScopeを提供
      * データベースの初期化処理などで使用されます
-     * 
+     *
      * @return SupervisorJobを使用したCoroutineScope
      */
     @Provides
@@ -42,7 +42,7 @@ object DatabaseModule {
     /**
      * アプリケーションデータベースインスタンスを提供
      * シングルトンとして作成され、アプリケーション全体で共有されます
-     * 
+     *
      * @param context アプリケーションコンテキスト
      * @param applicationScope データベース初期化用のCoroutineScope
      * @return AppDatabaseのインスタンス
@@ -58,7 +58,7 @@ object DatabaseModule {
 
     /**
      * アニメデータアクセス用DAOを提供
-     * 
+     *
      * @param database AppDatabaseインスタンス
      * @return AnimeDao
      */
@@ -69,7 +69,7 @@ object DatabaseModule {
 
     /**
      * アニメ視聴状況データアクセス用DAOを提供
-     * 
+     *
      * @param database AppDatabaseインスタンス
      * @return AnimeStatusDao
      */

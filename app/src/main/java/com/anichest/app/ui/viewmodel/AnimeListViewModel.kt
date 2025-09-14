@@ -13,10 +13,10 @@ import javax.inject.Inject
 
 /**
  * アニメリスト画面のViewModel
- * 
+ *
  * アニメ一覧の表示、検索、フィルタリング機能を提供します。
  * 視聴状況による絞り込みや統計情報の表示も担当します。
- * 
+ *
  * @param animeRepository アニメデータアクセス用Repository
  * @param animeStatusRepository アニメ視聴状況データアクセス用Repository
  * @see AnimeRepository
@@ -52,7 +52,7 @@ class AnimeListViewModel @Inject constructor(
 
     /**
      * 全アニメリストと検索・フィルター結果
-     * 
+     *
      * 検索クエリと選択されたフィルターに基づいて、
      * アニメリストを動的にフィルタリングします。
      * - 検索：タイトルの部分一致（大文字小文字区別なし）
@@ -111,7 +111,7 @@ class AnimeListViewModel @Inject constructor(
 
     /**
      * 検索クエリを更新
-     * 
+     *
      * @param query 新しい検索クエリ
      */
     fun updateSearchQuery(query: String) {
@@ -120,7 +120,7 @@ class AnimeListViewModel @Inject constructor(
 
     /**
      * 視聴状況フィルターを設定
-     * 
+     *
      * @param status 設定する視聴状況（nullの場合はフィルターなし）
      */
     fun setFilter(status: WatchStatus?) {

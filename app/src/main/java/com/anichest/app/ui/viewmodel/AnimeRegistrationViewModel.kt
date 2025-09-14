@@ -16,10 +16,10 @@ import javax.inject.Inject
 
 /**
  * アニメ登録画面のViewModel
- * 
+ *
  * 新しいアニメ作品の登録フォームの状態管理と、
  * データベースへの保存処理を担当します。
- * 
+ *
  * @param animeRepository アニメデータアクセス用Repository
  * @param animeStatusRepository アニメ視聴状況データアクセス用Repository
  * @see AnimeRepository
@@ -62,7 +62,6 @@ class AnimeRegistrationViewModel @Inject constructor(
      */
     private val _description = MutableStateFlow("")
     val description: StateFlow<String> = _description.asStateFlow()
-
 
 
     /**
@@ -109,7 +108,7 @@ class AnimeRegistrationViewModel @Inject constructor(
 
     /**
      * アニメタイトルを更新
-     * 
+     *
      * @param newTitle 新しいタイトル
      */
     fun updateTitle(newTitle: String) {
@@ -119,7 +118,7 @@ class AnimeRegistrationViewModel @Inject constructor(
 
     /**
      * 全話数を更新
-     * 
+     *
      * @param newTotalEpisodes 新しい全話数
      */
     fun updateTotalEpisodes(newTotalEpisodes: String) {
@@ -129,7 +128,7 @@ class AnimeRegistrationViewModel @Inject constructor(
 
     /**
      * ジャンルを更新
-     * 
+     *
      * @param newGenre 新しいジャンル
      */
     fun updateGenre(newGenre: String) {
@@ -139,7 +138,7 @@ class AnimeRegistrationViewModel @Inject constructor(
 
     /**
      * 放送年を更新
-     * 
+     *
      * @param newYear 新しい放送年
      */
     fun updateYear(newYear: String) {
@@ -149,7 +148,7 @@ class AnimeRegistrationViewModel @Inject constructor(
 
     /**
      * 作品説明を更新
-     * 
+     *
      * @param newDescription 新しい作品説明
      */
     fun updateDescription(newDescription: String) {
@@ -158,10 +157,9 @@ class AnimeRegistrationViewModel @Inject constructor(
     }
 
 
-
     /**
      * 初期視聴状況を更新
-     * 
+     *
      * @param newStatus 新しい視聴状況
      */
     fun updateInitialWatchStatus(newStatus: WatchStatus) {
@@ -171,7 +169,7 @@ class AnimeRegistrationViewModel @Inject constructor(
 
     /**
      * 初期評価を更新
-     * 
+     *
      * @param newRating 新しい評価（0-5）
      */
     fun updateInitialRating(newRating: Int) {
@@ -181,7 +179,7 @@ class AnimeRegistrationViewModel @Inject constructor(
 
     /**
      * 初期レビューを更新
-     * 
+     *
      * @param newReview 新しいレビュー
      */
     fun updateInitialReview(newReview: String) {
@@ -191,7 +189,7 @@ class AnimeRegistrationViewModel @Inject constructor(
 
     /**
      * 初期視聴済み話数を更新
-     * 
+     *
      * @param newWatchedEpisodes 新しい視聴済み話数
      */
     fun updateInitialWatchedEpisodes(newWatchedEpisodes: String) {
@@ -208,7 +206,7 @@ class AnimeRegistrationViewModel @Inject constructor(
 
     /**
      * フォームの入力値をバリデーション
-     * 
+     *
      * @return バリデーション結果（true: 有効, false: 無効）
      */
     private fun validateForm(): Boolean {
@@ -217,42 +215,50 @@ class AnimeRegistrationViewModel @Inject constructor(
                 _errorMessage.value = "タイトルを入力してください"
                 false
             }
+
             _totalEpisodes.value.isNotBlank() && _totalEpisodes.value.toIntOrNull() == null -> {
                 _errorMessage.value = "話数は数値で入力してください"
                 false
             }
+
             _totalEpisodes.value.isNotBlank() && _totalEpisodes.value.toInt() < 0 -> {
                 _errorMessage.value = "話数は0以上で入力してください"
                 false
             }
+
             _year.value.isNotBlank() && _year.value.toIntOrNull() == null -> {
                 _errorMessage.value = "放送年は数値で入力してください"
                 false
             }
+
             _year.value.isNotBlank() && _year.value.toInt() < 1900 -> {
                 _errorMessage.value = "放送年は1900年以降で入力してください"
                 false
             }
+
             _initialWatchedEpisodes.value.isNotBlank() && _initialWatchedEpisodes.value.toIntOrNull() == null -> {
                 _errorMessage.value = "視聴済み話数は数値で入力してください"
                 false
             }
+
             _initialWatchedEpisodes.value.isNotBlank() && _initialWatchedEpisodes.value.toInt() < 0 -> {
                 _errorMessage.value = "視聴済み話数は0以上で入力してください"
                 false
             }
-            _initialWatchedEpisodes.value.isNotBlank() && _totalEpisodes.value.isNotBlank() && 
-            _initialWatchedEpisodes.value.toInt() > _totalEpisodes.value.toInt() -> {
+
+            _initialWatchedEpisodes.value.isNotBlank() && _totalEpisodes.value.isNotBlank() &&
+                    _initialWatchedEpisodes.value.toInt() > _totalEpisodes.value.toInt() -> {
                 _errorMessage.value = "視聴済み話数は全話数以下で入力してください"
                 false
             }
+
             else -> true
         }
     }
 
     /**
      * アニメ情報を登録
-     * 
+     *
      * フォームのバリデーションを行い、有効な場合は
      * データベースにアニメ情報と初期視聴状況を保存します。
      */

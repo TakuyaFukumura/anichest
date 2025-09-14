@@ -37,11 +37,11 @@ import com.anichest.app.ui.viewmodel.AnimeListViewModel
 
 /**
  * ホーム画面
- * 
+ *
  * アニメの統計情報を表示するアプリのメイン画面です。
  * 視聴中・完了のアニメ数の統計と、
  * 各カテゴリへのナビゲーション機能を提供します。
- * 
+ *
  * @param viewModel アニメリスト情報を提供するViewModel
  * @param onNavigateToAnimeList アニメリスト画面への遷移コールバック
  * @param onNavigateToAnimeRegistration アニメ登録画面への遷移コールバック
