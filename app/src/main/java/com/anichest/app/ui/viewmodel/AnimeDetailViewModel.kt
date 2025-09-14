@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 /**
@@ -122,29 +121,19 @@ class AnimeDetailViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val currentStatus = _animeStatus.value
-                val (startDate, finishDate) = calculateStatusDates(
-                    status = status,
-                    currentStartDate = currentStatus?.startDate,
-                    currentFinishDate = currentStatus?.finishDate
-                )
 
                 val newStatus = currentStatus?.copy(
                     status = status,
                     rating = rating,
                     review = review,
-                    watchedEpisodes = watchedEpisodes,
-                    updatedAt = System.currentTimeMillis(),
-                    startDate = startDate,
-                    finishDate = finishDate
+                    watchedEpisodes = watchedEpisodes
                 )
                     ?: AnimeStatus(
                         animeId = currentAnime.id,
                         status = status,
                         rating = rating,
                         review = review,
-                        watchedEpisodes = watchedEpisodes,
-                        startDate = startDate,
-                        finishDate = finishDate
+                        watchedEpisodes = watchedEpisodes
                     )
 
                 animeStatusRepository.insertOrUpdateStatus(newStatus)
@@ -240,29 +229,19 @@ class AnimeDetailViewModel @Inject constructor(
 
                 // 視聴状況の更新データを準備
                 val currentStatus = _animeStatus.value
-                val (startDate, finishDate) = calculateStatusDates(
-                    status = status,
-                    currentStartDate = currentStatus?.startDate,
-                    currentFinishDate = currentStatus?.finishDate
-                )
 
                 val newStatus = currentStatus?.copy(
                     status = status,
                     rating = rating,
                     review = review,
-                    watchedEpisodes = watchedEpisodes,
-                    updatedAt = System.currentTimeMillis(),
-                    startDate = startDate,
-                    finishDate = finishDate
+                    watchedEpisodes = watchedEpisodes
                 )
                     ?: AnimeStatus(
                         animeId = currentAnime.id,
                         status = status,
                         rating = rating,
                         review = review,
-                        watchedEpisodes = watchedEpisodes,
-                        startDate = startDate,
-                        finishDate = finishDate
+                        watchedEpisodes = watchedEpisodes
                     )
 
                 // 原子的更新: データベーストランザクション内で両方の操作を実行
@@ -313,39 +292,5 @@ class AnimeDetailViewModel @Inject constructor(
      */
     fun clearError() {
         _error.value = null
-    }
-
-    /**
-     * 視聴ステータスに基づいて開始日と完了日を計算するヘルパー関数
-     *
-     * @param status 新しい視聴ステータス
-     * @param currentStartDate 現在の開始日（nullの場合は空文字）
-     * @param currentFinishDate 現在の完了日（nullの場合は空文字）
-     * @return Pair<startDate, finishDate>
-     */
-    private fun calculateStatusDates(
-        status: WatchStatus,
-        currentStartDate: String?,
-        currentFinishDate: String?
-    ): Pair<String, String> {
-        val today = LocalDate.now().toString()
-        return when (status) {
-            WatchStatus.WATCHING -> {
-                val startDate = currentStartDate?.takeIf { it.isNotBlank() } ?: today
-                val finishDate = "" // 視聴中は完了日をクリア
-                Pair(startDate, finishDate)
-            }
-
-            WatchStatus.COMPLETED -> {
-                val startDate = currentStartDate ?: ""
-                val finishDate = today // 完了時は今日の日付を設定
-                Pair(startDate, finishDate)
-            }
-
-            else -> {
-                // UNWATCHED, DROPPED, HOLD などその他のステータス
-                Pair(currentStartDate ?: "", currentFinishDate ?: "")
-            }
-        }
     }
 }

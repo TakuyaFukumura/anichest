@@ -150,8 +150,6 @@ class ExampleUnitTest {
         assertEquals(0, animeStatus.rating)
         assertEquals("", animeStatus.review)
         assertEquals(0, animeStatus.watchedEpisodes)
-        assertEquals("", animeStatus.startDate)
-        assertEquals("", animeStatus.finishDate)
     }
 
     /**

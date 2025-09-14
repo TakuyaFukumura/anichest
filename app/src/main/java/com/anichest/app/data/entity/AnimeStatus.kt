@@ -24,9 +24,6 @@ enum class WatchStatus {
  * @property rating 5段階評価（1-5、未評価は0）
  * @property review 感想・レビュー
  * @property watchedEpisodes 視聴済み話数
- * @property startDate 視聴開始日（YYYY-MM-DD形式）
- * @property finishDate 視聴完了日（YYYY-MM-DD形式）
- * @property updatedAt 最終更新日時（エポック秒）
  */
 @Entity(
     tableName = "anime_status",
@@ -47,8 +44,5 @@ data class AnimeStatus(
     val status: WatchStatus = WatchStatus.UNWATCHED,
     val rating: Int = 0, // 0: 未評価, 1-5: 評価
     val review: String = "",
-    val watchedEpisodes: Int = 0,
-    val startDate: String = "",
-    val finishDate: String = "",
-    val updatedAt: Long = System.currentTimeMillis()
+    val watchedEpisodes: Int = 0
 )

@@ -220,8 +220,7 @@ class AnimeRegistrationViewModel @Inject constructor(
                 // 初期視聴状況を作成して登録
                 val animeStatus = AnimeStatus(
                     animeId = animeId,
-                    status = _initialWatchStatus.value,
-                    updatedAt = System.currentTimeMillis()
+                    status = _initialWatchStatus.value
                 )
                 animeStatusRepository.insertOrUpdateStatus(animeStatus)
 
