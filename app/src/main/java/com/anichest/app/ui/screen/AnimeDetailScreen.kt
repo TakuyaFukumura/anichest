@@ -21,6 +21,7 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -32,6 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -141,9 +143,10 @@ fun AnimeDetailScreen(
                                 year = anime!!.year,
                                 description = anime!!.description,
                                 watchStatus = animeStatus?.status ?: WatchStatus.UNWATCHED,
-                                onSave = { title, totalEpisodes, genre, year, description, watchStatus ->
-                                    // 既存のステータス情報を保持して原子的に更新
-                                    val currentStatus = animeStatus
+                                rating = animeStatus?.rating ?: 0,
+                                review = animeStatus?.review ?: "",
+                                watchedEpisodes = animeStatus?.watchedEpisodes ?: 0,
+                                onSave = { title, totalEpisodes, genre, year, description, watchStatus, rating, review, watchedEpisodes ->
                                     viewModel.updateAnimeAndStatus(
                                         title = title,
                                         totalEpisodes = totalEpisodes,
@@ -151,9 +154,9 @@ fun AnimeDetailScreen(
                                         year = year,
                                         description = description,
                                         status = watchStatus,
-                                        rating = currentStatus?.rating ?: 0,
-                                        review = currentStatus?.review ?: "",
-                                        watchedEpisodes = currentStatus?.watchedEpisodes ?: 0
+                                        rating = rating,
+                                        review = review,
+                                        watchedEpisodes = watchedEpisodes
                                     )
                                 },
                                 onCancel = { viewModel.setEditMode(false) }
@@ -278,7 +281,10 @@ private fun EditAnimeCard(
     year: Int,
     description: String,
     watchStatus: WatchStatus,
-    onSave: (String, Int, String, Int, String, WatchStatus) -> Unit,
+    rating: Int,
+    review: String,
+    watchedEpisodes: Int,
+    onSave: (String, Int, String, Int, String, WatchStatus, Int, String, Int) -> Unit,
     onCancel: () -> Unit
 ) {
     var editedTitle by remember { mutableStateOf(title) }
@@ -287,6 +293,9 @@ private fun EditAnimeCard(
     var editedYear by remember { mutableStateOf(year.toString()) }
     var editedDescription by remember { mutableStateOf(description) }
     var editedWatchStatus by remember { mutableStateOf(watchStatus) }
+    var editedRating by remember { mutableStateOf(rating) }
+    var editedReview by remember { mutableStateOf(review) }
+    var editedWatchedEpisodes by remember { mutableStateOf(watchedEpisodes.toString()) }
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -379,6 +388,77 @@ private fun EditAnimeCard(
                 }
             }
 
+            // 評価選択
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "評価",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    
+                    Text(
+                        text = if (editedRating == 0) "未評価" else "$editedRating / 5",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Slider(
+                        value = editedRating.toFloat(),
+                        onValueChange = { editedRating = it.toInt() },
+                        valueRange = 0f..5f,
+                        steps = 4,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "未評価",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "5",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            // レビュー入力
+            OutlinedTextField(
+                value = editedReview,
+                onValueChange = { editedReview = it },
+                label = { Text("レビュー・感想") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3,
+                maxLines = 5
+            )
+
+            // 視聴済み話数入力
+            OutlinedTextField(
+                value = editedWatchedEpisodes,
+                onValueChange = { if (it.isEmpty() || it.matches(Regex("\\d*"))) editedWatchedEpisodes = it },
+                label = { Text("視聴済み話数") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true
+            )
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -391,7 +471,10 @@ private fun EditAnimeCard(
                             editedGenre,
                             editedYear.toIntOrNull() ?: 0,
                             editedDescription,
-                            editedWatchStatus
+                            editedWatchStatus,
+                            editedRating,
+                            editedReview,
+                            editedWatchedEpisodes.toIntOrNull() ?: 0
                         )
                     },
                     modifier = Modifier.weight(1f),
