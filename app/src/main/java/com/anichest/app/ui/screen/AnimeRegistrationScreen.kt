@@ -65,7 +65,6 @@ fun AnimeRegistrationScreen(
     val genre by viewModel.genre.collectAsState()
     val year by viewModel.year.collectAsState()
     val description by viewModel.description.collectAsState()
-    val imageUrl by viewModel.imageUrl.collectAsState()
     val initialWatchStatus by viewModel.initialWatchStatus.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
@@ -167,16 +166,6 @@ fun AnimeRegistrationScreen(
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 3,
                     maxLines = 5,
-                    enabled = !isLoading
-                )
-
-                // 画像URL入力
-                OutlinedTextField(
-                    value = imageUrl,
-                    onValueChange = viewModel::updateImageUrl,
-                    label = { Text("画像URL") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
                     enabled = !isLoading
                 )
 

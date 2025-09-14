@@ -43,6 +43,5 @@ class AppDatabaseImprovementTest {
         assertEquals(2020, anime.year)
         assertEquals("", anime.genre)
         assertEquals("", anime.description)
-        assertEquals("", anime.imageUrl)
     }
 }
