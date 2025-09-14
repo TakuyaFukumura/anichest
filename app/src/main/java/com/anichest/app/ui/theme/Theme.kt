@@ -9,6 +9,7 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.anichest.app.data.preferences.ThemeMode
 
 /**
  * ダークテーマ用のカラースキーム
@@ -61,12 +62,14 @@ private val LightColorScheme = lightColorScheme(
  * Material Design 3の原則に従い、色、タイポグラフィ、形状などを統一します。
  *
  * 機能:
- * - システムのダークモード設定の自動検出
+ * - ユーザー設定とシステムのダークモード設定の処理
  * - Android 12以降でのDynamic Color対応
  * - カスタムカラースキームとタイポグラフィの適用
  *
- * @param darkTheme ダークテーマを使用するかどうか。
- *                  デフォルトはシステム設定に従います。
+ * @param themeMode ユーザーが選択したテーマモード。
+ *                  SYSTEM: システム設定に従う（デフォルト）
+ *                  LIGHT: 常にライトテーマ
+ *                  DARK: 常にダークテーマ
  *
  * @param dynamicColor Dynamic Color（動的な色）機能を使用するかどうか。
  *                     Android 12以降で、ユーザーの壁紙から抽出した色を
@@ -78,11 +81,18 @@ private val LightColorScheme = lightColorScheme(
  */
 @Composable
 fun AnichestTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: ThemeMode = ThemeMode.SYSTEM,
     // Dynamic color は Android 12以降で利用可能
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
 ) {
+    // テーマモードに基づいてダークテーマかどうかを決定
+    val darkTheme = when (themeMode) {
+        ThemeMode.SYSTEM -> isSystemInDarkTheme()
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+    }
+
     // 使用するカラースキームを決定
     val colorScheme = when {
         // Dynamic Colorが有効かつAndroid 12以降の場合
