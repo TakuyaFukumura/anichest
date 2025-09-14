@@ -28,10 +28,10 @@ import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * アニメ視聴管理アプリ「Anichest」のメインアクティビティ
- * 
+ *
  * アプリの起動とJetpack Composeによる画面レンダリングを担当します。
  * Hilt DIコンテナのエントリーポイントとしても機能します。
- * 
+ *
  * @see NavigationDestination
  */
 @AndroidEntryPoint
@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
     /**
      * Activityの作成時に呼び出されるメソッド
      * Edge-to-Edgeの有効化とComposeコンテンツの設定を行います
-     * 
+     *
      * @param savedInstanceState 保存されたインスタンス状態
      */
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -59,11 +59,11 @@ class MainActivity : ComponentActivity() {
 
 /**
  * アプリのメイン画面を管理するComposable関数
- * 
+ *
  * 画面間のナビゲーション状態を管理し、現在の画面に応じて
  * 適切なスクリーンコンポーネントを表示します。
  * 各画面への遷移関数も定義・提供します。
- * 
+ *
  * @param modifier レイアウト調整用のModifier
  */
 @Composable

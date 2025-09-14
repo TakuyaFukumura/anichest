@@ -83,7 +83,7 @@ interface AnimeDao {
 
     /**
      * アニメ作品の総数を取得
-     * 
+     *
      * @return データベース内のアニメ作品数
      */
     @Query("SELECT COUNT(*) FROM anime")
@@ -92,7 +92,7 @@ interface AnimeDao {
     /**
      * アニメ基本情報と視聴状況を原子的に更新
      * 両方の更新が成功するか、両方とも失敗するかを保証します
-     * 
+     *
      * @param anime 更新するアニメ基本情報
      * @param animeStatus 更新または挿入する視聴状況
      */
@@ -105,7 +105,7 @@ interface AnimeDao {
     /**
      * アニメ視聴状況を挿入または更新
      * トランザクション内で使用される内部メソッド
-     * 
+     *
      * @param status 挿入または更新する視聴状況
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)

@@ -48,10 +48,10 @@ import com.anichest.app.ui.viewmodel.AnimeRegistrationViewModel
 
 /**
  * アニメ登録画面
- * 
+ *
  * 新しいアニメ作品の基本情報と初期視聴状況を入力して
  * データベースに登録するための画面です。
- * 
+ *
  * @param viewModel アニメ登録用のViewModel
  * @param onNavigateBack ホーム画面への戻るナビゲーション
  */
@@ -240,7 +240,7 @@ fun AnimeRegistrationScreen(
 
 /**
  * 視聴状況選択カード
- * 
+ *
  * @param selectedStatus 現在選択されている視聴状況
  * @param onStatusSelected 視聴状況選択時のコールバック
  * @param enabled 選択可能かどうか
@@ -311,7 +311,7 @@ private fun WatchStatusSelectionCard(
 
 /**
  * 評価選択カード
- * 
+ *
  * @param selectedRating 現在選択されている評価（0-5）
  * @param onRatingSelected 評価選択時のコールバック
  * @param enabled 選択可能かどうか
@@ -339,7 +339,7 @@ private fun RatingSelectionCard(
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Text(
                 text = if (selectedRating == 0) "未評価" else "$selectedRating / 5",
                 style = MaterialTheme.typography.bodyMedium,
@@ -354,7 +354,7 @@ private fun RatingSelectionCard(
                 enabled = enabled,
                 modifier = Modifier.fillMaxWidth()
             )
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween

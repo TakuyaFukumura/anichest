@@ -12,10 +12,10 @@ import kotlinx.coroutines.flow.Flow
 
 /**
  * アニメ視聴状況データへのアクセスを提供するDAO
- * 
+ *
  * アニメの視聴進行状況、評価、レビューなどの管理を行います。
  * 統計機能や視聴状況による検索機能も提供します。
- * 
+ *
  * @see AnimeStatus
  * @see WatchStatus
  */
@@ -25,7 +25,7 @@ interface AnimeStatusDao {
     /**
      * 全ての視聴状況を取得
      * IDの降順でソートされます
-     * 
+     *
      * @return 全ての視聴状況のFlow
      */
     @Query("SELECT * FROM anime_status ORDER BY id DESC")
@@ -33,7 +33,7 @@ interface AnimeStatusDao {
 
     /**
      * 特定アニメの視聴状況を取得
-     * 
+     *
      * @param animeId 対象のアニメID
      * @return 視聴状況、存在しない場合はnull
      */
@@ -43,7 +43,7 @@ interface AnimeStatusDao {
     /**
      * 特定の視聴状況のアニメを取得
      * IDの降順でソートされます
-     * 
+     *
      * @param status 取得対象の視聴状況
      * @return 指定された視聴状況のアニメリストのFlow
      */
@@ -53,7 +53,7 @@ interface AnimeStatusDao {
     /**
      * 視聴状況を挿入または更新
      * 既存のレコードがある場合は置き換えます
-     * 
+     *
      * @param status 挿入または更新する視聴状況
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -62,7 +62,7 @@ interface AnimeStatusDao {
     /**
      * 視聴状況を更新
      * 既存のレコードが存在することが前提です
-     * 
+     *
      * @param status 更新する視聴状況
      */
     @Update
@@ -70,7 +70,7 @@ interface AnimeStatusDao {
 
     /**
      * 視聴状況を削除
-     * 
+     *
      * @param status 削除する視聴状況
      */
     @Delete
@@ -78,7 +78,7 @@ interface AnimeStatusDao {
 
     /**
      * 特定アニメの視聴状況を削除
-     * 
+     *
      * @param animeId 削除対象のアニメID
      */
     @Query("DELETE FROM anime_status WHERE animeId = :animeId")
@@ -87,7 +87,7 @@ interface AnimeStatusDao {
     /**
      * 視聴中のアニメ数を取得
      * ホーム画面の統計表示に使用されます
-     * 
+     *
      * @return 視聴中のアニメ数のFlow
      */
     @Query("SELECT COUNT(*) FROM anime_status WHERE status = 'WATCHING'")
@@ -96,7 +96,7 @@ interface AnimeStatusDao {
     /**
      * 完了したアニメ数を取得
      * ホーム画面の統計表示に使用されます
-     * 
+     *
      * @return 視聴完了のアニメ数のFlow
      */
     @Query("SELECT COUNT(*) FROM anime_status WHERE status = 'COMPLETED'")
@@ -105,7 +105,7 @@ interface AnimeStatusDao {
     /**
      * 未視聴のアニメ数を取得
      * ホーム画面の統計表示に使用されます
-     * 
+     *
      * @return 未視聴のアニメ数のFlow
      */
     @Query("SELECT COUNT(*) FROM anime_status WHERE status = 'UNWATCHED'")
@@ -114,7 +114,7 @@ interface AnimeStatusDao {
     /**
      * 中止したアニメ数を取得
      * ホーム画面の統計表示に使用されます
-     * 
+     *
      * @return 中止したアニメ数のFlow
      */
     @Query("SELECT COUNT(*) FROM anime_status WHERE status = 'DROPPED'")

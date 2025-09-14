@@ -16,10 +16,10 @@ import javax.inject.Inject
 
 /**
  * アニメ詳細・編集画面のViewModel
- * 
+ *
  * 特定のアニメ作品の詳細情報表示、編集、削除機能を提供します。
  * 視聴状況の更新も行います。
- * 
+ *
  * @param animeRepository アニメデータアクセス用Repository
  * @param animeStatusRepository アニメ視聴状況データアクセス用Repository
  * @see AnimeRepository
@@ -73,9 +73,9 @@ class AnimeDetailViewModel @Inject constructor(
 
     /**
      * 指定されたIDのアニメ情報を読み込み
-     * 
+     *
      * アニメ基本情報と視聴状況を同時に取得します。
-     * 
+     *
      * @param animeId 読み込み対象のアニメID
      */
     fun loadAnime(animeId: Long) {
@@ -101,10 +101,10 @@ class AnimeDetailViewModel @Inject constructor(
 
     /**
      * アニメの視聴状況を更新
-     * 
+     *
      * 視聴状況、評価、レビュー、視聴話数を一括で更新します。
      * 状況に応じて開始日や完了日も自動的に設定されます。
-     * 
+     *
      * @param status 新しい視聴状況
      * @param rating 評価（1-10）
      * @param review レビューテキスト
@@ -147,10 +147,10 @@ class AnimeDetailViewModel @Inject constructor(
 
     /**
      * アニメの基本情報を更新
-     * 
+     *
      * タイトル、話数、ジャンル、放送年、説明を更新し、
      * 編集モードを終了します。
-     * 
+     *
      * @param title アニメタイトル
      * @param totalEpisodes 全話数
      * @param genre ジャンル
@@ -188,11 +188,11 @@ class AnimeDetailViewModel @Inject constructor(
 
     /**
      * アニメの基本情報と視聴状況を原子的に更新
-     * 
+     *
      * アニメの基本情報と視聴状況を同時に更新し、データの一貫性を保証します。
      * データベーストランザクション内で両方の更新が実行され、
      * 真の原子性を提供します（両方成功または両方失敗）。
-     * 
+     *
      * @param title アニメタイトル
      * @param totalEpisodes 全話数
      * @param genre ジャンル
@@ -260,7 +260,7 @@ class AnimeDetailViewModel @Inject constructor(
 
     /**
      * アニメを削除
-     * 
+     *
      * アニメ作品をデータベースから完全に削除します。
      * 成功時はisDeletedがtrueになります。
      */
@@ -279,7 +279,7 @@ class AnimeDetailViewModel @Inject constructor(
 
     /**
      * 編集モードの切り替え
-     * 
+     *
      * @param editing true: 編集モード、false: 表示モード
      */
     fun setEditMode(editing: Boolean) {

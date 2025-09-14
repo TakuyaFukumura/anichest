@@ -16,8 +16,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -27,7 +25,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -127,6 +124,7 @@ fun AnimeDetailScreen(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
+
                 anime != null -> {
                     Column(
                         modifier = Modifier
@@ -172,6 +170,7 @@ fun AnimeDetailScreen(
                         }
                     }
                 }
+
                 else -> {
                     Text(
                         text = "アニメが見つかりませんでした",
@@ -229,9 +228,9 @@ private fun AnimeInfoCard(
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
-            
+
             Spacer(modifier = Modifier.height(8.dp))
-            
+
             Row(
                 modifier = Modifier.fillMaxWidth()
             ) {
@@ -251,7 +250,7 @@ private fun AnimeInfoCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             if (totalEpisodes > 0) {
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
@@ -260,7 +259,7 @@ private fun AnimeInfoCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
+
             if (description.isNotBlank()) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
@@ -321,7 +320,9 @@ private fun EditAnimeCard(
 
             OutlinedTextField(
                 value = editedTotalEpisodes,
-                onValueChange = { if (it.isEmpty() || it.matches(Regex("\\d*"))) editedTotalEpisodes = it },
+                onValueChange = {
+                    if (it.isEmpty() || it.matches(Regex("\\d*"))) editedTotalEpisodes = it
+                },
                 label = { Text("全話数") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -338,7 +339,9 @@ private fun EditAnimeCard(
 
             OutlinedTextField(
                 value = editedYear,
-                onValueChange = { if (it.isEmpty() || it.matches(Regex("\\d{0,4}"))) editedYear = it },
+                onValueChange = {
+                    if (it.isEmpty() || it.matches(Regex("\\d{0,4}"))) editedYear = it
+                },
                 label = { Text("放送年") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -406,7 +409,7 @@ private fun EditAnimeCard(
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold
                     )
-                    
+
                     Text(
                         text = if (editedRating == 0) "未評価" else "$editedRating / 5",
                         style = MaterialTheme.typography.bodyMedium,
@@ -420,7 +423,7 @@ private fun EditAnimeCard(
                         steps = 4,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    
+
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -452,7 +455,9 @@ private fun EditAnimeCard(
             // 視聴済み話数入力
             OutlinedTextField(
                 value = editedWatchedEpisodes,
-                onValueChange = { if (it.isEmpty() || it.matches(Regex("\\d*"))) editedWatchedEpisodes = it },
+                onValueChange = {
+                    if (it.isEmpty() || it.matches(Regex("\\d*"))) editedWatchedEpisodes = it
+                },
                 label = { Text("視聴済み話数") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -482,7 +487,7 @@ private fun EditAnimeCard(
                 ) {
                     Text("保存")
                 }
-                
+
                 Button(
                     onClick = onCancel,
                     modifier = Modifier.weight(1f)
