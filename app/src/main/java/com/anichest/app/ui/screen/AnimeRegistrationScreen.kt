@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -66,6 +67,9 @@ fun AnimeRegistrationScreen(
     val year by viewModel.year.collectAsState()
     val description by viewModel.description.collectAsState()
     val initialWatchStatus by viewModel.initialWatchStatus.collectAsState()
+    val initialRating by viewModel.initialRating.collectAsState()
+    val initialReview by viewModel.initialReview.collectAsState()
+    val initialWatchedEpisodes by viewModel.initialWatchedEpisodes.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val isRegistrationComplete by viewModel.isRegistrationComplete.collectAsState()
@@ -176,6 +180,35 @@ fun AnimeRegistrationScreen(
                     enabled = !isLoading
                 )
 
+                // 評価選択
+                RatingSelectionCard(
+                    selectedRating = initialRating,
+                    onRatingSelected = viewModel::updateInitialRating,
+                    enabled = !isLoading
+                )
+
+                // レビュー入力
+                OutlinedTextField(
+                    value = initialReview,
+                    onValueChange = viewModel::updateInitialReview,
+                    label = { Text("レビュー・感想") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 3,
+                    maxLines = 5,
+                    enabled = !isLoading
+                )
+
+                // 視聴済み話数入力
+                OutlinedTextField(
+                    value = initialWatchedEpisodes,
+                    onValueChange = viewModel::updateInitialWatchedEpisodes,
+                    label = { Text("視聴済み話数") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    enabled = !isLoading
+                )
+
                 Spacer(modifier = Modifier.height(24.dp))
 
                 // 登録ボタン
@@ -271,6 +304,71 @@ private fun WatchStatusSelectionCard(
                         }
                     )
                 }
+            }
+        }
+    }
+}
+
+/**
+ * 評価選択カード
+ * 
+ * @param selectedRating 現在選択されている評価（0-5）
+ * @param onRatingSelected 評価選択時のコールバック
+ * @param enabled 選択可能かどうか
+ */
+@Composable
+private fun RatingSelectionCard(
+    selectedRating: Int,
+    onRatingSelected: (Int) -> Unit,
+    enabled: Boolean
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "評価",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+            
+            Text(
+                text = if (selectedRating == 0) "未評価" else "$selectedRating / 5",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            Slider(
+                value = selectedRating.toFloat(),
+                onValueChange = { if (enabled) onRatingSelected(it.toInt()) },
+                valueRange = 0f..5f,
+                steps = 4,
+                enabled = enabled,
+                modifier = Modifier.fillMaxWidth()
+            )
+            
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "未評価",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Text(
+                    text = "5",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
             }
         }
     }

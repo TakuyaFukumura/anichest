@@ -72,6 +72,24 @@ class AnimeRegistrationViewModel @Inject constructor(
     val initialWatchStatus: StateFlow<WatchStatus> = _initialWatchStatus.asStateFlow()
 
     /**
+     * 初期評価の選択状態（0-5、0は未評価）
+     */
+    private val _initialRating = MutableStateFlow(0)
+    val initialRating: StateFlow<Int> = _initialRating.asStateFlow()
+
+    /**
+     * 初期レビューの入力状態
+     */
+    private val _initialReview = MutableStateFlow("")
+    val initialReview: StateFlow<String> = _initialReview.asStateFlow()
+
+    /**
+     * 初期視聴済み話数の入力状態
+     */
+    private val _initialWatchedEpisodes = MutableStateFlow("")
+    val initialWatchedEpisodes: StateFlow<String> = _initialWatchedEpisodes.asStateFlow()
+
+    /**
      * 登録処理中フラグ
      */
     private val _isLoading = MutableStateFlow(false)
@@ -152,6 +170,36 @@ class AnimeRegistrationViewModel @Inject constructor(
     }
 
     /**
+     * 初期評価を更新
+     * 
+     * @param newRating 新しい評価（0-5）
+     */
+    fun updateInitialRating(newRating: Int) {
+        _initialRating.value = newRating
+        clearError()
+    }
+
+    /**
+     * 初期レビューを更新
+     * 
+     * @param newReview 新しいレビュー
+     */
+    fun updateInitialReview(newReview: String) {
+        _initialReview.value = newReview
+        clearError()
+    }
+
+    /**
+     * 初期視聴済み話数を更新
+     * 
+     * @param newWatchedEpisodes 新しい視聴済み話数
+     */
+    fun updateInitialWatchedEpisodes(newWatchedEpisodes: String) {
+        _initialWatchedEpisodes.value = newWatchedEpisodes
+        clearError()
+    }
+
+    /**
      * エラーメッセージをクリア
      */
     fun clearError() {
@@ -183,6 +231,19 @@ class AnimeRegistrationViewModel @Inject constructor(
             }
             _year.value.isNotBlank() && _year.value.toInt() < 1900 -> {
                 _errorMessage.value = "放送年は1900年以降で入力してください"
+                false
+            }
+            _initialWatchedEpisodes.value.isNotBlank() && _initialWatchedEpisodes.value.toIntOrNull() == null -> {
+                _errorMessage.value = "視聴済み話数は数値で入力してください"
+                false
+            }
+            _initialWatchedEpisodes.value.isNotBlank() && _initialWatchedEpisodes.value.toInt() < 0 -> {
+                _errorMessage.value = "視聴済み話数は0以上で入力してください"
+                false
+            }
+            _initialWatchedEpisodes.value.isNotBlank() && _totalEpisodes.value.isNotBlank() && 
+            _initialWatchedEpisodes.value.toInt() > _totalEpisodes.value.toInt() -> {
+                _errorMessage.value = "視聴済み話数は全話数以下で入力してください"
                 false
             }
             else -> true
@@ -220,7 +281,10 @@ class AnimeRegistrationViewModel @Inject constructor(
                 // 初期視聴状況を作成して登録
                 val animeStatus = AnimeStatus(
                     animeId = animeId,
-                    status = _initialWatchStatus.value
+                    status = _initialWatchStatus.value,
+                    rating = _initialRating.value,
+                    review = _initialReview.value.trim(),
+                    watchedEpisodes = _initialWatchedEpisodes.value.toIntOrNull() ?: 0
                 )
                 animeStatusRepository.insertOrUpdateStatus(animeStatus)
 
@@ -244,6 +308,9 @@ class AnimeRegistrationViewModel @Inject constructor(
         _year.value = ""
         _description.value = ""
         _initialWatchStatus.value = WatchStatus.UNWATCHED
+        _initialRating.value = 0
+        _initialReview.value = ""
+        _initialWatchedEpisodes.value = ""
         _isLoading.value = false
         _errorMessage.value = null
         _isRegistrationComplete.value = false
