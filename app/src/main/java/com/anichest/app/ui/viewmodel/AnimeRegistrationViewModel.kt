@@ -63,11 +63,7 @@ class AnimeRegistrationViewModel @Inject constructor(
     private val _description = MutableStateFlow("")
     val description: StateFlow<String> = _description.asStateFlow()
 
-    /**
-     * 画像URLの入力状態
-     */
-    private val _imageUrl = MutableStateFlow("")
-    val imageUrl: StateFlow<String> = _imageUrl.asStateFlow()
+
 
     /**
      * 初期視聴状況の選択状態
@@ -143,15 +139,7 @@ class AnimeRegistrationViewModel @Inject constructor(
         clearError()
     }
 
-    /**
-     * 画像URLを更新
-     * 
-     * @param newImageUrl 新しい画像URL
-     */
-    fun updateImageUrl(newImageUrl: String) {
-        _imageUrl.value = newImageUrl
-        clearError()
-    }
+
 
     /**
      * 初期視聴状況を更新
@@ -223,8 +211,7 @@ class AnimeRegistrationViewModel @Inject constructor(
                     totalEpisodes = _totalEpisodes.value.toIntOrNull() ?: 0,
                     genre = _genre.value.trim(),
                     year = _year.value.toIntOrNull() ?: 0,
-                    description = _description.value.trim(),
-                    imageUrl = _imageUrl.value.trim()
+                    description = _description.value.trim()
                 )
 
                 // アニメを登録してIDを取得
@@ -257,7 +244,6 @@ class AnimeRegistrationViewModel @Inject constructor(
         _genre.value = ""
         _year.value = ""
         _description.value = ""
-        _imageUrl.value = ""
         _initialWatchStatus.value = WatchStatus.UNWATCHED
         _isLoading.value = false
         _errorMessage.value = null
