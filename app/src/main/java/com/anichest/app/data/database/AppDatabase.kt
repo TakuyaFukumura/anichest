@@ -8,36 +8,31 @@ import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.anichest.app.data.dao.AnimeDao
 import com.anichest.app.data.dao.AnimeStatusDao
-import com.anichest.app.data.dao.WishlistDao
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
-import com.anichest.app.data.entity.WishlistItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
  * アニメ視聴管理アプリのメインデータベースクラス
- * 
+ *
  * Roomデータベースの中心となるクラスで、以下の機能を提供する：
  * - アニメ作品情報の管理
  * - 視聴状況の追跡
- * - ウィッシュリストの管理
  * - データベースの初期化とサンプルデータの投入
- * 
+ *
  * シングルトンパターンを使用してアプリケーション全体で
  * 単一のデータベースインスタンスを共有する。
- * 
+ *
  * @see AnimeDao アニメ作品データアクセス
- * @see AnimeStatusDao 視聴状況データアクセス  
- * @see WishlistDao ウィッシュリストデータアクセス
+ * @see AnimeStatusDao 視聴状況データアクセス
  */
 @Database(
     entities = [
         Anime::class,
-        AnimeStatus::class,
-        WishlistItem::class
+        AnimeStatus::class
     ],
-    version = 3,
+    version = 5,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -45,30 +40,23 @@ abstract class AppDatabase : RoomDatabase() {
 
     /**
      * アニメ作品データへのアクセスを提供するDAO
-     * 
+     *
      * @return AnimeDao インスタンス
      */
     abstract fun animeDao(): AnimeDao
-    
+
     /**
      * アニメ視聴状況データへのアクセスを提供するDAO
-     * 
+     *
      * @return AnimeStatusDao インスタンス
      */
     abstract fun animeStatusDao(): AnimeStatusDao
-    
-    /**
-     * ウィッシュリストデータへのアクセスを提供するDAO
-     * 
-     * @return WishlistDao インスタンス
-     */
-    abstract fun wishlistDao(): WishlistDao
 
     companion object {
-        
+
         /**
          * データベースインスタンス
-         * 
+         *
          * @Volatile により複数スレッドからの安全なアクセスを保証
          */
         @Volatile
@@ -76,12 +64,12 @@ abstract class AppDatabase : RoomDatabase() {
 
         /**
          * データベースインスタンスを取得する
-         * 
+         *
          * シングルトンパターンを使用してアプリケーション全体で
          * 単一のデータベースインスタンスを提供する。
          * スレッドセーフな実装により、複数スレッドからの
          * 同時アクセスでも安全にインスタンスを取得できる。
-         * 
+         *
          * @param context アプリケーションコンテキスト
          * @param scope データベース初期化で使用するコルーチンスコープ
          * @return AppDatabase インスタンス
@@ -108,11 +96,11 @@ abstract class AppDatabase : RoomDatabase() {
 
     /**
      * データベース初期化コールバック
-     * 
+     *
      * データベースが初回作成された際に実行される処理を定義する。
      * 主にサンプルデータの投入を行い、アプリケーションの
      * 初期状態を整える役割を持つ。
-     * 
+     *
      * @param scope コルーチンスコープ（非同期処理で使用）
      */
     private class AppDatabaseCallback(
@@ -121,11 +109,11 @@ abstract class AppDatabase : RoomDatabase() {
 
         /**
          * データベース作成時のコールバック
-         * 
+         *
          * データベースが初回作成された際に自動的に実行される。
          * サンプルデータの投入を非同期で実行することで、
          * UIスレッドをブロックしないようにしている。
-         * 
+         *
          * @param db 作成されたデータベースインスタンス
          */
         override fun onCreate(db: SupportSQLiteDatabase) {
@@ -141,17 +129,17 @@ abstract class AppDatabase : RoomDatabase() {
 
         /**
          * サンプルデータを投入
-         * 
+         *
          * データベースが空の場合のみサンプルデータを投入する。
          * 既存データがある場合は重複を避けるため処理をスキップする。
          * アプリケーションの初期状態として、架空のアニメ作品データを
          * 提供し、ユーザーが機能を試せる環境を構築する。
-         * 
+         *
          * @param database データベースインスタンス
          */
         private suspend fun populateSampleData(database: AppDatabase) {
             val animeDao = database.animeDao()
-            
+
             // 既存データの確認 - データが存在する場合は投入をスキップ
             if (animeDao.getAnimeCount() > 0) {
                 return

@@ -12,7 +12,6 @@ import androidx.room.PrimaryKey
  * @property genre ジャンル（カンマ区切りで複数指定可能）
  * @property year 放送年
  * @property description 作品の説明・あらすじ
- * @property imageUrl 作品画像のURL（任意）
  */
 @Entity(tableName = "anime")
 data class Anime(
@@ -22,6 +21,5 @@ data class Anime(
     val totalEpisodes: Int = 0,
     val genre: String = "",
     val year: Int = 0,
-    val description: String = "",
-    val imageUrl: String = ""
+    val description: String = ""
 )

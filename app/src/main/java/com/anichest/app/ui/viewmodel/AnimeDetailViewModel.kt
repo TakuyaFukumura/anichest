@@ -4,38 +4,31 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
-import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WatchStatus
-import com.anichest.app.data.entity.WishlistItem
 import com.anichest.app.data.repository.AnimeRepository
 import com.anichest.app.data.repository.AnimeStatusRepository
-import com.anichest.app.data.repository.WishlistRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import javax.inject.Inject
 
 /**
  * アニメ詳細・編集画面のViewModel
- * 
+ *
  * 特定のアニメ作品の詳細情報表示、編集、削除機能を提供します。
- * 視聴状況の更新、ウィッシュリストアイテムの管理も行います。
- * 
+ * 視聴状況の更新も行います。
+ *
  * @param animeRepository アニメデータアクセス用Repository
  * @param animeStatusRepository アニメ視聴状況データアクセス用Repository
- * @param wishlistRepository ウィッシュリストデータアクセス用Repository
  * @see AnimeRepository
  * @see AnimeStatusRepository
- * @see WishlistRepository
  */
 @HiltViewModel
 class AnimeDetailViewModel @Inject constructor(
     private val animeRepository: AnimeRepository,
-    private val animeStatusRepository: AnimeStatusRepository,
-    private val wishlistRepository: WishlistRepository
+    private val animeStatusRepository: AnimeStatusRepository
 ) : ViewModel() {
 
     /**
@@ -49,12 +42,6 @@ class AnimeDetailViewModel @Inject constructor(
      */
     private val _animeStatus = MutableStateFlow<AnimeStatus?>(null)
     val animeStatus: StateFlow<AnimeStatus?> = _animeStatus.asStateFlow()
-
-    /**
-     * ウィッシュリストアイテム情報
-     */
-    private val _wishlistItem = MutableStateFlow<WishlistItem?>(null)
-    val wishlistItem: StateFlow<WishlistItem?> = _wishlistItem.asStateFlow()
 
     /**
      * 編集モードの状態
@@ -86,9 +73,9 @@ class AnimeDetailViewModel @Inject constructor(
 
     /**
      * 指定されたIDのアニメ情報を読み込み
-     * 
-     * アニメ基本情報、視聴状況、ウィッシュリストアイテムを同時に取得します。
-     * 
+     *
+     * アニメ基本情報と視聴状況を同時に取得します。
+     *
      * @param animeId 読み込み対象のアニメID
      */
     fun loadAnime(animeId: Long) {
@@ -104,9 +91,6 @@ class AnimeDetailViewModel @Inject constructor(
                 val status = animeStatusRepository.getStatusByAnimeId(animeId)
                 _animeStatus.value = status
 
-                val wishlistItem = wishlistRepository.getWishlistItemByAnimeId(animeId)
-                _wishlistItem.value = wishlistItem
-
                 _isLoading.value = false
             } catch (e: Exception) {
                 _error.value = "アニメ情報の読み込みに失敗しました"
@@ -117,10 +101,10 @@ class AnimeDetailViewModel @Inject constructor(
 
     /**
      * アニメの視聴状況を更新
-     * 
+     *
      * 視聴状況、評価、レビュー、視聴話数を一括で更新します。
      * 状況に応じて開始日や完了日も自動的に設定されます。
-     * 
+     *
      * @param status 新しい視聴状況
      * @param rating 評価（1-10）
      * @param review レビューテキスト
@@ -142,24 +126,14 @@ class AnimeDetailViewModel @Inject constructor(
                     status = status,
                     rating = rating,
                     review = review,
-                    watchedEpisodes = watchedEpisodes,
-                    updatedAt = System.currentTimeMillis(),
-                    finishDate = if (status == WatchStatus.COMPLETED) {
-                        LocalDate.now().toString()
-                    } else currentStatus.finishDate
+                    watchedEpisodes = watchedEpisodes
                 )
                     ?: AnimeStatus(
                         animeId = currentAnime.id,
                         status = status,
                         rating = rating,
                         review = review,
-                        watchedEpisodes = watchedEpisodes,
-                        startDate = if (status == WatchStatus.WATCHING) {
-                            LocalDate.now().toString()
-                        } else "",
-                        finishDate = if (status == WatchStatus.COMPLETED) {
-                            LocalDate.now().toString()
-                        } else ""
+                        watchedEpisodes = watchedEpisodes
                     )
 
                 animeStatusRepository.insertOrUpdateStatus(newStatus)
@@ -173,10 +147,10 @@ class AnimeDetailViewModel @Inject constructor(
 
     /**
      * アニメの基本情報を更新
-     * 
+     *
      * タイトル、話数、ジャンル、放送年、説明を更新し、
      * 編集モードを終了します。
-     * 
+     *
      * @param title アニメタイトル
      * @param totalEpisodes 全話数
      * @param genre ジャンル
@@ -213,8 +187,80 @@ class AnimeDetailViewModel @Inject constructor(
     }
 
     /**
+     * アニメの基本情報と視聴状況を原子的に更新
+     *
+     * アニメの基本情報と視聴状況を同時に更新し、データの一貫性を保証します。
+     * データベーストランザクション内で両方の更新が実行され、
+     * 真の原子性を提供します（両方成功または両方失敗）。
+     *
+     * @param title アニメタイトル
+     * @param totalEpisodes 全話数
+     * @param genre ジャンル
+     * @param year 放送年
+     * @param description 作品説明
+     * @param status 新しい視聴状況
+     * @param rating 評価（1-10）
+     * @param review レビューテキスト
+     * @param watchedEpisodes 視聴済み話数
+     */
+    fun updateAnimeAndStatus(
+        title: String,
+        totalEpisodes: Int,
+        genre: String,
+        year: Int,
+        description: String,
+        status: WatchStatus,
+        rating: Int,
+        review: String,
+        watchedEpisodes: Int
+    ) {
+        val currentAnime = _anime.value ?: return
+
+        viewModelScope.launch {
+            try {
+                // アニメ基本情報の更新データを準備
+                val updatedAnime = currentAnime.copy(
+                    title = title,
+                    totalEpisodes = totalEpisodes,
+                    genre = genre,
+                    year = year,
+                    description = description
+                )
+
+                // 視聴状況の更新データを準備
+                val currentStatus = _animeStatus.value
+
+                val newStatus = currentStatus?.copy(
+                    status = status,
+                    rating = rating,
+                    review = review,
+                    watchedEpisodes = watchedEpisodes
+                )
+                    ?: AnimeStatus(
+                        animeId = currentAnime.id,
+                        status = status,
+                        rating = rating,
+                        review = review,
+                        watchedEpisodes = watchedEpisodes
+                    )
+
+                // 原子的更新: データベーストランザクション内で両方の操作を実行
+                animeRepository.updateAnimeAndStatus(updatedAnime, newStatus)
+
+                // 成功時のみ状態を更新
+                _anime.value = updatedAnime
+                _animeStatus.value = newStatus
+                _isEditing.value = false
+
+            } catch (e: Exception) {
+                _error.value = "アニメ情報の更新に失敗しました"
+            }
+        }
+    }
+
+    /**
      * アニメを削除
-     * 
+     *
      * アニメ作品をデータベースから完全に削除します。
      * 成功時はisDeletedがtrueになります。
      */
@@ -233,38 +279,11 @@ class AnimeDetailViewModel @Inject constructor(
 
     /**
      * 編集モードの切り替え
-     * 
+     *
      * @param editing true: 編集モード、false: 表示モード
      */
-    fun setEditing(editing: Boolean) {
+    fun setEditMode(editing: Boolean) {
         _isEditing.value = editing
-    }
-
-    /**
-     * ウィッシュリストアイテムの情報を更新
-     * 
-     * 優先度とメモを更新します。
-     * 
-     * @param priority 新しい優先度
-     * @param notes メモ内容
-     */
-    fun updateWishlistItem(priority: Priority, notes: String) {
-        val currentWishlist = _wishlistItem.value ?: return
-
-        viewModelScope.launch {
-            try {
-                val updatedWishlistItem = currentWishlist.copy(
-                    priority = priority,
-                    notes = notes
-                )
-
-                wishlistRepository.updateWishlistItem(updatedWishlistItem)
-                _wishlistItem.value = updatedWishlistItem
-
-            } catch (e: Exception) {
-                _error.value = "ウィッシュリスト情報の更新に失敗しました"
-            }
-        }
     }
 
     /**

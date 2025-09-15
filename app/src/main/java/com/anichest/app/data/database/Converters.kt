@@ -1,7 +1,6 @@
 package com.anichest.app.data.database
 
 import androidx.room.TypeConverter
-import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WatchStatus
 
 /**
@@ -18,15 +17,5 @@ class Converters {
     @TypeConverter
     fun toWatchStatus(statusString: String): WatchStatus {
         return WatchStatus.valueOf(statusString)
-    }
-
-    @TypeConverter
-    fun fromPriority(priority: Priority): String {
-        return priority.name
-    }
-
-    @TypeConverter
-    fun toPriority(priorityString: String): Priority {
-        return Priority.valueOf(priorityString)
     }
 }

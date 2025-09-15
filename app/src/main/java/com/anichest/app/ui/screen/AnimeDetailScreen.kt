@@ -7,22 +7,23 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,9 +31,14 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -46,8 +52,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import com.anichest.app.data.entity.Priority
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.ui.util.WatchStatusUtils
 import com.anichest.app.ui.viewmodel.AnimeDetailViewModel
@@ -64,13 +70,11 @@ fun AnimeDetailScreen(
 ) {
     val anime by viewModel.anime.collectAsState()
     val animeStatus by viewModel.animeStatus.collectAsState()
-    val wishlistItem by viewModel.wishlistItem.collectAsState()
     val isEditing by viewModel.isEditing.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
     val error by viewModel.error.collectAsState()
-    val isDeleted by viewModel.isDeleted.collectAsState()
 
-    // 削除確認ダイアログの表示状態
+    val snackbarHostState = remember { SnackbarHostState() }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     // アニメデータをロード
@@ -78,10 +82,11 @@ fun AnimeDetailScreen(
         viewModel.loadAnime(animeId)
     }
 
-    // 削除成功時のナビゲーション
-    LaunchedEffect(isDeleted) {
-        if (isDeleted) {
-            onNavigateBack()
+    // エラー表示
+    LaunchedEffect(error) {
+        error?.let {
+            snackbarHostState.showSnackbar(it)
+            viewModel.clearError()
         }
     }
 
@@ -95,28 +100,24 @@ fun AnimeDetailScreen(
                     }
                 },
                 actions = {
-                    // 削除ボタン（アニメが存在する場合）
-                    if (anime != null) {
+                    if (anime != null && !isLoading) {
                         IconButton(onClick = { showDeleteDialog = true }) {
                             Icon(Icons.Filled.Delete, contentDescription = "削除")
                         }
-                    }
-
-                    // ウィッシュリストにあるアニメの場合、編集ボタンを表示
-                    if (wishlistItem != null) {
                         if (isEditing) {
-                            IconButton(onClick = { viewModel.setEditing(false) }) {
-                                Icon(Icons.Filled.Close, contentDescription = "編集をキャンセル")
+                            IconButton(onClick = { viewModel.setEditMode(false) }) {
+                                Icon(Icons.Filled.Edit, contentDescription = "編集完了")
                             }
                         } else {
-                            IconButton(onClick = { viewModel.setEditing(true) }) {
+                            IconButton(onClick = { viewModel.setEditMode(true) }) {
                                 Icon(Icons.Filled.Edit, contentDescription = "編集")
                             }
                         }
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { paddingValues ->
         Box(
             modifier = Modifier
@@ -125,25 +126,9 @@ fun AnimeDetailScreen(
         ) {
             when {
                 isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                }
-
-                error != null -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = error!!,
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    }
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
 
                 anime != null -> {
@@ -151,34 +136,34 @@ fun AnimeDetailScreen(
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(16.dp)
-                            .verticalScroll(rememberScrollState())
+                            .verticalScroll(rememberScrollState()),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
-                        // アニメ基本情報（編集モードまたは表示モード）
-                        if (isEditing && wishlistItem != null) {
-                            EditableAnimeInfoCard(
-                                anime = anime!!,
-                                wishlistItem = wishlistItem!!,
-                                animeStatus = animeStatus,
-                                onAnimeUpdate = { title, totalEpisodes, genre, year, description ->
-                                    viewModel.updateAnime(
-                                        title,
-                                        totalEpisodes,
-                                        genre,
-                                        year,
-                                        description
-                                    )
-                                },
-                                onWishlistUpdate = { priority, notes ->
-                                    viewModel.updateWishlistItem(priority, notes)
-                                },
-                                onStatusUpdate = { watchStatus ->
-                                    viewModel.updateAnimeStatus(
+                        if (isEditing) {
+                            EditAnimeCard(
+                                title = anime!!.title,
+                                totalEpisodes = anime!!.totalEpisodes,
+                                genre = anime!!.genre,
+                                year = anime!!.year,
+                                description = anime!!.description,
+                                watchStatus = animeStatus?.status ?: WatchStatus.UNWATCHED,
+                                rating = animeStatus?.rating ?: 0,
+                                review = animeStatus?.review ?: "",
+                                watchedEpisodes = animeStatus?.watchedEpisodes ?: 0,
+                                onSave = { title, totalEpisodes, genre, year, description, watchStatus, rating, review, watchedEpisodes ->
+                                    viewModel.updateAnimeAndStatus(
+                                        title = title,
+                                        totalEpisodes = totalEpisodes,
+                                        genre = genre,
+                                        year = year,
+                                        description = description,
                                         status = watchStatus,
-                                        rating = animeStatus?.rating ?: 0,
-                                        review = animeStatus?.review ?: "",
-                                        watchedEpisodes = animeStatus?.watchedEpisodes ?: 0
+                                        rating = rating,
+                                        review = review,
+                                        watchedEpisodes = watchedEpisodes
                                     )
-                                }
+                                },
+                                onCancel = { viewModel.setEditMode(false) }
                             )
                         } else {
                             AnimeInfoCard(
@@ -189,47 +174,23 @@ fun AnimeDetailScreen(
                                 description = anime!!.description
                             )
 
-                            // ウィッシュリスト情報の表示
-                            wishlistItem?.let { wishlist ->
-                                Spacer(modifier = Modifier.height(16.dp))
-                                WishlistInfoCard(
-                                    priority = wishlist.priority,
-                                    notes = wishlist.notes,
-                                    addedAt = wishlist.addedAt
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        // 視聴ステータス情報
-                        animeStatus?.let { status ->
-                            StatusCard(
-                                status = status.status,
-                                watchedEpisodes = status.watchedEpisodes,
-                                totalEpisodes = anime!!.totalEpisodes,
-                                rating = status.rating,
-                                review = status.review
+                            // 視聴状況カードを追加
+                            WatchStatusCard(
+                                watchStatus = animeStatus?.status ?: WatchStatus.UNWATCHED,
+                                rating = animeStatus?.rating ?: 0,
+                                review = animeStatus?.review ?: "",
+                                watchedEpisodes = animeStatus?.watchedEpisodes ?: 0,
+                                totalEpisodes = anime!!.totalEpisodes
                             )
-                        } ?: run {
-                            Card(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(32.dp),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = "まだ視聴ステータスが設定されていません",
-                                        style = MaterialTheme.typography.bodyMedium,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                                    )
-                                }
-                            }
                         }
                     }
+                }
+
+                else -> {
+                    Text(
+                        text = "アニメが見つかりませんでした",
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
             }
         }
@@ -239,16 +200,14 @@ fun AnimeDetailScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("削除の確認") },
-            text = {
-                val displayTitle = anime?.title ?: "タイトル不明のアニメ"
-                Text("「$displayTitle」を削除しますか？\nこの操作は取り消せません。")
-            },
+            title = { Text("削除確認") },
+            text = { Text("このアニメを削除しますか？") },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        showDeleteDialog = false
                         viewModel.deleteAnime()
+                        showDeleteDialog = false
+                        onNavigateBack()
                     }
                 ) {
                     Text("削除")
@@ -272,198 +231,80 @@ private fun AnimeInfoCard(
     description: String
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            // タイトル
             Text(
                 text = title,
                 style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
-
+            // 年とジャンル
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = "${year}年",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                Text(
-                    text = genre,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-                if (totalEpisodes > 0) {
-                    Text(
-                        text = "全${totalEpisodes}話",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            if (description.isNotBlank()) {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(
-                    text = description,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun StatusCard(
-    status: WatchStatus,
-    watchedEpisodes: Int,
-    totalEpisodes: Int,
-    rating: Int,
-    review: String
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "視聴ステータス",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = getStatusText(status),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = getStatusColor(status)
-                )
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer
+                ) {
+                    Text(
+                        text = "${year}年",
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    )
+                }
 
-                if (rating > 0) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically
+                if (genre.isNotBlank()) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = MaterialTheme.colorScheme.surfaceVariant
                     ) {
-                        Icon(
-                            imageVector = Icons.Filled.Star,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.size(20.dp)
-                        )
                         Text(
-                            text = "$rating/5",
-                            style = MaterialTheme.typography.bodyLarge,
-                            modifier = Modifier.padding(start = 4.dp)
+                            text = genre,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             }
 
-            if (totalEpisodes > 0 && watchedEpisodes > 0) {
-                Spacer(modifier = Modifier.height(8.dp))
+            // 話数
+            if (totalEpisodes > 0) {
                 Text(
-                    text = "進行状況: $watchedEpisodes / $totalEpisodes 話",
+                    text = "全${totalEpisodes}話",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
-            if (review.isNotBlank()) {
-                Spacer(modifier = Modifier.height(12.dp))
+            // 説明
+            if (description.isNotBlank()) {
                 Text(
-                    text = "レビュー",
+                    text = "あらすじ",
                     style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
-                Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = review,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-    }
-}
-
-private fun getStatusText(status: WatchStatus): String {
-    return when (status) {
-        WatchStatus.UNWATCHED -> "未視聴"
-        WatchStatus.WATCHING -> "視聴中"
-        WatchStatus.COMPLETED -> "視聴済"
-        WatchStatus.DROPPED -> "中止"
-    }
-}
-
-@Composable
-private fun getStatusColor(status: WatchStatus): androidx.compose.ui.graphics.Color {
-    return when (status) {
-        WatchStatus.UNWATCHED -> MaterialTheme.colorScheme.onSurfaceVariant
-        WatchStatus.WATCHING -> MaterialTheme.colorScheme.primary
-        WatchStatus.COMPLETED -> MaterialTheme.colorScheme.secondary
-        WatchStatus.DROPPED -> MaterialTheme.colorScheme.error
-    }
-}
-
-@Composable
-private fun WishlistInfoCard(
-    priority: Priority,
-    notes: String,
-    addedAt: Long
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "ウィッシュリスト情報",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                Text(
-                    text = "優先度: ${getPriorityText(priority)}",
+                    text = description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-
-            if (notes.isNotBlank()) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "メモ",
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Medium
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = notes,
-                    style = MaterialTheme.typography.bodyMedium
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    lineHeight = MaterialTheme.typography.bodyMedium.lineHeight * 1.3f
                 )
             }
         }
@@ -472,22 +313,28 @@ private fun WishlistInfoCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun EditableAnimeInfoCard(
-    anime: com.anichest.app.data.entity.Anime,
-    wishlistItem: com.anichest.app.data.entity.WishlistItem,
-    animeStatus: com.anichest.app.data.entity.AnimeStatus?,
-    onAnimeUpdate: (String, Int, String, Int, String) -> Unit,
-    onWishlistUpdate: (Priority, String) -> Unit,
-    onStatusUpdate: (WatchStatus) -> Unit
+private fun EditAnimeCard(
+    title: String,
+    totalEpisodes: Int,
+    genre: String,
+    year: Int,
+    description: String,
+    watchStatus: WatchStatus,
+    rating: Int,
+    review: String,
+    watchedEpisodes: Int,
+    onSave: (String, Int, String, Int, String, WatchStatus, Int, String, Int) -> Unit,
+    onCancel: () -> Unit
 ) {
-    var title by remember { mutableStateOf(anime.title) }
-    var totalEpisodes by remember { mutableStateOf(anime.totalEpisodes.toString()) }
-    var genre by remember { mutableStateOf(anime.genre) }
-    var year by remember { mutableStateOf(anime.year.toString()) }
-    var description by remember { mutableStateOf(anime.description) }
-    var priority by remember { mutableStateOf(wishlistItem.priority) }
-    var notes by remember { mutableStateOf(wishlistItem.notes) }
-    var watchStatus by remember { mutableStateOf(animeStatus?.status ?: WatchStatus.UNWATCHED) }
+    var editedTitle by remember { mutableStateOf(title) }
+    var editedTotalEpisodes by remember { mutableStateOf(totalEpisodes.toString()) }
+    var editedGenre by remember { mutableStateOf(genre) }
+    var editedYear by remember { mutableStateOf(year.toString()) }
+    var editedDescription by remember { mutableStateOf(description) }
+    var editedWatchStatus by remember { mutableStateOf(watchStatus) }
+    var editedRating by remember { mutableStateOf(rating) }
+    var editedReview by remember { mutableStateOf(review) }
+    var editedWatchedEpisodes by remember { mutableStateOf(watchedEpisodes.toString()) }
 
     Card(
         modifier = Modifier.fillMaxWidth()
@@ -500,111 +347,54 @@ private fun EditableAnimeInfoCard(
         ) {
             Text(
                 text = "アニメ情報編集",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.titleMedium
             )
 
-            // アニメタイトル
             OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
+                value = editedTitle,
+                onValueChange = { editedTitle = it },
                 label = { Text("タイトル") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
-            ) {
-                // 全話数
-                OutlinedTextField(
-                    value = totalEpisodes,
-                    onValueChange = {
-                        if (it.isEmpty() || it.matches(Regex("\\d*"))) {
-                            totalEpisodes = it
-                        }
-                    },
-                    label = { Text("全話数") },
-                    modifier = Modifier.weight(1f),
-                    singleLine = true
-                )
-
-                // 放送年
-                OutlinedTextField(
-                    value = year,
-                    onValueChange = {
-                        if (it.isEmpty() || it.matches(Regex("\\d*"))) {
-                            year = it
-                        }
-                    },
-                    label = { Text("放送年") },
-                    modifier = Modifier.weight(1f),
-                    singleLine = true
-                )
-            }
-
-            // ジャンル
             OutlinedTextField(
-                value = genre,
-                onValueChange = { genre = it },
+                value = editedTotalEpisodes,
+                onValueChange = {
+                    if (it.isEmpty() || it.matches(Regex("\\d*"))) editedTotalEpisodes = it
+                },
+                label = { Text("全話数") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true
+            )
+
+            OutlinedTextField(
+                value = editedGenre,
+                onValueChange = { editedGenre = it },
                 label = { Text("ジャンル") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true
             )
 
-            // 説明
             OutlinedTextField(
-                value = description,
-                onValueChange = { description = it },
+                value = editedYear,
+                onValueChange = {
+                    if (it.isEmpty() || it.matches(Regex("\\d{0,4}"))) editedYear = it
+                },
+                label = { Text("放送年") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true
+            )
+
+            OutlinedTextField(
+                value = editedDescription,
+                onValueChange = { editedDescription = it },
                 label = { Text("説明・あらすじ") },
                 modifier = Modifier.fillMaxWidth(),
                 minLines = 3,
                 maxLines = 5
-            )
-
-            Text(
-                text = "ウィッシュリスト設定",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            // 優先度選択
-            var priorityExpanded by remember { mutableStateOf(false) }
-            ExposedDropdownMenuBox(
-                expanded = priorityExpanded,
-                onExpandedChange = { priorityExpanded = !priorityExpanded }
-            ) {
-                OutlinedTextField(
-                    value = getPriorityText(priority),
-                    onValueChange = { },
-                    readOnly = true,
-                    label = { Text("優先度") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = priorityExpanded) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .menuAnchor()
-                )
-                ExposedDropdownMenu(
-                    expanded = priorityExpanded,
-                    onDismissRequest = { priorityExpanded = false }
-                ) {
-                    Priority.entries.forEach { priorityOption ->
-                        DropdownMenuItem(
-                            text = { Text(getPriorityText(priorityOption)) },
-                            onClick = {
-                                priority = priorityOption
-                                priorityExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            Text(
-                text = "視聴ステータス設定",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
             )
 
             // 視聴ステータス選択
@@ -614,11 +404,13 @@ private fun EditableAnimeInfoCard(
                 onExpandedChange = { watchStatusExpanded = !watchStatusExpanded }
             ) {
                 OutlinedTextField(
-                    value = WatchStatusUtils.getWatchStatusText(watchStatus),
+                    value = WatchStatusUtils.getWatchStatusText(editedWatchStatus),
                     onValueChange = { },
                     readOnly = true,
                     label = { Text("視聴ステータス") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = watchStatusExpanded) },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = watchStatusExpanded)
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
                         .menuAnchor()
@@ -627,11 +419,11 @@ private fun EditableAnimeInfoCard(
                     expanded = watchStatusExpanded,
                     onDismissRequest = { watchStatusExpanded = false }
                 ) {
-                    WatchStatus.entries.forEach { statusOption ->
+                    WatchStatus.entries.forEach { status ->
                         DropdownMenuItem(
-                            text = { Text(WatchStatusUtils.getWatchStatusText(statusOption)) },
+                            text = { Text(WatchStatusUtils.getWatchStatusText(status)) },
                             onClick = {
-                                watchStatus = statusOption
+                                editedWatchStatus = status
                                 watchStatusExpanded = false
                             }
                         )
@@ -639,44 +431,294 @@ private fun EditableAnimeInfoCard(
                 }
             }
 
-            // メモ
-            OutlinedTextField(
-                value = notes,
-                onValueChange = { notes = it },
-                label = { Text("メモ・備考") },
-                placeholder = { Text("このアニメについてのメモを入力（任意）") },
+            // 評価選択
+            Card(
                 modifier = Modifier.fillMaxWidth(),
-                minLines = 2,
-                maxLines = 4
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "評価",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        text = if (editedRating == 0) "未評価" else "$editedRating / 5",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Slider(
+                        value = editedRating.toFloat(),
+                        onValueChange = { editedRating = it.toInt() },
+                        valueRange = 0f..5f,
+                        steps = 4,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "未評価",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "5",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+
+            // レビュー入力
+            OutlinedTextField(
+                value = editedReview,
+                onValueChange = { editedReview = it },
+                label = { Text("レビュー・感想") },
+                modifier = Modifier.fillMaxWidth(),
+                minLines = 3,
+                maxLines = 5
             )
 
-            // 保存ボタン
-            Button(
-                onClick = {
-                    onAnimeUpdate(
-                        title.trim(),
-                        totalEpisodes.toIntOrNull() ?: 0,
-                        genre.trim(),
-                        year.toIntOrNull() ?: 0,
-                        description.trim()
-                    )
-                    onWishlistUpdate(priority, notes.trim())
-                    onStatusUpdate(watchStatus)
+            // 視聴済み話数入力
+            OutlinedTextField(
+                value = editedWatchedEpisodes,
+                onValueChange = {
+                    if (it.isEmpty() || it.matches(Regex("\\d*"))) editedWatchedEpisodes = it
                 },
-                modifier = Modifier.fillMaxWidth()
+                label = { Text("視聴済み話数") },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                singleLine = true
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(Icons.Filled.Check, contentDescription = null)
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("保存")
+                Button(
+                    onClick = {
+                        onSave(
+                            editedTitle,
+                            editedTotalEpisodes.toIntOrNull() ?: 0,
+                            editedGenre,
+                            editedYear.toIntOrNull() ?: 0,
+                            editedDescription,
+                            editedWatchStatus,
+                            editedRating,
+                            editedReview,
+                            editedWatchedEpisodes.toIntOrNull() ?: 0
+                        )
+                    },
+                    modifier = Modifier.weight(1f),
+                    enabled = editedTitle.isNotBlank()
+                ) {
+                    Text("保存")
+                }
+
+                Button(
+                    onClick = onCancel,
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text("キャンセル")
+                }
             }
         }
     }
 }
 
-private fun getPriorityText(priority: Priority): String {
-    return when (priority) {
-        Priority.LOW -> "低"
-        Priority.MEDIUM -> "中"
-        Priority.HIGH -> "高"
+/**
+ * 視聴状況を表示するカード
+ */
+@Composable
+private fun WatchStatusCard(
+    watchStatus: WatchStatus,
+    rating: Int,
+    review: String,
+    watchedEpisodes: Int,
+    totalEpisodes: Int
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer
+        )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Text(
+                text = "視聴状況",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSecondaryContainer
+            )
+
+            // ステータス表示
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "ステータス",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSecondaryContainer
+                )
+
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = getStatusColor(watchStatus)
+                ) {
+                    Text(
+                        text = WatchStatusUtils.getWatchStatusText(watchStatus),
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onPrimary
+                    )
+                }
+            }
+
+            // 進捗表示（全話数がある場合のみ）
+            if (totalEpisodes > 0) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "進捗",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                        Text(
+                            text = "$watchedEpisodes / $totalEpisodes 話",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSecondaryContainer
+                        )
+                    }
+
+                    LinearProgressIndicator(
+                        progress = {
+                            if (totalEpisodes > 0) watchedEpisodes.toFloat() / totalEpisodes.toFloat()
+                            else 0f
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.primary,
+                        trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    )
+                }
+            } else if (watchedEpisodes > 0) {
+                // 全話数不明だが視聴済み話数がある場合
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "視聴済み",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Text(
+                        text = "${watchedEpisodes}話",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+
+            // 評価表示
+            if (rating > 0) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "評価",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    StarRating(rating = rating)
+                }
+            }
+
+            // レビュー表示
+            if (review.isNotBlank()) {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = "レビュー",
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                    Text(
+                        text = review,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                }
+            }
+        }
     }
+}
+
+/**
+ * 星評価を表示するコンポーネント
+ */
+@Composable
+private fun StarRating(
+    rating: Int,
+    maxRating: Int = 5
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        repeat(maxRating) { index ->
+            Icon(
+                imageVector = if (index < rating) Icons.Filled.Star else Icons.Outlined.Star,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+                tint = if (index < rating) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+            )
+        }
+        Spacer(modifier = Modifier.width(4.dp))
+        Text(
+            text = "$rating/5",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+    }
+}
+
+/**
+ * 視聴ステータスに応じた色を取得
+ */
+@Composable
+private fun getStatusColor(status: WatchStatus) = when (status) {
+    WatchStatus.UNWATCHED -> MaterialTheme.colorScheme.outline
+    WatchStatus.WATCHING -> MaterialTheme.colorScheme.primary
+    WatchStatus.COMPLETED -> MaterialTheme.colorScheme.tertiary
+    WatchStatus.DROPPED -> MaterialTheme.colorScheme.error
 }
