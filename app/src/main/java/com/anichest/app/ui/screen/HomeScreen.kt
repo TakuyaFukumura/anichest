@@ -12,10 +12,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -84,7 +84,11 @@ fun HomeScreen(
                     ) {
                         Icon(
                             imageVector = Icons.Filled.Settings,
-                            contentDescription = "テーマ切り替え (現在: ${getThemeModeDescription(themePreferences.themeMode)})",
+                            contentDescription = "テーマ切り替え (現在: ${
+                                getThemeModeDescription(
+                                    themePreferences.themeMode
+                                )
+                            })",
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
@@ -104,32 +108,32 @@ fun HomeScreen(
             }
         }
     ) { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(16.dp)
-            ) {
-                if (isLoading) {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
-                } else {
-                    // 統計カード
-                    StatsSection(
-                        watchingCount = watchingCount,
-                        completedCount = completedCount,
-                        unwatchedCount = unwatchedCount,
-                        droppedCount = droppedCount,
-                        totalCount = animeList.size,
-                        onNavigateToAnimeList = onNavigateToAnimeList
-                    )
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(16.dp)
+        ) {
+            if (isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
+            } else {
+                // 統計カード
+                StatsSection(
+                    watchingCount = watchingCount,
+                    completedCount = completedCount,
+                    unwatchedCount = unwatchedCount,
+                    droppedCount = droppedCount,
+                    totalCount = animeList.size,
+                    onNavigateToAnimeList = onNavigateToAnimeList
+                )
             }
         }
+    }
 }
 
 @Composable
