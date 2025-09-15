@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.collectAsState
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.ui.navigation.NavigationDestination
@@ -24,6 +25,7 @@ import com.anichest.app.ui.theme.AnichestTheme
 import com.anichest.app.ui.viewmodel.AnimeDetailViewModel
 import com.anichest.app.ui.viewmodel.AnimeListViewModel
 import com.anichest.app.ui.viewmodel.AnimeRegistrationViewModel
+import com.anichest.app.ui.viewmodel.ThemeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -48,9 +50,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         setContent {
-            AnichestTheme {
+            val themeViewModel: ThemeViewModel = hiltViewModel()
+            val themePreferences by themeViewModel.themePreferences.collectAsState()
+            
+            AnichestTheme(themeMode = themePreferences.themeMode) {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    MainScreen(modifier = Modifier.padding(innerPadding))
+                    MainScreen(
+                        modifier = Modifier.padding(innerPadding),
+                        themeViewModel = themeViewModel
+                    )
                 }
             }
         }
@@ -65,9 +73,13 @@ class MainActivity : ComponentActivity() {
  * 各画面への遷移関数も定義・提供します。
  *
  * @param modifier レイアウト調整用のModifier
+ * @param themeViewModel テーマ設定を管理するViewModel
  */
 @Composable
-fun MainScreen(modifier: Modifier = Modifier) {
+fun MainScreen(
+    modifier: Modifier = Modifier,
+    themeViewModel: ThemeViewModel
+) {
     // ナビゲーションの状態管理
     var currentDestination by remember { mutableStateOf<NavigationDestination>(NavigationDestination.Home) }
 
@@ -91,7 +103,8 @@ fun MainScreen(modifier: Modifier = Modifier) {
             HomeScreen(
                 viewModel = viewModel,
                 onNavigateToAnimeList = { filter -> navigateToAnimeList(filter) },
-                onNavigateToAnimeRegistration = navigateToAnimeRegistration
+                onNavigateToAnimeRegistration = navigateToAnimeRegistration,
+                themeViewModel = themeViewModel
             )
         }
 

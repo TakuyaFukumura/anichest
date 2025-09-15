@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
@@ -22,9 +23,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -33,25 +36,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.anichest.app.data.entity.WatchStatus
+import com.anichest.app.data.preferences.ThemeMode
 import com.anichest.app.ui.viewmodel.AnimeListViewModel
+import com.anichest.app.ui.viewmodel.ThemeViewModel
 
 /**
  * ホーム画面
  *
  * アニメの統計情報を表示するアプリのメイン画面です。
  * 視聴中・完了のアニメ数の統計と、
- * 各カテゴリへのナビゲーション機能を提供します。
+ * 各カテゴリへのナビゲーション機能、およびテーマ切り替え機能を提供します。
  *
  * @param viewModel アニメリスト情報を提供するViewModel
  * @param onNavigateToAnimeList アニメリスト画面への遷移コールバック
  * @param onNavigateToAnimeRegistration アニメ登録画面への遷移コールバック
+ * @param themeViewModel テーマ設定を管理するViewModel
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     viewModel: AnimeListViewModel,
     onNavigateToAnimeList: (WatchStatus?) -> Unit = {},
-    onNavigateToAnimeRegistration: () -> Unit = {}
+    onNavigateToAnimeRegistration: () -> Unit = {},
+    themeViewModel: ThemeViewModel
 ) {
     val animeList by viewModel.animeList.collectAsState(initial = emptyList())
     val watchingCount by viewModel.watchingCount.collectAsState(initial = 0)
@@ -59,8 +66,31 @@ fun HomeScreen(
     val unwatchedCount by viewModel.unwatchedCount.collectAsState(initial = 0)
     val droppedCount by viewModel.droppedCount.collectAsState(initial = 0)
     val isLoading by viewModel.isLoading.collectAsState()
+    val themePreferences by themeViewModel.themePreferences.collectAsState()
 
     Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Anichest",
+                        style = MaterialTheme.typography.headlineLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                },
+                actions = {
+                    IconButton(
+                        onClick = { themeViewModel.toggleThemeMode() }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = "テーマ切り替え (現在: ${getThemeModeDescription(themePreferences.themeMode)})",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+                }
+            )
+        },
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAnimeRegistration,
@@ -74,39 +104,32 @@ fun HomeScreen(
             }
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Anichest",
-                style = MaterialTheme.typography.headlineLarge,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
-
-            if (isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+                    .padding(16.dp)
+            ) {
+                if (isLoading) {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    // 統計カード
+                    StatsSection(
+                        watchingCount = watchingCount,
+                        completedCount = completedCount,
+                        unwatchedCount = unwatchedCount,
+                        droppedCount = droppedCount,
+                        totalCount = animeList.size,
+                        onNavigateToAnimeList = onNavigateToAnimeList
+                    )
                 }
-            } else {
-                // 統計カード
-                StatsSection(
-                    watchingCount = watchingCount,
-                    completedCount = completedCount,
-                    unwatchedCount = unwatchedCount,
-                    droppedCount = droppedCount,
-                    totalCount = animeList.size,
-                    onNavigateToAnimeList = onNavigateToAnimeList
-                )
             }
         }
-    }
 }
 
 @Composable
@@ -223,4 +246,16 @@ private fun StatCard(
     }
 }
 
-
+/**
+ * テーマモードの説明文を取得する
+ *
+ * @param themeMode 現在のテーマモード
+ * @return テーマモードの日本語説明
+ */
+private fun getThemeModeDescription(themeMode: ThemeMode): String {
+    return when (themeMode) {
+        ThemeMode.SYSTEM -> "システム設定"
+        ThemeMode.LIGHT -> "ライトモード"
+        ThemeMode.DARK -> "ダークモード"
+    }
+}
