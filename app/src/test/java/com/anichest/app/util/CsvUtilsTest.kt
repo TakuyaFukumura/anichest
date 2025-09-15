@@ -26,8 +26,7 @@ class CsvUtilsTest {
                 totalEpisodes = 12,
                 genre = "アクション,ドラマ",
                 year = 2023,
-                description = "これはテスト用のアニメです。",
-                imageUrl = "https://example.com/image1.jpg"
+                description = "これはテスト用のアニメです。"
             ),
             Anime(
                 id = 2L,
@@ -35,8 +34,7 @@ class CsvUtilsTest {
                 totalEpisodes = 24,
                 genre = "コメディ",
                 year = 2024,
-                description = "これも\"テスト用\"のアニメです。",
-                imageUrl = ""
+                description = "これも\"テスト用\"のアニメです。"
             )
         )
 
@@ -44,7 +42,7 @@ class CsvUtilsTest {
         val lines = csvData.split("\n").filter { it.isNotEmpty() }
 
         // ヘッダー行をチェック
-        assertEquals("title,totalEpisodes,genre,year,description,imageUrl", lines[0])
+        assertEquals("title,totalEpisodes,genre,year,description", lines[0])
 
         // データ行をチェック
         assertTrue("1行目のデータが正しいこと", lines[1].contains("テストアニメ1"))
@@ -56,22 +54,21 @@ class CsvUtilsTest {
 
     @Test
     fun testParseCsvFields_BasicFields() {
-        val csvData = "title,totalEpisodes,genre,year,description,imageUrl\n" +
-                      "テストアニメ,12,アクション,2023,説明文,https://example.com/image.jpg"
+        val csvData = "title,totalEpisodes,genre,year,description\n" +
+                      "テストアニメ,12,アクション,2023,説明文"
 
         // この場合は実際のパースはimportFromCsvで行うため、exportで出力されたデータが正しく読めることを確認
         val lines = csvData.split("\n")
         val headerFields = lines[0].split(",")
         val dataFields = lines[1].split(",")
 
-        assertEquals(6, headerFields.size)
-        assertEquals(6, dataFields.size)
+        assertEquals(5, headerFields.size)
+        assertEquals(5, dataFields.size)
         assertEquals("テストアニメ", dataFields[0])
         assertEquals("12", dataFields[1])
         assertEquals("アクション", dataFields[2])
         assertEquals("2023", dataFields[3])
         assertEquals("説明文", dataFields[4])
-        assertEquals("https://example.com/image.jpg", dataFields[5])
     }
 
     @Test
@@ -81,8 +78,7 @@ class CsvUtilsTest {
             totalEpisodes = 12,
             genre = "ドラマ",
             year = 2023,
-            description = "カンマ,を含む説明文",
-            imageUrl = ""
+            description = "カンマ,を含む説明文"
         )
 
         val csvData = CsvUtils.exportToCsv(listOf(animeWithComma))
@@ -99,8 +95,7 @@ class CsvUtilsTest {
             totalEpisodes = 12,
             genre = "ドラマ",
             year = 2023,
-            description = "引用符\"内\"の説明",
-            imageUrl = ""
+            description = "引用符\"内\"の説明"
         )
 
         val csvData = CsvUtils.exportToCsv(listOf(animeWithQuotes))

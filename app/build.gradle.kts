@@ -14,7 +14,6 @@ android {
         applicationId = "com.anichest.app"
         minSdk = 26
         targetSdk = 36
-<<<<<<< HEAD
         versionCode = 24
         versionName = "4.4.0"
 

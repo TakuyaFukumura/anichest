@@ -15,7 +15,7 @@ import java.util.Locale
  */
 object CsvUtils {
 
-    private const val CSV_HEADER = "title,totalEpisodes,genre,year,description,imageUrl"
+    private const val CSV_HEADER = "title,totalEpisodes,genre,year,description"
     private const val CSV_SEPARATOR = ","
     private const val CSV_QUOTE = "\""
 
@@ -49,8 +49,7 @@ object CsvUtils {
                 anime.totalEpisodes.toString(),
                 escapeField(anime.genre),
                 anime.year.toString(),
-                escapeField(anime.description),
-                escapeField(anime.imageUrl)
+                escapeField(anime.description)
             ).joinToString(CSV_SEPARATOR)
             
             csvBuilder.appendLine(row)
@@ -113,8 +112,8 @@ object CsvUtils {
     private fun parseCsvLine(line: String): Anime {
         val fields = parseCsvFields(line)
         
-        if (fields.size < 6) {
-            throw Exception("必要なフィールドが不足しています（6フィールド必要、${fields.size}フィールド検出）")
+        if (fields.size < 5) {
+            throw Exception("必要なフィールドが不足しています（5フィールド必要、${fields.size}フィールド検出）")
         }
 
         val title = fields[0].trim()
@@ -137,15 +136,13 @@ object CsvUtils {
         }
 
         val description = fields[4].trim()
-        val imageUrl = fields[5].trim()
 
         return Anime(
             title = title,
             totalEpisodes = totalEpisodes,
             genre = genre,
             year = year,
-            description = description,
-            imageUrl = imageUrl
+            description = description
         )
     }
 
