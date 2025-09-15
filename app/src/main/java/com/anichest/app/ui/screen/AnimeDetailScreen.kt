@@ -585,7 +585,6 @@ private fun WatchStatusCard(
                 )
                 
                 Surface(
-                    modifier = Modifier,
                     shape = RoundedCornerShape(16.dp),
                     color = getStatusColor(watchStatus)
                 ) {
