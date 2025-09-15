@@ -61,7 +61,7 @@ class ThemePreferencesRepository @Inject constructor(
     val themePreferencesFlow: Flow<ThemePreferences> = context.dataStore.data
         .map { preferences ->
             val themeModeString = preferences[THEME_MODE_KEY] ?: ThemeMode.SYSTEM.name
-            
+
             // 文字列からThemeModeに変換、無効な値の場合はSYSTEMを使用
             val themeMode = try {
                 ThemeMode.valueOf(themeModeString)

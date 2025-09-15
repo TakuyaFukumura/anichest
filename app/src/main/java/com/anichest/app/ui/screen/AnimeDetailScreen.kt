@@ -266,7 +266,7 @@ private fun AnimeInfoCard(
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
-                
+
                 if (genre.isNotBlank()) {
                     Spacer(modifier = Modifier.width(8.dp))
                     Surface(
@@ -580,7 +580,7 @@ private fun WatchStatusCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSecondaryContainer
                 )
-                
+
                 Surface(
                     shape = RoundedCornerShape(16.dp),
                     color = getStatusColor(watchStatus)
@@ -615,11 +615,11 @@ private fun WatchStatusCard(
                             color = MaterialTheme.colorScheme.onSecondaryContainer
                         )
                     }
-                    
+
                     LinearProgressIndicator(
-                        progress = { 
+                        progress = {
                             if (totalEpisodes > 0) watchedEpisodes.toFloat() / totalEpisodes.toFloat()
-                            else 0f 
+                            else 0f
                         },
                         modifier = Modifier.fillMaxWidth(),
                         color = MaterialTheme.colorScheme.primary,
