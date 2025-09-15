@@ -14,8 +14,8 @@ android {
         applicationId = "com.anichest.app"
         minSdk = 26
         targetSdk = 36
-        versionCode = 22
-        versionName = "4.2.0"
+        versionCode = 23
+        versionName = "4.3.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
