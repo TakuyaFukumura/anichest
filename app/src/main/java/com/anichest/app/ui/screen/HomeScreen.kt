@@ -1,5 +1,9 @@
 package com.anichest.app.ui.screen
 
+import android.content.Context
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
@@ -20,32 +25,47 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.anichest.app.data.entity.WatchStatus
 import com.anichest.app.data.preferences.ThemeMode
 import com.anichest.app.ui.viewmodel.AnimeListViewModel
+import com.anichest.app.ui.viewmodel.CsvViewModel
 import com.anichest.app.ui.viewmodel.ThemeViewModel
+import com.anichest.app.util.CsvUtils
+import kotlinx.coroutines.launch
 
 /**
  * ホーム画面
  *
  * アニメの統計情報を表示するアプリのメイン画面です。
  * 視聴中・完了のアニメ数の統計と、
- * 各カテゴリへのナビゲーション機能、およびテーマ切り替え機能を提供します。
+ * 各カテゴリへのナビゲーション機能、およびテーマ切り替え機能、
+ * CSV出力・入力機能を提供します。
  *
  * @param viewModel アニメリスト情報を提供するViewModel
  * @param onNavigateToAnimeList アニメリスト画面への遷移コールバック
@@ -67,6 +87,51 @@ fun HomeScreen(
     val droppedCount by viewModel.droppedCount.collectAsState(initial = 0)
     val isLoading by viewModel.isLoading.collectAsState()
     val themePreferences by themeViewModel.themePreferences.collectAsState()
+
+    // CSV機能用のViewModel
+    val csvViewModel: CsvViewModel = hiltViewModel()
+    val csvUiState by csvViewModel.uiState.collectAsState()
+    
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+    var showMenu by remember { mutableStateOf(false) }
+
+    // ファイルエクスポート用ランチャー
+    val exportLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.CreateDocument("text/csv")
+    ) { uri ->
+        uri?.let {
+            // コルーチンスコープでエクスポートを実行
+            coroutineScope.launch {
+                exportCsvToFile(context, csvViewModel, it)
+            }
+        }
+    }
+
+    // ファイルインポート用ランチャー
+    val importLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            csvViewModel.importFromCsv(context, it)
+        }
+    }
+
+    // エラーメッセージの表示
+    LaunchedEffect(csvUiState.error) {
+        csvUiState.error?.let { error ->
+            snackbarHostState.showSnackbar(error)
+            csvViewModel.clearError()
+        }
+    }
+
+    // インポート結果の表示
+    LaunchedEffect(csvUiState.importResult) {
+        csvUiState.importResult?.let { result ->
+            snackbarHostState.showSnackbar(result.message)
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -92,6 +157,28 @@ fun HomeScreen(
                             tint = MaterialTheme.colorScheme.onSurface
                         )
                     }
+                    IconButton(onClick = { showMenu = true }) {
+                        Icon(Icons.Default.Menu, contentDescription = "メニュー")
+                    }
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("CSVエクスポート") },
+                            onClick = {
+                                showMenu = false
+                                exportLauncher.launch(CsvUtils.generateCsvFileName())
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("CSVインポート") },
+                            onClick = {
+                                showMenu = false
+                                importLauncher.launch("text/csv")
+                            }
+                        )
+                    }
                 }
             )
         },
@@ -102,10 +189,12 @@ fun HomeScreen(
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
-                    contentDescription = "アニメを登録",
-                    tint = MaterialTheme.colorScheme.onPrimary
+                    contentDescription = "アニメを追加"
                 )
             }
+        },
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState)
         }
     ) { paddingValues ->
         Column(
@@ -114,7 +203,7 @@ fun HomeScreen(
                 .padding(paddingValues)
                 .padding(16.dp)
         ) {
-            if (isLoading) {
+            if (isLoading || csvUiState.isLoading) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
@@ -122,7 +211,7 @@ fun HomeScreen(
                     CircularProgressIndicator()
                 }
             } else {
-                // 統計カード
+                // 統計セクション
                 StatsSection(
                     watchingCount = watchingCount,
                     completedCount = completedCount,
@@ -146,7 +235,7 @@ private fun StatsSection(
     onNavigateToAnimeList: (WatchStatus?) -> Unit
 ) {
     Column {
-        // 第1行: 視聴中と視聴済
+        // 第一行：視聴中・完了
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -162,7 +251,7 @@ private fun StatsSection(
 
             StatCard(
                 modifier = Modifier.weight(1f),
-                title = "視聴済",
+                title = "完了",
                 count = completedCount,
                 icon = Icons.Filled.Star,
                 color = MaterialTheme.colorScheme.secondary,
@@ -172,7 +261,7 @@ private fun StatsSection(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 第2行: 未視聴と中止
+        // 第二行：未視聴・中止
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -198,15 +287,31 @@ private fun StatsSection(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // 第3行: 合計
-        StatCard(
+        // 第三行：合計
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            title = "合計",
-            count = totalCount,
-            icon = Icons.Filled.Favorite,
-            color = MaterialTheme.colorScheme.outline,
-            onClick = { onNavigateToAnimeList(null) }
-        )
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            StatCard(
+                modifier = Modifier.weight(1f),
+                title = "合計",
+                count = totalCount,
+                icon = Icons.Filled.Favorite,
+                color = MaterialTheme.colorScheme.outline,
+                onClick = { onNavigateToAnimeList(null) }
+            )
+
+            // 空のスペースを埋めるための透明なCard
+            Card(
+                modifier = Modifier.weight(1f),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0f)
+                )
+            ) {
+                // 空のコンテンツ
+                Spacer(modifier = Modifier.height(80.dp))
+            }
+        }
     }
 }
 
@@ -223,11 +328,13 @@ private fun StatCard(
         modifier = modifier,
         onClick = onClick,
         colors = CardDefaults.cardColors(
-            containerColor = color.copy(alpha = 0.1f)
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
@@ -238,28 +345,43 @@ private fun StatCard(
             Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = count.toString(),
-                style = MaterialTheme.typography.headlineSmall,
+                style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 color = color
             )
             Text(
                 text = title,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
             )
         }
     }
 }
 
-/**
- * テーマモードの説明文を取得する
- *
- * @param themeMode 現在のテーマモード
- * @return テーマモードの日本語説明
- */
 private fun getThemeModeDescription(themeMode: ThemeMode): String {
     return when (themeMode) {
-        ThemeMode.SYSTEM -> "システム設定"
         ThemeMode.LIGHT -> "ライトモード"
         ThemeMode.DARK -> "ダークモード"
+        ThemeMode.SYSTEM -> "システム設定"
+    }
+}
+
+/**
+ * CSVファイルをエクスポートする関数
+ * 
+ * @param context アプリケーションコンテキスト
+ * @param csvViewModel CSV機能用ViewModel
+ * @param uri 保存先のURI
+ */
+private suspend fun exportCsvToFile(context: Context, csvViewModel: CsvViewModel, uri: Uri) {
+    try {
+        val csvData = csvViewModel.exportToCsv()
+        context.contentResolver.openOutputStream(uri)?.use { outputStream ->
+            outputStream.writer().use { writer ->
+                writer.write(csvData)
+            }
+        }
+    } catch (e: Exception) {
+        // エラーはViewModelで処理される
     }
 }

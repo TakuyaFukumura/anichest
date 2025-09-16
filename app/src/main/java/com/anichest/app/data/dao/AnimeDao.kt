@@ -110,4 +110,13 @@ interface AnimeDao {
      */
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertOrUpdateAnimeStatus(status: AnimeStatus)
+
+    /**
+     * 指定されたタイトルのアニメ作品が存在するかチェック
+     * 
+     * @param title チェックするアニメタイトル
+     * @return 存在する場合はtrue、しない場合はfalse
+     */
+    @Query("SELECT EXISTS(SELECT 1 FROM anime WHERE title = :title)")
+    suspend fun existsByTitle(title: String): Boolean
 }
