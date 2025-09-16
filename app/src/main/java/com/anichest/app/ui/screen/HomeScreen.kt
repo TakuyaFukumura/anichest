@@ -1,7 +1,6 @@
 package com.anichest.app.ui.screen
 
 import android.content.Context
-import android.content.Intent
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -236,13 +235,6 @@ private fun StatsSection(
     onNavigateToAnimeList: (WatchStatus?) -> Unit
 ) {
     Column {
-        Text(
-            text = "統計",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
         // 第一行：視聴中・完了
         Row(
             modifier = Modifier.fillMaxWidth(),
