@@ -59,7 +59,7 @@ interface AnimeDao {
 
     /**
      * アニメ作品を挿入
-     * タイトルが重複している場合は例外をスローします
+     * タイトルが重複している場合は、SQLiteConstraintExceptionがスローされます
      */
     @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insertAnime(anime: Anime): Long
