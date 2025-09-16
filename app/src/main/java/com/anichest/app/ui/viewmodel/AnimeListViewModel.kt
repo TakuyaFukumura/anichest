@@ -12,6 +12,17 @@ import kotlinx.coroutines.flow.combine
 import javax.inject.Inject
 
 /**
+ * フィルター条件を表すデータクラス
+ *
+ * @property yearRange 放送年の範囲（null の場合はフィルターなし）
+ * @property ratingRange 評価の範囲（null の場合はフィルターなし）
+ */
+data class AnimeFilterCriteria(
+    val yearRange: IntRange? = null,
+    val ratingRange: IntRange? = null
+)
+
+/**
  * アニメリスト画面のViewModel
  *
  * アニメ一覧の表示、検索、フィルタリング機能を提供します。
@@ -44,6 +55,13 @@ class AnimeListViewModel @Inject constructor(
     val selectedFilter: StateFlow<WatchStatus?> = _selectedFilter.asStateFlow()
 
     /**
+     * 追加フィルター条件（年、評価）
+     * 放送年や評価による絞り込みに使用されます
+     */
+    private val _filterCriteria = MutableStateFlow(AnimeFilterCriteria())
+    val filterCriteria: StateFlow<AnimeFilterCriteria> = _filterCriteria.asStateFlow()
+
+    /**
      * ローディング状態
      * データ取得中の表示制御に使用されます
      */
@@ -57,12 +75,15 @@ class AnimeListViewModel @Inject constructor(
      * アニメリストを動的にフィルタリングします。
      * - 検索：タイトルの部分一致（大文字小文字区別なし）
      * - フィルター：視聴状況による絞り込み
+     * - 年フィルター：放送年による絞り込み
+     * - 評価フィルター：評価値による絞り込み
      */
     val animeList = combine(
         animeRepository.getAllAnimeWithStatus(),
         searchQuery,
-        selectedFilter
-    ) { allAnime, query, filter ->
+        selectedFilter,
+        filterCriteria
+    ) { allAnime, query, filter, criteria ->
         _isLoading.value = false
 
         var filteredList = allAnime
@@ -79,6 +100,21 @@ class AnimeListViewModel @Inject constructor(
             filteredList = filteredList.filter { animeWithStatus ->
                 animeWithStatus.status?.status == filter ||
                         (animeWithStatus.status == null && filter == WatchStatus.UNWATCHED)
+            }
+        }
+
+        // 放送年フィルター
+        criteria.yearRange?.let { yearRange ->
+            filteredList = filteredList.filter { animeWithStatus ->
+                animeWithStatus.anime.year in yearRange
+            }
+        }
+
+        // 評価フィルター
+        criteria.ratingRange?.let { ratingRange ->
+            filteredList = filteredList.filter { animeWithStatus ->
+                val rating = animeWithStatus.status?.rating ?: 0
+                rating in ratingRange
             }
         }
 
@@ -133,5 +169,51 @@ class AnimeListViewModel @Inject constructor(
      */
     fun clearFilter() {
         _selectedFilter.value = null
+    }
+
+    /**
+     * 追加フィルター条件を設定
+     *
+     * @param criteria 新しいフィルター条件
+     */
+    fun setFilterCriteria(criteria: AnimeFilterCriteria) {
+        _filterCriteria.value = criteria
+    }
+
+    /**
+     * 放送年フィルターを設定
+     *
+     * @param startYear 開始年（null の場合は制限なし）
+     * @param endYear 終了年（null の場合は制限なし）
+     */
+    fun setYearFilter(startYear: Int?, endYear: Int?) {
+        val yearRange = if (startYear != null && endYear != null) {
+            startYear..endYear
+        } else null
+
+        _filterCriteria.value = _filterCriteria.value.copy(yearRange = yearRange)
+    }
+
+    /**
+     * 評価フィルターを設定
+     *
+     * @param minRating 最小評価（null の場合は制限なし）
+     * @param maxRating 最大評価（null の場合は制限なし）
+     */
+    fun setRatingFilter(minRating: Int?, maxRating: Int?) {
+        val ratingRange = if (minRating != null && maxRating != null) {
+            minRating..maxRating
+        } else null
+
+        _filterCriteria.value = _filterCriteria.value.copy(ratingRange = ratingRange)
+    }
+
+    /**
+     * 全てのフィルターをクリア
+     * 視聴状況、年、評価のすべてのフィルターを削除します
+     */
+    fun clearAllFilters() {
+        _selectedFilter.value = null
+        _filterCriteria.value = AnimeFilterCriteria()
     }
 }

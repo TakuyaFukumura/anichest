@@ -10,21 +10,28 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -36,9 +43,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.anichest.app.data.entity.AnimeWithStatus
 import com.anichest.app.data.entity.WatchStatus
+import com.anichest.app.ui.viewmodel.AnimeFilterCriteria
 import com.anichest.app.ui.viewmodel.AnimeListViewModel
 
 /**
@@ -54,7 +63,9 @@ fun AnimeListScreen(
 ) {
     val animeList by viewModel.animeList.collectAsState(initial = emptyList())
     val isLoading by viewModel.isLoading.collectAsState()
+    val filterCriteria by viewModel.filterCriteria.collectAsState()
     var searchQuery by remember { mutableStateOf("") }
+    var showFilterDialog by remember { mutableStateOf(false) }
 
     // フィルターが指定されている場合は設定
     LaunchedEffect(filter) {
@@ -69,6 +80,11 @@ fun AnimeListScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "戻る")
                     }
+                },
+                actions = {
+                    IconButton(onClick = { showFilterDialog = true }) {
+                        Icon(Icons.Filled.Settings, contentDescription = "フィルター")
+                    }
                 }
             )
         }
@@ -82,7 +98,10 @@ fun AnimeListScreen(
             // 検索フィールド
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
+                onValueChange = { 
+                    searchQuery = it
+                    viewModel.updateSearchQuery(it)
+                },
                 label = { Text("アニメを検索") },
                 leadingIcon = {
                     Icon(Icons.Filled.Search, contentDescription = null)
@@ -90,7 +109,15 @@ fun AnimeListScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // アクティブなフィルター表示
+            ActiveFiltersRow(
+                filterCriteria = filterCriteria,
+                onClearFilter = viewModel::clearAllFilters
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
 
             if (isLoading) {
                 Box(
@@ -100,26 +127,14 @@ fun AnimeListScreen(
                     CircularProgressIndicator()
                 }
             } else {
-                // フィルタリングされたアニメリスト
-                val filteredAnimeList = if (searchQuery.isBlank()) {
-                    animeList
-                } else {
-                    animeList.filter {
-                        it.anime.title.contains(searchQuery, ignoreCase = true)
-                    }
-                }
-
-                if (filteredAnimeList.isEmpty()) {
+                // フィルタリングされたアニメリスト（ViewModelで処理済み）
+                if (animeList.isEmpty()) {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = if (searchQuery.isBlank()) {
-                                "アニメが登録されていません"
-                            } else {
-                                "検索結果が見つかりません"
-                            },
+                            text = "検索・フィルター条件に一致するアニメが見つかりません",
                             style = MaterialTheme.typography.bodyLarge,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -128,7 +143,7 @@ fun AnimeListScreen(
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        items(filteredAnimeList) { animeWithStatus ->
+                        items(animeList) { animeWithStatus ->
                             AnimeListItem(
                                 animeWithStatus = animeWithStatus,
                                 onClick = { onNavigateToAnimeDetail(animeWithStatus.anime.id) }
@@ -137,6 +152,18 @@ fun AnimeListScreen(
                     }
                 }
             }
+        }
+
+        // フィルターダイアログ
+        if (showFilterDialog) {
+            FilterDialog(
+                currentCriteria = filterCriteria,
+                onDismiss = { showFilterDialog = false },
+                onApplyFilter = { criteria ->
+                    viewModel.setFilterCriteria(criteria)
+                    showFilterDialog = false
+                }
+            )
         }
     }
 }
@@ -239,4 +266,173 @@ private fun getStatusColor(status: WatchStatus): androidx.compose.ui.graphics.Co
         WatchStatus.COMPLETED -> MaterialTheme.colorScheme.secondary
         WatchStatus.DROPPED -> MaterialTheme.colorScheme.error
     }
+}
+
+/**
+ * アクティブなフィルターを表示するコンポーネント
+ */
+@Composable
+private fun ActiveFiltersRow(
+    filterCriteria: AnimeFilterCriteria,
+    onClearFilter: () -> Unit
+) {
+    val hasActiveFilters = filterCriteria.yearRange != null || filterCriteria.ratingRange != null
+
+    if (hasActiveFilters) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "フィルター:",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+
+            filterCriteria.yearRange?.let { yearRange ->
+                FilterChip(
+                    selected = true,
+                    onClick = { /* フィルターダイアログを開く */ },
+                    label = { Text("${yearRange.first}-${yearRange.last}年") }
+                )
+            }
+
+            filterCriteria.ratingRange?.let { ratingRange ->
+                FilterChip(
+                    selected = true,
+                    onClick = { /* フィルターダイアログを開く */ },
+                    label = { Text("★${ratingRange.first}-${ratingRange.last}") }
+                )
+            }
+
+            IconButton(
+                onClick = onClearFilter,
+                modifier = Modifier.size(24.dp)
+            ) {
+                Icon(
+                    Icons.Filled.Clear,
+                    contentDescription = "フィルタークリア",
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+        }
+    }
+}
+
+/**
+ * フィルター設定ダイアログ
+ */
+@Composable
+private fun FilterDialog(
+    currentCriteria: AnimeFilterCriteria,
+    onDismiss: () -> Unit,
+    onApplyFilter: (AnimeFilterCriteria) -> Unit
+) {
+    var startYear by remember { mutableStateOf(currentCriteria.yearRange?.start?.toString() ?: "") }
+    var endYear by remember { mutableStateOf(currentCriteria.yearRange?.endInclusive?.toString() ?: "") }
+    var minRating by remember { mutableStateOf(currentCriteria.ratingRange?.start?.toString() ?: "") }
+    var maxRating by remember { mutableStateOf(currentCriteria.ratingRange?.endInclusive?.toString() ?: "") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("フィルター設定") },
+        text = {
+            Column(
+                verticalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // 放送年フィルター
+                Text(
+                    text = "放送年",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Medium
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = startYear,
+                        onValueChange = { startYear = it },
+                        label = { Text("開始年") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text("〜")
+                    OutlinedTextField(
+                        value = endYear,
+                        onValueChange = { endYear = it },
+                        label = { Text("終了年") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                // 評価フィルター
+                Text(
+                    text = "評価",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Medium
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    OutlinedTextField(
+                        value = minRating,
+                        onValueChange = { minRating = it },
+                        label = { Text("最低評価") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text("〜")
+                    OutlinedTextField(
+                        value = maxRating,
+                        onValueChange = { maxRating = it },
+                        label = { Text("最高評価") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Text(
+                    text = "※評価は1-5の範囲で入力してください",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    val startYearInt = startYear.toIntOrNull()
+                    val endYearInt = endYear.toIntOrNull()
+                    val minRatingInt = minRating.toIntOrNull()?.coerceIn(1, 5)
+                    val maxRatingInt = maxRating.toIntOrNull()?.coerceIn(1, 5)
+
+                    val yearRange = if (startYearInt != null && endYearInt != null && startYearInt <= endYearInt) {
+                        startYearInt..endYearInt
+                    } else null
+
+                    val ratingRange = if (minRatingInt != null && maxRatingInt != null && minRatingInt <= maxRatingInt) {
+                        minRatingInt..maxRatingInt
+                    } else null
+
+                    onApplyFilter(
+                        AnimeFilterCriteria(
+                            yearRange = yearRange,
+                            ratingRange = ratingRange
+                        )
+                    )
+                }
+            ) {
+                Text("適用")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("キャンセル")
+            }
+        }
+    )
 }
