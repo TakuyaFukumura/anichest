@@ -5,7 +5,6 @@ import android.net.Uri
 import com.anichest.app.data.entity.Anime
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import java.io.OutputStreamWriter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -21,7 +20,7 @@ object CsvUtils {
 
     /**
      * 現在の日時を含むCSVファイル名を生成
-     * 
+     *
      * @return フォーマット: anime_export_YYYY-MM-DD_HH-mm-ss.csv
      */
     fun generateCsvFileName(): String {
@@ -32,16 +31,16 @@ object CsvUtils {
 
     /**
      * アニメデータリストをCSV形式の文字列に変換
-     * 
+     *
      * @param animeList エクスポートするアニメデータのリスト
      * @return CSV形式の文字列
      */
     fun exportToCsv(animeList: List<Anime>): String {
         val csvBuilder = StringBuilder()
-        
+
         // ヘッダー行を追加
         csvBuilder.appendLine(CSV_HEADER)
-        
+
         // データ行を追加
         animeList.forEach { anime ->
             val row = listOf(
@@ -51,16 +50,16 @@ object CsvUtils {
                 anime.year.toString(),
                 escapeField(anime.description)
             ).joinToString(CSV_SEPARATOR)
-            
+
             csvBuilder.appendLine(row)
         }
-        
+
         return csvBuilder.toString()
     }
 
     /**
      * CSVファイルをアニメデータリストに変換
-     * 
+     *
      * @param context アプリケーションコンテキスト
      * @param uri CSVファイルのURI
      * @return パース結果を含むImportResult
@@ -76,7 +75,7 @@ object CsvUtils {
                     // ヘッダー行をスキップ
                     val headerLine = reader.readLine()
                     lineNumber++
-                    
+
                     if (headerLine == null) {
                         errors.add("ファイルが空です")
                         return ImportResult(animeList, errors)
@@ -85,7 +84,7 @@ object CsvUtils {
                     // データ行を処理
                     reader.lineSequence().forEach { line ->
                         lineNumber++
-                        
+
                         try {
                             val anime = parseCsvLine(line)
                             animeList.add(anime)
@@ -104,14 +103,14 @@ object CsvUtils {
 
     /**
      * CSV行をパースしてAnimeオブジェクトを作成
-     * 
+     *
      * @param line CSV行の文字列
      * @return パースされたAnimeオブジェクト
      * @throws Exception パースエラーが発生した場合
      */
     private fun parseCsvLine(line: String): Anime {
         val fields = parseCsvFields(line)
-        
+
         if (fields.size < 5) {
             throw Exception("必要なフィールドが不足しています（5フィールド必要、${fields.size}フィールド検出）")
         }
@@ -148,7 +147,7 @@ object CsvUtils {
 
     /**
      * CSV行をフィールドに分割（引用符とエスケープを考慮）
-     * 
+     *
      * @param line CSV行の文字列
      * @return フィールドのリスト
      */
@@ -165,6 +164,7 @@ object CsvUtils {
                 char == CSV_QUOTE.first() && !inQuotes -> {
                     inQuotes = true
                 }
+
                 char == CSV_QUOTE.first() && inQuotes -> {
                     // 次の文字もクォートの場合はエスケープされたクォート
                     if (i + 1 < line.length && line[i + 1] == CSV_QUOTE.first()) {
@@ -174,10 +174,12 @@ object CsvUtils {
                         inQuotes = false
                     }
                 }
+
                 char == CSV_SEPARATOR.first() && !inQuotes -> {
                     fields.add(currentField.toString())
                     currentField.clear()
                 }
+
                 else -> {
                     currentField.append(char)
                 }
@@ -187,13 +189,13 @@ object CsvUtils {
 
         // 最後のフィールドを追加
         fields.add(currentField.toString())
-        
+
         return fields
     }
 
     /**
      * CSVフィールドをエスケープ（引用符で囲み、内部の引用符をエスケープ）
-     * 
+     *
      * @param field エスケープするフィールド
      * @return エスケープされたフィールド
      */
@@ -208,7 +210,7 @@ object CsvUtils {
 
     /**
      * CSVインポート結果を保持するデータクラス
-     * 
+     *
      * @property animeList インポートされたアニメデータのリスト
      * @property errors エラーメッセージのリスト
      */

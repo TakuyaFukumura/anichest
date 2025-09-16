@@ -29,7 +29,7 @@ class CsvViewModel @Inject constructor(
      */
     suspend fun exportToCsv(): String {
         _uiState.value = _uiState.value.copy(isLoading = true, error = null)
-        
+
         return try {
             val csvData = animeRepository.exportToCsv()
             _uiState.value = _uiState.value.copy(
@@ -48,7 +48,7 @@ class CsvViewModel @Inject constructor(
 
     /**
      * CSVファイルからアニメデータをインポート
-     * 
+     *
      * @param context アプリケーションコンテキスト
      * @param uri CSVファイルのURI
      */
@@ -58,7 +58,7 @@ class CsvViewModel @Inject constructor(
                 _uiState.value = _uiState.value.copy(isLoading = true, error = null)
 
                 val result = animeRepository.importFromCsv(context, uri)
-                
+
                 val message = buildString {
                     if (result.successCount > 0) {
                         append("${result.successCount}件のアニメを登録しました")
@@ -112,7 +112,7 @@ class CsvViewModel @Inject constructor(
 
 /**
  * CSV機能のUI状態を表すデータクラス
- * 
+ *
  * @property isLoading 処理中フラグ
  * @property error エラーメッセージ
  * @property exportResult エクスポート結果（ファイル名）
@@ -127,7 +127,7 @@ data class CsvUiState(
 
 /**
  * インポート結果の状態を表すデータクラス
- * 
+ *
  * @property successCount 成功件数
  * @property skipCount スキップ件数
  * @property message 結果メッセージ

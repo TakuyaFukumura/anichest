@@ -105,7 +105,7 @@ class AnimeRepository(private val animeDao: AnimeDao) {
 
     /**
      * 全てのアニメデータをCSV形式で出力
-     * 
+     *
      * @return CSV形式の文字列
      */
     suspend fun exportToCsv(): String {
@@ -116,14 +116,14 @@ class AnimeRepository(private val animeDao: AnimeDao) {
     /**
      * CSVファイルからアニメデータをインポート
      * 重複タイトルをチェックし、既存データはスキップする
-     * 
+     *
      * @param context アプリケーションコンテキスト
      * @param uri CSVファイルのURI
      * @return インポート結果（成功件数、スキップ件数、エラー情報）
      */
     suspend fun importFromCsv(context: Context, uri: Uri): CsvImportResult {
         val importResult = CsvUtils.importFromCsv(context, uri)
-        
+
         if (importResult.errors.isNotEmpty()) {
             return CsvImportResult(
                 successCount = 0,
@@ -161,7 +161,7 @@ class AnimeRepository(private val animeDao: AnimeDao) {
 
     /**
      * CSVインポート結果を保持するデータクラス
-     * 
+     *
      * @property successCount 成功したインポート件数
      * @property skipCount スキップされた件数（重複タイトル）
      * @property errors エラーメッセージのリスト

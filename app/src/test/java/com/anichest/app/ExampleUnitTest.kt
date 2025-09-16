@@ -145,7 +145,7 @@ class ExampleUnitTest {
     @Test
     fun animeStatus_defaultValues_areCorrect() {
         val animeStatus = AnimeStatus(animeId = 1L)
-        
+
         assertEquals(WatchStatus.UNWATCHED, animeStatus.status)
         assertEquals(0, animeStatus.rating)
         assertEquals("", animeStatus.review)
@@ -160,7 +160,7 @@ class ExampleUnitTest {
      *
      * 検証内容:
      * - UNWATCHED → "未視聴"
-     * - WATCHING → "視聴中"  
+     * - WATCHING → "視聴中"
      * - COMPLETED → "視聴済"
      * - DROPPED → "中止"
      */

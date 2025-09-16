@@ -91,7 +91,7 @@ fun HomeScreen(
     // CSV機能用のViewModel
     val csvViewModel: CsvViewModel = hiltViewModel()
     val csvUiState by csvViewModel.uiState.collectAsState()
-    
+
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
@@ -368,7 +368,7 @@ private fun getThemeModeDescription(themeMode: ThemeMode): String {
 
 /**
  * CSVファイルをエクスポートする関数
- * 
+ *
  * @param context アプリケーションコンテキスト
  * @param csvViewModel CSV機能用ViewModel
  * @param uri 保存先のURI
