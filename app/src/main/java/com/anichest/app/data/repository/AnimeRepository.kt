@@ -168,9 +168,9 @@ class AnimeRepository(private val animeDao: AnimeDao) {
                     // 重複タイトルはスキップ
                     skipCount++
                 } else {
-                    // 新規データを挿入（通常のinsertAnimeを使用し、DB制約で重複を防ぐ）
+                    // 新規データを挿入（バリデーション付きで挿入）
                     val trimmedAnime = anime.copy(title = anime.title.trim())
-                    insertAnime(trimmedAnime)
+                    insertAnimeWithValidation(trimmedAnime)
                     successCount++
                 }
             } catch (e: Exception) {
