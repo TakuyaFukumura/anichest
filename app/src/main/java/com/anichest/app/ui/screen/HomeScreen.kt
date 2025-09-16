@@ -14,14 +14,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -253,7 +253,7 @@ private fun StatsSection(
                 modifier = Modifier.weight(1f),
                 title = "完了",
                 count = completedCount,
-                icon = Icons.Filled.Star,
+                icon = Icons.Filled.CheckCircle,
                 color = MaterialTheme.colorScheme.secondary,
                 onClick = { onNavigateToAnimeList(WatchStatus.COMPLETED) }
             )
@@ -296,7 +296,7 @@ private fun StatsSection(
                 modifier = Modifier.weight(1f),
                 title = "合計",
                 count = totalCount,
-                icon = Icons.Filled.Favorite,
+                icon = Icons.AutoMirrored.Filled.List,
                 color = MaterialTheme.colorScheme.outline,
                 onClick = { onNavigateToAnimeList(null) }
             )
