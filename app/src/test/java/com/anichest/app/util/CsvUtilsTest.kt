@@ -49,13 +49,16 @@ class CsvUtilsTest {
         assertTrue("2行目のデータが正しいこと", lines[2].contains("テストアニメ2"))
 
         // 引用符でエスケープされたフィールドをチェック（実際の出力形式に合わせて修正）
-        assertTrue("説明文が引用符でエスケープされていること", lines[2].contains("\"これも\"\"テスト用\"\"のアニメです。\""))
+        assertTrue(
+            "説明文が引用符でエスケープされていること",
+            lines[2].contains("\"これも\"\"テスト用\"\"のアニメです。\"")
+        )
     }
 
     @Test
     fun testParseCsvFields_BasicFields() {
         val csvData = "title,totalEpisodes,genre,year,description\n" +
-                      "テストアニメ,12,アクション,2023,説明文"
+                "テストアニメ,12,アクション,2023,説明文"
 
         // この場合は実際のパースはimportFromCsvで行うため、exportで出力されたデータが正しく読めることを確認
         val lines = csvData.split("\n")
@@ -82,10 +85,16 @@ class CsvUtilsTest {
         )
 
         val csvData = CsvUtils.exportToCsv(listOf(animeWithComma))
-        
+
         // カンマを含むフィールドが引用符で囲まれていることを確認
-        assertTrue("カンマを含むタイトルが引用符で囲まれていること", csvData.contains("\"アニメタイトル,サブタイトル\""))
-        assertTrue("カンマを含む説明が引用符で囲まれていること", csvData.contains("\"カンマ,を含む説明文\""))
+        assertTrue(
+            "カンマを含むタイトルが引用符で囲まれていること",
+            csvData.contains("\"アニメタイトル,サブタイトル\"")
+        )
+        assertTrue(
+            "カンマを含む説明が引用符で囲まれていること",
+            csvData.contains("\"カンマ,を含む説明文\"")
+        )
     }
 
     @Test
@@ -99,9 +108,15 @@ class CsvUtilsTest {
         )
 
         val csvData = CsvUtils.exportToCsv(listOf(animeWithQuotes))
-        
+
         // 引用符がエスケープされていることを確認（実際の出力形式に合わせて修正）
-        assertTrue("引用符がエスケープされていること", csvData.contains("\"\"\"引用符\"\"を含むタイトル\""))
-        assertTrue("説明の引用符がエスケープされていること", csvData.contains("\"引用符\"\"内\"\"の説明\""))
+        assertTrue(
+            "引用符がエスケープされていること",
+            csvData.contains("\"\"\"引用符\"\"を含むタイトル\"")
+        )
+        assertTrue(
+            "説明の引用符がエスケープされていること",
+            csvData.contains("\"引用符\"\"内\"\"の説明\"")
+        )
     }
 }

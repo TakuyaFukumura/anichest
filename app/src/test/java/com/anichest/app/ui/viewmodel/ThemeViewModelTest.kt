@@ -11,13 +11,13 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.junit.After
+import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.mockito.Mock
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
 import org.mockito.MockitoAnnotations
-import org.junit.Assert.assertEquals
 
 /**
  * ThemeViewModelのユニットテスト
@@ -38,11 +38,11 @@ class ThemeViewModelTest {
     fun setup() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
-        
+
         // モックの初期設定
         `when`(themePreferencesRepository.themePreferencesFlow)
             .thenReturn(flowOf(ThemePreferences(ThemeMode.SYSTEM)))
-        
+
         viewModel = ThemeViewModel(themePreferencesRepository)
     }
 
@@ -60,7 +60,7 @@ class ThemeViewModelTest {
     fun `テーマモード更新が正しく呼び出される`() = runTest {
         // テスト実行
         viewModel.updateThemeMode(ThemeMode.DARK)
-        
+
         // 検証
         verify(themePreferencesRepository).updateThemeMode(ThemeMode.DARK)
     }
@@ -70,10 +70,10 @@ class ThemeViewModelTest {
         // 準備
         `when`(themePreferencesRepository.themePreferencesFlow)
             .thenReturn(flowOf(ThemePreferences(ThemeMode.SYSTEM)))
-        
+
         // テスト実行
         viewModel.toggleThemeMode()
-        
+
         // 検証
         verify(themePreferencesRepository).updateThemeMode(ThemeMode.LIGHT)
     }
@@ -83,12 +83,12 @@ class ThemeViewModelTest {
         // 準備
         `when`(themePreferencesRepository.themePreferencesFlow)
             .thenReturn(flowOf(ThemePreferences(ThemeMode.LIGHT)))
-        
+
         val viewModel = ThemeViewModel(themePreferencesRepository)
-        
+
         // テスト実行
         viewModel.toggleThemeMode()
-        
+
         // 検証
         verify(themePreferencesRepository).updateThemeMode(ThemeMode.DARK)
     }
@@ -98,12 +98,12 @@ class ThemeViewModelTest {
         // 準備
         `when`(themePreferencesRepository.themePreferencesFlow)
             .thenReturn(flowOf(ThemePreferences(ThemeMode.DARK)))
-        
+
         val viewModel = ThemeViewModel(themePreferencesRepository)
-        
+
         // テスト実行
         viewModel.toggleThemeMode()
-        
+
         // 検証
         verify(themePreferencesRepository).updateThemeMode(ThemeMode.SYSTEM)
     }

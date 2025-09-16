@@ -113,7 +113,7 @@ interface AnimeDao {
 
     /**
      * 指定されたタイトルのアニメ作品が存在するかチェック
-     * 
+     *
      * @param title チェックするアニメタイトル
      * @return 存在する場合はtrue、しない場合はfalse
      */
