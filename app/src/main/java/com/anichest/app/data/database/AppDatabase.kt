@@ -10,6 +10,7 @@ import com.anichest.app.data.dao.AnimeDao
 import com.anichest.app.data.dao.AnimeStatusDao
 import com.anichest.app.data.entity.Anime
 import com.anichest.app.data.entity.AnimeStatus
+import com.anichest.app.data.entity.WatchStatus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -132,13 +133,14 @@ abstract class AppDatabase : RoomDatabase() {
          *
          * データベースが空の場合のみサンプルデータを投入する。
          * 既存データがある場合は重複を避けるため処理をスキップする。
-         * アプリケーションの初期状態として、架空のアニメ作品データを
-         * 提供し、ユーザーが機能を試せる環境を構築する。
+         * アプリケーションの初期状態として、架空のアニメ作品データと
+         * それに対応する視聴状況データを提供し、ユーザーが機能を試せる環境を構築する。
          *
          * @param database データベースインスタンス
          */
         private suspend fun populateSampleData(database: AppDatabase) {
             val animeDao = database.animeDao()
+            val animeStatusDao = database.animeStatusDao()
 
             // 既存データの確認 - データが存在する場合は投入をスキップ
             if (animeDao.getAnimeCount() > 0) {
@@ -184,9 +186,59 @@ abstract class AppDatabase : RoomDatabase() {
                 )
             )
 
-            // サンプルデータを一括投入
-            sampleAnimes.forEach { anime ->
-                animeDao.insertAnime(anime)
+            // サンプルデータの投入と視聴状況の作成
+            sampleAnimes.forEachIndexed { index, anime ->
+                // アニメデータを挿入し、IDを取得
+                val animeId = animeDao.insertAnime(anime)
+                
+                // 各アニメに対応するサンプル視聴状況データを作成
+                val sampleStatus = when (index) {
+                    0 -> AnimeStatus(
+                        animeId = animeId,
+                        status = WatchStatus.COMPLETED,
+                        rating = 5,
+                        review = "魔法と冒険の素晴らしい作品。キャラクターの成長が感動的でした。",
+                        watchedEpisodes = 24
+                    )
+                    1 -> AnimeStatus(
+                        animeId = animeId,
+                        status = WatchStatus.WATCHING,
+                        rating = 0,
+                        review = "",
+                        watchedEpisodes = 8
+                    )
+                    2 -> AnimeStatus(
+                        animeId = animeId,
+                        status = WatchStatus.COMPLETED,
+                        rating = 4,
+                        review = "ドラゴンとの絆が印象的な作品。バトルシーンも迫力があります。",
+                        watchedEpisodes = 36
+                    )
+                    3 -> AnimeStatus(
+                        animeId = animeId,
+                        status = WatchStatus.DROPPED,
+                        rating = 2,
+                        review = "設定は面白いが、展開が少し物足りなかった。",
+                        watchedEpisodes = 5
+                    )
+                    4 -> AnimeStatus(
+                        animeId = animeId,
+                        status = WatchStatus.UNWATCHED,
+                        rating = 0,
+                        review = "",
+                        watchedEpisodes = 0
+                    )
+                    else -> AnimeStatus(
+                        animeId = animeId,
+                        status = WatchStatus.UNWATCHED,
+                        rating = 0,
+                        review = "",
+                        watchedEpisodes = 0
+                    )
+                }
+                
+                // 視聴状況データを挿入
+                animeStatusDao.insertOrUpdateStatus(sampleStatus)
             }
         }
     }
