@@ -221,13 +221,6 @@ abstract class AppDatabase : RoomDatabase() {
                         review = "設定は面白いが、展開が少し物足りなかった。",
                         watchedEpisodes = 5
                     )
-                    4 -> AnimeStatus(
-                        animeId = animeId,
-                        status = WatchStatus.UNWATCHED,
-                        rating = 0,
-                        review = "",
-                        watchedEpisodes = 0
-                    )
                     else -> AnimeStatus(
                         animeId = animeId,
                         status = WatchStatus.UNWATCHED,
