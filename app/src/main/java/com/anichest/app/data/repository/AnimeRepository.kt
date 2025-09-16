@@ -71,6 +71,31 @@ class AnimeRepository(private val animeDao: AnimeDao) {
     suspend fun insertAnime(anime: Anime): Long = animeDao.insertAnime(anime)
 
     /**
+     * アニメ作品を重複チェック付きで挿入
+     * タイトルが重複している場合は例外をスローします
+     *
+     * @param anime 挿入するアニメ作品
+     * @return 挿入されたレコードのID
+     * @throws DuplicateTitleException タイトルが重複している場合
+     * @throws InvalidTitleException タイトルが無効な場合
+     */
+    suspend fun insertAnimeWithValidation(anime: Anime): Long {
+        // タイトルバリデーション
+        if (anime.title.isBlank()) {
+            throw InvalidTitleException("アニメタイトルは必須です")
+        }
+        
+        // 重複チェック
+        if (animeDao.existsByTitle(anime.title.trim())) {
+            throw DuplicateTitleException("「${anime.title.trim()}」は既に登録されています")
+        }
+        
+        // トリムされたタイトルで挿入
+        val trimmedAnime = anime.copy(title = anime.title.trim())
+        return animeDao.insertAnime(trimmedAnime)
+    }
+
+    /**
      * アニメ作品を更新
      *
      * @param anime 更新するアニメ作品
@@ -139,12 +164,13 @@ class AnimeRepository(private val animeDao: AnimeDao) {
         // 各アニメデータを処理
         importResult.animeList.forEach { anime ->
             try {
-                if (animeDao.existsByTitle(anime.title)) {
+                if (animeDao.existsByTitle(anime.title.trim())) {
                     // 重複タイトルはスキップ
                     skipCount++
                 } else {
-                    // 新規データを挿入
-                    insertAnime(anime)
+                    // 新規データを挿入（通常のinsertAnimeを使用し、DB制約で重複を防ぐ）
+                    val trimmedAnime = anime.copy(title = anime.title.trim())
+                    insertAnime(trimmedAnime)
                     successCount++
                 }
             } catch (e: Exception) {
@@ -172,3 +198,13 @@ class AnimeRepository(private val animeDao: AnimeDao) {
         val errors: List<String>
     )
 }
+
+/**
+ * 重複タイトル例外
+ */
+class DuplicateTitleException(message: String) : Exception(message)
+
+/**
+ * 無効タイトル例外
+ */
+class InvalidTitleException(message: String) : Exception(message)
