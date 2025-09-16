@@ -86,7 +86,6 @@ fun AnimeRegistrationScreen(
     // 登録完了時の処理
     LaunchedEffect(isRegistrationComplete) {
         if (isRegistrationComplete) {
-            snackbarHostState.showSnackbar("アニメ情報を登録しました")
             viewModel.resetForm()
             onNavigateBack()
         }
