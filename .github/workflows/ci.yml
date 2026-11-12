@@ -21,7 +21,7 @@ jobs:
     steps:
       # リポジトリのチェックアウト
       - name: コードをチェックアウト
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
       
       # Java環境のセットアップ
       - name: Java 17をセットアップ
